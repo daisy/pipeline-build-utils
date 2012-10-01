@@ -19,6 +19,7 @@ Import-Package: org.daisy.pipeline.script</xsl:if>
     </xsl:template>
     <xsl:template match="cat:uri[@px:script]" mode="ds">
         <xsl:variable name="id" select="substring-after(document(@uri,.)/*/@type,':')"/>
+        <xsl:variable name="prefix" select="substring-before(document(@uri,.)/*/@type,':')"/>
         <xsl:variable name="name" select="(document(@uri,.)//*[@pxd:role='name'])[1]"/>
         <xsl:variable name="descr" select="(document(@uri,.)//*[@pxd:role='desc'])[1]"/>
         <xsl:result-document href="{$outputDir}/OSGI-INF/{$id}.xml" method="xml">
@@ -27,7 +28,7 @@ Import-Package: org.daisy.pipeline.script</xsl:if>
                 <scr:service>
                     <scr:provide interface="org.daisy.pipeline.script.XProcScriptService"/>
                 </scr:service>
-                <scr:property name="script.id" type="String" value="{$id}"/>
+                <scr:property name="script.id" type="String" value="{if (namespace-uri-for-prefix($prefix,document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then $id else concat($prefix,':',$id)}"/>
                 <scr:property name="script.name" type="String" value="{$name}"/>
                 <scr:property name="script.description" type="String" value="{$descr}"/>
                 <scr:property name="script.url" type="String" value="{@name}"/>

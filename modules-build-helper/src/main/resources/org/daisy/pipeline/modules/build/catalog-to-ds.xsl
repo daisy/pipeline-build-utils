@@ -6,6 +6,8 @@
 
     <xsl:param name="outputDir" required="no" select="''" as="xs:string"/>
     
+    
+
     <xsl:template match="/">
         
 
@@ -18,17 +20,18 @@ Import-Package: org.daisy.pipeline.script</xsl:if>
         <xsl:apply-templates mode="ds"/>
     </xsl:template>
     <xsl:template match="cat:uri[@px:script]" mode="ds">
-        <xsl:variable name="id" select="substring-after(document(@uri,.)/*/@type,':')"/>
-        <xsl:variable name="prefix" select="substring-before(document(@uri,.)/*/@type,':')"/>
+        <xsl:variable name="type" select="string(document(@uri,.)/*/@type)"/>
+        <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
         <xsl:variable name="name" select="(document(@uri,.)//*[@pxd:role='name'])[1]"/>
         <xsl:variable name="descr" select="(document(@uri,.)//*[@pxd:role='desc'])[1]"/>
-        <xsl:result-document href="{$outputDir}/OSGI-INF/{$id}.xml" method="xml">
+        
+        <xsl:result-document href="{$outputDir}/OSGI-INF/{replace($id,'.*:','')}.xml" method="xml">
             <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="{$id}">
                 <scr:implementation class="org.daisy.pipeline.script.XProcScriptService"/>
                 <scr:service>
                     <scr:provide interface="org.daisy.pipeline.script.XProcScriptService"/>
                 </scr:service>
-                <scr:property name="script.id" type="String" value="{if (namespace-uri-for-prefix($prefix,document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then $id else concat($prefix,':',$id)}"/>
+                <scr:property name="script.id" type="String" value="{$id}"/>
                 <scr:property name="script.name" type="String" value="{$name}"/>
                 <scr:property name="script.description" type="String" value="{$descr}"/>
                 <scr:property name="script.url" type="String" value="{@name}"/>

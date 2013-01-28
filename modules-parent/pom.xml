@@ -203,7 +203,7 @@
               <dependency>
                 <groupId>org.daisy.pipeline.build</groupId>
                 <artifactId>modules-build-helper</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
               </dependency>
             </dependencies>
           </plugin>

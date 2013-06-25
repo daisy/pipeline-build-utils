@@ -22,6 +22,8 @@
   <modules>
     <module>modules-parent</module>
     <module>modules-build-helper</module>
+    <module>xproc-connector/xproc-client</module>
+    <module>xproc-connector/xproc-server</module>
   </modules>
 
 </project>

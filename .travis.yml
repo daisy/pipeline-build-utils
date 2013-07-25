@@ -1,0 +1,20 @@
+language: java
+
+# clone "travis" branch containing deployment settings
+before_install: git clone -b travis https://github.com/daisy-consortium/maven-parents.git target/travis
+
+# main task, run the verify goal
+script: mvn verify
+
+# if the build succeeds, deploy the artifact (tests are skipped)
+after_success: mvn deploy -DskipTests -Dinvoker.skip=true --settings target/travis/settings.xml
+
+# whitelist; only deploy master branch
+branches:
+  only:
+  - master
+
+env:
+  global:
+    - secure: "S/vy8yCwDewaLoe8DxjxXXx3lZcT66xVe9ZsmTfhcufg6/y6rnX25EjDnNUDBpsogtIfL4htUCLpBAixciZIbzdpenhjK0WDbO7fnfgVHZ1uhVgjJ9dG8dVabgA7F1O69yx3sNqOlDgKVWRImM/pWidu5Qyt8Rmm9sS2ejKy+ts="
+    - secure: "ed4U2UwlkJI3jqNKE2NatAIxeJV331XBgTNtuSWxcTBmIunjfWCH6WBzIkEsLto1E/x9zyIb/fBzNK9vQ4GNSqmZiRrJ+eFHXvf0YZjayJzbko3Q02PAJAkmpZZRnzuSEfh/Mxo5K2QzkqBKBsYwRYg2j10RxBYtUZ3g2xcAlO0="

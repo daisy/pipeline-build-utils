@@ -3,6 +3,7 @@ package org.daisy.pipeline.xproc.connect;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -43,7 +44,7 @@ public class XProcServer {
 		channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 		server = new JsonRpcServer(channel, QUEUE_NAME, XProcService.class, new XProcService() {
 			public void run(String pipeline,
-			                Map<String,String> inputs,
+			                Map<String,List<String>> inputs,
 			                Map<String,String> outputs,
 			                Map<String,String> options,
 			                Map<String,Map<String,String>> parameters) {
@@ -52,7 +53,8 @@ public class XProcServer {
 					XProcInput.Builder inputBuilder = new XProcInput.Builder();
 					if (inputs != null)
 						for (String port : inputs.keySet())
-							inputBuilder.withInput(port, new LazySaxSourceProvider(inputs.get(port)));
+							for (String document : inputs.get(port))
+								inputBuilder.withInput(port, new LazySaxSourceProvider(document));
 					if (options != null)
 						for (String name : options.keySet())
 							inputBuilder.withOption(new QName("", name), options.get(name));

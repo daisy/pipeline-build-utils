@@ -1,7 +1,6 @@
 package org.daisy.pipeline.xproc.connect;
 
 import java.io.IOException;
-import java.util.Map;
 
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;

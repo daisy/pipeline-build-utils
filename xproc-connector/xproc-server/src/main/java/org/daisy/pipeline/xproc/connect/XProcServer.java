@@ -35,8 +35,13 @@ public class XProcServer {
 	
 	private Connection connection;
 	private JsonRpcServer server;
+	private XProcEngine engine;
 	
-	public void launch(final XProcEngine engine) throws Exception {
+	protected void setEngine(XProcEngine engine) {
+		this.engine = engine;
+	}
+	
+	protected void launch() throws Exception {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost("localhost");
 		connection = factory.newConnection();
@@ -77,7 +82,7 @@ public class XProcServer {
 		logger.debug("XProc server is up, waiting for XProc requests...");
 	}
 	
-	public void kill() throws Exception {
+	protected void kill() throws Exception {
 		server.terminateMainloop();
 		connection.close();
 		logger.debug("Shutting down XProc server...");

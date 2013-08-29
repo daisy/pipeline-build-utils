@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="kill" name="xproc-server">
-  <implementation class="org.daisy.pipeline.xproc.connect.XProcServer"/>
-  <reference interface="org.daisy.common.xproc.XProcEngine" bind="launch" cardinality="1..1" policy="static" name="xproc-engine"/> 
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="launch" deactivate="kill" name="xproc-server">
+  <scr:implementation class="org.daisy.pipeline.xproc.connect.XProcServer"/>
+  <scr:reference interface="org.daisy.common.xproc.XProcEngine"
+                 bind="setEngine"
+                 cardinality="1..1"
+                 policy="static"
+                 name="xproc-engine"/>
 </scr:component>

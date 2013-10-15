@@ -14,32 +14,7 @@
     <version>${version}</version>
     <packaging>bundle</packaging>
 
-    <name>DAISY Pipeline 2 module :: Hello, world</name>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>Maven Central</name>
-            <url>http://repo.maven.apache.org/maven2/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>oss.sonatype.org github Release Repository Snapshot Repository</name>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>http://oss.sonatype.org/content/repositories/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <name>DAISY Pipeline 2 module :: ${artifactId}</name>
 
     <build>
         <plugins>

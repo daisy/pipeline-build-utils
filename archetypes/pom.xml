@@ -11,18 +11,16 @@
   </parent>
 
   <groupId>org.daisy.maven</groupId>
-  <artifactId>pipeline-build-utils-aggregator</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>pipeline-build-utils-aggregator-archetypes</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Pipeline Build Utils Aggregator</name>
-  <description>Aggregator POM for the build utils projects of the DAISY Pipeline 2.</description>
+  <name>Pipeline Build Utils Aggregator for Archetypes</name>
+  <description>Aggregator POM for the archetypes for DAISY Pipeline 2.</description>
 
-  <!-- List of the modules to build all-at-once -->
+  <!-- List of the archetypes to build all-at-once -->
   <modules>
-    <module>modules-parent</module>
-    <module>modules-build-helper</module>
-    <module>archetypes</module>
+    <module>basic-module</module>
   </modules>
 
 </project>

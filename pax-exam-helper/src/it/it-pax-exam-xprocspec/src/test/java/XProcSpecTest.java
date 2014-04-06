@@ -9,9 +9,8 @@ import static org.daisy.maven.xproc.xprocspec.XProcSpecRunner.TestResult.getErro
 import static org.daisy.maven.xproc.xprocspec.XProcSpecRunner.TestResult.getFailures;
 
 import static org.daisy.pipeline.pax.exam.Options.felixDeclarativeServices;
+import static org.daisy.pipeline.pax.exam.Options.logbackBundles;
 import static org.daisy.pipeline.pax.exam.Options.logbackConfigFile;
-import static org.daisy.pipeline.pax.exam.Options.loggingBundles;
-import static org.daisy.pipeline.pax.exam.Options.pipelineFrameworkBundles;
 import static org.daisy.pipeline.pax.exam.Options.xprocspecBundles;
 
 import org.junit.Test;
@@ -37,9 +36,8 @@ public class XProcSpecTest {
 	public Option[] config() {
 		return options(
 			logbackConfigFile(),
-			loggingBundles(),
+			logbackBundles(),
 			felixDeclarativeServices(),
-			pipelineFrameworkBundles(),
 			xprocspecBundles(),
 			junitBundles()
 		);

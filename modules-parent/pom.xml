@@ -106,7 +106,7 @@
   </issueManagement>
 
   <properties>
-    <java.version>1.6</java.version>
+    <java.version>1.7</java.version>
     <saxon.version>9.4</saxon.version>
   </properties>
 
@@ -213,7 +213,7 @@
             <configuration>
               <instructions>
                 <!-- always add Maven resources - add OSGI-INF if it exists -->
-                <!-- 
+                <!--
                      TODO replace the hackish syntax when this is released:
                      https://github.com/bndtools/bnd/issues/168
                  -->

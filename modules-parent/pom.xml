@@ -278,6 +278,20 @@
               </instructions>
             </configuration>
           </plugin>
+          <plugin>
+            <groupId>org.daisy.maven</groupId>
+            <artifactId>xspec-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <executions>
+              <execution>
+                <id>xspecTest</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>

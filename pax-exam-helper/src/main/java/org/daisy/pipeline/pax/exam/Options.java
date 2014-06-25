@@ -202,6 +202,18 @@ public abstract class Options {
 		return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
 	}
 	
+	public static MavenArtifactProvisionOption forThisPlatform(MavenArtifactProvisionOption bundle) {
+		String name = System.getProperty("os.name").toLowerCase();
+		if (name.startsWith("windows"))
+			return bundle.classifier("windows");
+		else if (name.startsWith("mac os x"))
+			return bundle.classifier("mac");
+		else if (name.startsWith("linux"))
+			return bundle.classifier("linux");
+		else
+			throw new RuntimeException("Unsupported OS: " + name);
+	}
+	
 	public static Option xprocspecBundles() {
 		return bundlesAndDependencies("org.daisy.maven.xprocspec-runner");
 	}

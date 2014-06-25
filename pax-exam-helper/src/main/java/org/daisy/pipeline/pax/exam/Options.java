@@ -35,7 +35,8 @@ public abstract class Options {
 		mavenArtifacts.put("jcl.over.slf4j",                              new String[]{"org.slf4j", "jcl-over-slf4j"});
 		mavenArtifacts.put("net.sf.saxon.saxon-he",                       new String[]{"org.daisy.libs", "saxon-he"});
 		mavenArtifacts.put("org.apache.commons.codec",                    new String[]{"commons-codec", "commons-codec"});
-		mavenArtifacts.put("org.apache.commons.httpclient",               new String[]{"org.daisy.libs", "commons-httpclient"});
+		mavenArtifacts.put("org.apache.httpcomponents.httpclient",        new String[]{"org.apache.httpcomponents", "httpclient-osgi"});
+		mavenArtifacts.put("org.apache.httpcomponents.httpcore",          new String[]{"org.apache.httpcomponents", "httpcore-osgi"});
 		mavenArtifacts.put("org.apache.servicemix.bundles.xmlresolver",   new String[]{"org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xmlresolver"});
 		mavenArtifacts.put("org.daisy.maven.xproc-api",                   new String[]{"org.daisy.maven", "xproc-engine-api"});
 		mavenArtifacts.put("org.daisy.maven.xproc-engine-calabash",       new String[]{"org.daisy.maven", "xproc-engine-calabash"});
@@ -43,17 +44,15 @@ public abstract class Options {
 		mavenArtifacts.put("org.daisy.maven.xprocspec-runner",            new String[]{"org.daisy.maven", "xprocspec-runner"});
 		mavenArtifacts.put("org.daisy.maven.xspec-runner",                new String[]{"org.daisy.maven", "xspec-runner"});
 		mavenArtifacts.put("org.daisy.pipeline.calabash-adapter",         new String[]{"org.daisy.pipeline", "calabash-adapter"});
-		mavenArtifacts.put("org.daisy.pipeline.common-stax",              new String[]{"org.daisy.pipeline", "common-stax"});
 		mavenArtifacts.put("org.daisy.pipeline.common-utils",             new String[]{"org.daisy.pipeline", "common-utils"});
 		mavenArtifacts.put("org.daisy.pipeline.framework-core",           new String[]{"org.daisy.pipeline", "framework-core"});
-		mavenArtifacts.put("org.daisy.pipeline.modules-api",              new String[]{"org.daisy.pipeline", "modules-api"});
 		mavenArtifacts.put("org.daisy.pipeline.modules-registry",         new String[]{"org.daisy.pipeline", "modules-registry"});
 		mavenArtifacts.put("org.daisy.pipeline.saxon-adapter",            new String[]{"org.daisy.pipeline", "saxon-adapter"});
 		mavenArtifacts.put("org.daisy.pipeline.woodstox-osgi-adapter",    new String[]{"org.daisy.pipeline", "woodstox-osgi-adapter"});
 		mavenArtifacts.put("org.daisy.pipeline.xpath-registry",           new String[]{"org.daisy.pipeline", "xpath-registry"});
 		mavenArtifacts.put("org.daisy.pipeline.xmlcatalog",               new String[]{"org.daisy.pipeline", "xmlcatalog"});
 		mavenArtifacts.put("org.daisy.pipeline.xproc-api",                new String[]{"org.daisy.pipeline", "xproc-api"});
-		mavenArtifacts.put("org.daisy.xprocspec",                         new String[]{"org.daisy", "xprocspec"});
+		mavenArtifacts.put("org.daisy.xprocspec",                         new String[]{"org.daisy.xprocspec", "xprocspec"});
 		mavenArtifacts.put("slf4j.api",                                   new String[]{"org.slf4j", "slf4j-api", "1.7.2"});
 		mavenArtifacts.put("stax2-api",                                   new String[]{"org.codehaus.woodstox", "stax2-api"});
 		mavenArtifacts.put("woodstox-core-lgpl",                          new String[]{"org.codehaus.woodstox", "woodstox-core-lgpl"});
@@ -89,9 +88,10 @@ public abstract class Options {
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("ch.qos.logback.core",                         new String[]{"slf4j.api"});
 		runtimeDependencies.put("com.xmlcalabash",                             new String[]{"net.sf.saxon.saxon-he",
-		                                                                                    "org.apache.commons.httpclient"});
+		                                                                                    "org.apache.httpcomponents.httpclient"});
 		runtimeDependencies.put("jcl.over.slf4j",                              new String[]{"slf4j.api"});
-		runtimeDependencies.put("org.apache.commons.httpclient",               new String[]{"org.apache.commons.codec",
+		runtimeDependencies.put("org.apache.httpcomponents.httpclient",        new String[]{"org.apache.commons.codec",
+		                                                                                    "org.apache.httpcomponents.httpcore",
 		                                                                                    "jcl.over.slf4j"});
 		runtimeDependencies.put("org.daisy.maven.xproc-engine-calabash",       new String[]{"net.sf.saxon.saxon-he",
 		                                                                                    "org.daisy.maven.xproc-api",
@@ -117,19 +117,15 @@ public abstract class Options {
 		                                                                                    "org.daisy.pipeline.modules-registry", // javax.xml.transform.URIResolver (1..1)
 		                                                                                    "org.daisy.pipeline.xpath-registry",
 		                                                                                    "org.daisy.pipeline.xproc-api"});
-		runtimeDependencies.put("org.daisy.pipeline.common-stax",              new String[]{"com.google.guava"});
 		runtimeDependencies.put("org.daisy.pipeline.common-utils",             new String[]{"com.google.guava",
 		                                                                                    "javax.persistence",
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("org.daisy.pipeline.framework-core",           new String[]{"com.google.guava",
-		                                                                                    "org.daisy.pipeline.common-stax",
 		                                                                                    "org.daisy.pipeline.common-utils",
 		                                                                                    "org.daisy.pipeline.woodstox-osgi-adapter", // javax.xml.stream.XMLInputFactory (1..1)
 		                                                                                    "org.daisy.pipeline.xproc-api",
 		                                                                                    "slf4j.api"});
-		runtimeDependencies.put("org.daisy.pipeline.modules-api",              new String[]{"slf4j.api"});
-		runtimeDependencies.put("org.daisy.pipeline.modules-registry",         new String[]{"org.daisy.pipeline.modules-api",
-		                                                                                    "org.daisy.pipeline.xmlcatalog",
+		runtimeDependencies.put("org.daisy.pipeline.modules-registry",         new String[]{"org.daisy.pipeline.xmlcatalog",
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("org.daisy.pipeline.saxon-adapter",            new String[]{"net.sf.saxon.saxon-he",
 		                                                                                    "org.daisy.pipeline.modules-registry", // javax.xml.transform.URIResolver (0..1)
@@ -138,7 +134,7 @@ public abstract class Options {
 		runtimeDependencies.put("org.daisy.pipeline.xpath-registry",           new String[]{"net.sf.saxon.saxon-he",
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("org.daisy.pipeline.xmlcatalog",               new String[]{"com.google.guava",
-		                                                                                    "org.daisy.pipeline.common-stax",
+		                                                                                    "org.daisy.pipeline.common-utils",
 		                                                                                    "org.daisy.pipeline.woodstox-osgi-adapter", // javax.xml.stream.XMLInputFactory (1..1)
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("org.daisy.pipeline.xproc-api",                new String[]{"com.google.guava",
@@ -171,8 +167,11 @@ public abstract class Options {
 		return systemProperty("logback.configurationFile").value("file:" + PathUtils.getBaseDir() + "/src/test/resources/logback.xml");
 	}
 	
-	public static SystemPropertyOption calabashConfigFile() {
-		return systemProperty("org.daisy.pipeline.xproc.configuration").value(PathUtils.getBaseDir() + "/src/test/resources/config-calabash.xml");
+	public static Option calabashConfigFile() {
+		return composite(
+			systemProperty("org.daisy.pipeline.xproc.configuration").value(PathUtils.getBaseDir() + "/src/test/resources/config-calabash.xml"),
+			systemProperty("com.xmlcalabash.config.user").value("")
+		);
 	}
 	
 	public static SystemPackageOption domTraversalPackage() {

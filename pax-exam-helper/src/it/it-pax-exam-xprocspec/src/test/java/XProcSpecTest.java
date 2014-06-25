@@ -3,10 +3,6 @@ import java.io.File;
 import javax.inject.Inject;
 
 import org.daisy.maven.xproc.xprocspec.XProcSpecRunner;
-import org.daisy.maven.xproc.xprocspec.XProcSpecRunner.TestLogger;
-import org.daisy.maven.xproc.xprocspec.XProcSpecRunner.TestResult;
-import static org.daisy.maven.xproc.xprocspec.XProcSpecRunner.TestResult.getErrors;
-import static org.daisy.maven.xproc.xprocspec.XProcSpecRunner.TestResult.getFailures;
 
 import static org.daisy.pipeline.pax.exam.Options.felixDeclarativeServices;
 import static org.daisy.pipeline.pax.exam.Options.logbackBundles;
@@ -16,9 +12,10 @@ import static org.daisy.pipeline.pax.exam.Options.xprocspecBundles;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.ops4j.pax.exam.Configuration;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
@@ -35,6 +32,7 @@ public class XProcSpecTest {
 	@Configuration
 	public Option[] config() {
 		return options(
+			systemProperty("com.xmlcalabash.config.user").value(""),
 			logbackConfigFile(),
 			logbackBundles(),
 			felixDeclarativeServices(),
@@ -47,13 +45,13 @@ public class XProcSpecTest {
 	private XProcSpecRunner xprocspecRunner;
 	
 	@Test
-	public void runXProcSpec() {
+	public void runXProcSpec() throws Exception {
 		File baseDir = new File(PathUtils.getBaseDir());
-		TestResult[] results = xprocspecRunner.run(new File(baseDir, "src/test/xprocspec"),
-		                                           new File(baseDir, "target/xprocspec-reports"),
-		                                           new File(baseDir, "target/surefire-reports"),
-		                                           new File(baseDir, "target/xprocspec"),
-		                                           new TestLogger.PrintStreamLogger(System.out));
-		assertEquals("Number of failures and errors should be zero", 0L, getFailures(results)+ getErrors(results));
+		boolean success = xprocspecRunner.run(new File(baseDir, "src/test/xprocspec"),
+		                                      new File(baseDir, "target/xprocspec-reports"),
+		                                      new File(baseDir, "target/surefire-reports"),
+		                                      new File(baseDir, "target/xprocspec"),
+		                                      new XProcSpecRunner.Reporter.DefaultReporter());
+		assertTrue("XProcSpec tests should run with success", success);
 	}
 }

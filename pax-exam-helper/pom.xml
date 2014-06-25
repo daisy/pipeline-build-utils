@@ -5,7 +5,7 @@
   
   <groupId>org.daisy.pipeline</groupId>
   <artifactId>pax-exam-helper</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.8-SNAPSHOT</version>
   <packaging>bundle</packaging>
   
   <name>DAISY Pipeline 2 :: Pax Exam Helper</name>
@@ -107,17 +107,6 @@
       <plugin>
         <artifactId>maven-invoker-plugin</artifactId>
         <version>1.8</version>
-        <configuration>
-          <debug>true</debug>
-          <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-          <settingsFile>src/it/settings.xml</settingsFile>
-          <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
-          <postBuildHookScript>verify</postBuildHookScript>
-          <goals>
-            <goal>clean</goal>
-            <goal>test</goal>
-          </goals>
-        </configuration>
         <executions>
           <execution>
             <id>integration-test</id>
@@ -126,6 +115,20 @@
               <goal>integration-test</goal>
               <goal>verify</goal>
             </goals>
+            <configuration>
+              <debug>true</debug>
+              <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+              <postBuildHookScript>verify</postBuildHookScript>
+              <properties>
+                <pax-exam-helper.version>${project.version}</pax-exam-helper.version>
+              </properties>
+              <goals>
+                <goal>clean</goal>
+                <goal>test</goal>
+              </goals>
+            </configuration>
           </execution>
         </executions>
       </plugin>

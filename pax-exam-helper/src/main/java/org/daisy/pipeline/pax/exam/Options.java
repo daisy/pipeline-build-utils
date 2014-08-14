@@ -151,7 +151,7 @@ public abstract class Options {
 		return dependencies;
 	}
 	
-	private static Option bundlesAndDependencies(String... bundles) {
+	public static Option bundlesAndDependencies(String... bundles) {
 		Set<String> bundlesAndDependencies = new HashSet<String>();
 		for (String bundle : bundles) {
 			bundlesAndDependencies.add(bundle);

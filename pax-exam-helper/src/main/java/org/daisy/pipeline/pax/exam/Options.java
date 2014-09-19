@@ -198,6 +198,10 @@ public abstract class Options {
 		return mavenBundle().groupId("org.daisy.pipeline.modules").artifactId(artifactId).versionAsInProject();
 	}
 	
+	public static MavenArtifactProvisionOption brailleModule(String artifactId) {
+		return mavenBundle().groupId("org.daisy.pipeline.modules.braille").artifactId(artifactId).versionAsInProject();
+	}
+	
 	public static UrlProvisionOption thisBundle() {
 		return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
 	}

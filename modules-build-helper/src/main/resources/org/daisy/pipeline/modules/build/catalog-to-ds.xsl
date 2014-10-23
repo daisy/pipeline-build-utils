@@ -5,6 +5,7 @@
     exclude-result-prefixes="#all" version="2.0">
 
     <xsl:param name="outputDir" required="no" select="''" as="xs:string"/>
+    <xsl:param name="version" required="yes"  as="xs:string"/>
     
     
 
@@ -35,6 +36,7 @@ Import-Package: org.daisy.pipeline.script</xsl:if>
                 <scr:property name="script.name" type="String" value="{$name}"/>
                 <scr:property name="script.description" type="String" value="{$descr}"/>
                 <scr:property name="script.url" type="String" value="{@name}"/>
+                <scr:property name="script.version" type="String" value="{$version}"/>
             </scr:component>
         </xsl:result-document>
     </xsl:template>

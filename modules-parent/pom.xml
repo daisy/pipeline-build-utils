@@ -243,6 +243,10 @@
                       <name>outputDir</name>
                       <value>${project.baseUri}/target/generated-resources</value>
                     </parameter>
+                    <parameter>
+                      <name>version</name>
+                      <value>${project.version}</value>
+                    </parameter>
                   </parameters>
                   <outputDir>${project.build.directory}/generated-resources</outputDir>
                 </transformationSet>
@@ -257,7 +261,7 @@
               <dependency>
                 <groupId>org.daisy.pipeline.build</groupId>
                 <artifactId>modules-build-helper</artifactId>
-                <version>1.0</version>
+                <version>1.1</version>
               </dependency>
             </dependencies>
           </plugin>

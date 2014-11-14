@@ -1,5 +1,7 @@
 package org.daisy.pipeline.pax.exam;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -203,8 +205,21 @@ public abstract class Options {
 	}
 	
 	public static UrlProvisionOption thisBundle() {
-		return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
+		return thisBundle(false);
 	}
+	
+	public static UrlProvisionOption thisBundle(boolean jar) {
+		if (jar)
+			return bundle("reference:"
+			              + (new File(PathUtils.getBaseDir() + "/target/")).listFiles(
+			                    new FilenameFilter() {
+			                        public boolean accept(File dir, String name) {
+			                            return name.endsWith(".jar"); }}
+			                )[0].toURI());
+		else
+			return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
+	}
+	
 	
 	public static MavenArtifactProvisionOption forThisPlatform(MavenArtifactProvisionOption bundle) {
 		String name = System.getProperty("os.name").toLowerCase();

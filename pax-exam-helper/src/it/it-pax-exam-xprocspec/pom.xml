@@ -11,7 +11,7 @@
   <properties>
     <xprocspec.version>1.1.0</xprocspec.version>
     <xprocspec-runner.version>1.0.0</xprocspec-runner.version>
-    <xproc-engine-daisy-pipeline.version>1.8.1-SNAPSHOT</xproc-engine-daisy-pipeline.version>
+    <xproc-engine-daisy-pipeline.version>1.8.1</xproc-engine-daisy-pipeline.version>
   </properties>
   
   <dependencies>

@@ -120,6 +120,7 @@ public abstract class Options {
 		                                                                                    "org.daisy.pipeline.xpath-registry",
 		                                                                                    "org.daisy.pipeline.xproc-api"});
 		runtimeDependencies.put("org.daisy.pipeline.common-utils",             new String[]{"com.google.guava",
+		                                                                                    "com.xmlcalabash",
 		                                                                                    "javax.persistence",
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("org.daisy.pipeline.framework-core",           new String[]{"com.google.guava",

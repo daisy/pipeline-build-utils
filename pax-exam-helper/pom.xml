@@ -18,7 +18,7 @@
   <name>DAISY Pipeline 2 :: Pax Exam Helper</name>
   
   <properties>
-    <felix.version>4.0.3</felix.version>
+    <felix.version>4.4.1</felix.version>
     <pax-exam.version>3.3.0</pax-exam.version>
     <junit.version>4.11</junit.version>
     <logback.version>0.9.20</logback.version>

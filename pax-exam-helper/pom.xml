@@ -12,7 +12,7 @@
   
   <groupId>org.daisy.pipeline</groupId>
   <artifactId>pax-exam-helper</artifactId>
-  <version>1.8.1</version>
+  <version>1.9-SNAPSHOT</version>
   <packaging>bundle</packaging>
   
   <name>DAISY Pipeline 2 :: Pax Exam Helper</name>
@@ -149,9 +149,4 @@
       </plugin>
     </plugins>
   </build>
-    
-
-  <scm>
-    <tag>pax-exam-helper-1.8.1</tag>
-  </scm>
 </project>

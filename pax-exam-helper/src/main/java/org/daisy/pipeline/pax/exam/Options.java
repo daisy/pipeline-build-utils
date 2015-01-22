@@ -1,5 +1,7 @@
 package org.daisy.pipeline.pax.exam;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,6 +120,7 @@ public abstract class Options {
 		                                                                                    "org.daisy.pipeline.xpath-registry",
 		                                                                                    "org.daisy.pipeline.xproc-api"});
 		runtimeDependencies.put("org.daisy.pipeline.common-utils",             new String[]{"com.google.guava",
+		                                                                                    "com.xmlcalabash",
 		                                                                                    "javax.persistence",
 		                                                                                    "slf4j.api"});
 		runtimeDependencies.put("org.daisy.pipeline.framework-core",           new String[]{"com.google.guava",
@@ -151,7 +154,7 @@ public abstract class Options {
 		return dependencies;
 	}
 	
-	private static Option bundlesAndDependencies(String... bundles) {
+	public static Option bundlesAndDependencies(String... bundles) {
 		Set<String> bundlesAndDependencies = new HashSet<String>();
 		for (String bundle : bundles) {
 			bundlesAndDependencies.add(bundle);
@@ -198,9 +201,26 @@ public abstract class Options {
 		return mavenBundle().groupId("org.daisy.pipeline.modules").artifactId(artifactId).versionAsInProject();
 	}
 	
-	public static UrlProvisionOption thisBundle() {
-		return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
+	public static MavenArtifactProvisionOption brailleModule(String artifactId) {
+		return mavenBundle().groupId("org.daisy.pipeline.modules.braille").artifactId(artifactId).versionAsInProject();
 	}
+	
+	public static UrlProvisionOption thisBundle() {
+		return thisBundle(false);
+	}
+	
+	public static UrlProvisionOption thisBundle(boolean jar) {
+		if (jar)
+			return bundle("reference:"
+			              + (new File(PathUtils.getBaseDir() + "/target/")).listFiles(
+			                    new FilenameFilter() {
+			                        public boolean accept(File dir, String name) {
+			                            return name.endsWith(".jar"); }}
+			                )[0].toURI());
+		else
+			return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
+	}
+	
 	
 	public static MavenArtifactProvisionOption forThisPlatform(MavenArtifactProvisionOption bundle) {
 		String name = System.getProperty("os.name").toLowerCase();

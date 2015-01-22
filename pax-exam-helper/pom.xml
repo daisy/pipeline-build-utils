@@ -12,13 +12,13 @@
   
   <groupId>org.daisy.pipeline</groupId>
   <artifactId>pax-exam-helper</artifactId>
-  <version>1.8-SNAPSHOT</version>
+  <version>1.10-SNAPSHOT</version>
   <packaging>bundle</packaging>
   
   <name>DAISY Pipeline 2 :: Pax Exam Helper</name>
   
   <properties>
-    <felix.version>4.0.3</felix.version>
+    <felix.version>4.4.1</felix.version>
     <pax-exam.version>3.3.0</pax-exam.version>
     <junit.version>4.11</junit.version>
     <logback.version>0.9.20</logback.version>
@@ -119,7 +119,7 @@
           </archive>
         </configuration>
       </plugin>
-      <!-- <plugin>
+      <plugin>
         <artifactId>maven-invoker-plugin</artifactId>
         <version>1.8</version>
         <executions>
@@ -146,8 +146,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin> -->
+      </plugin>
     </plugins>
   </build>
-    
 </project>

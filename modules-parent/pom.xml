@@ -296,6 +296,31 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.daisy.maven</groupId>
+            <artifactId>xproc-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <executions>
+              <execution>
+                <phase>test</phase>
+                <goals>
+                  <goal>xprocspec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.daisy.maven</groupId>
+                <artifactId>xproc-engine-calabash</artifactId>
+                <version>1.0.0</version>
+              </dependency>
+              <dependency>
+                <groupId>org.daisy.maven</groupId>
+                <artifactId>xprocspec-runner</artifactId>
+                <version>1.0.1-SNAPSHOT</version>
+              </dependency>
+            </dependencies>
+          </plugin>
         </plugins>
       </build>
     </profile>

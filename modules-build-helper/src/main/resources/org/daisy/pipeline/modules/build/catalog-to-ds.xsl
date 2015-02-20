@@ -15,7 +15,7 @@
         <xsl:result-document href="{$outputDir}/bnd.bnd" method="text" xml:space="preserve">
 <xsl:if test="//cat:nextCatalog">Require-Bundle: <xsl:value-of select="string-join(//cat:nextCatalog/translate(@catalog,':','.'),',')"/></xsl:if>
 <xsl:if test="string(//cat:uri[@px:script]) or //cat:uri[@px:data-type]">
-        Service-Component: <xsl:value-of select="string-join(( string-join(//cat:uri[@px:script]/concat('OSGI-INF/',substring-after(document(@uri,..)/*/@type,':'),'.xml'),','), string-join(//cat:uri[@px:data-type]/concat('OSGI-INF/',document(@uri,..)/*/@px:id,'.xml'),',')),',')"/></xsl:if>
+        Service-Component: <xsl:value-of select="string-join(( string-join(//cat:uri[@px:script]/concat('OSGI-INF/',substring-after(document(@uri,..)/*/@type,':'),'.xml'),','), string-join(//cat:uri[@px:data-type]/concat('OSGI-INF/',document(@uri,..)/*/@id,'.xml'),',')),',')"/></xsl:if>
 <!-- my xslt skills are long forgotten, this sucks-->
 <xsl:if test="//cat:uri[@px:data-type] and not(//cat:uri[@px:script])">
         Import-Package: org.daisy.pipeline.datatypes,*</xsl:if>
@@ -47,11 +47,11 @@
         </xsl:result-document>
     </xsl:template>
     <xsl:template match="cat:uri[@px:data-type]" mode="ds">
-        <xsl:variable name="id" select="string(document(@uri,.)/*/@px:id)"/>
+        <xsl:variable name="id" select="string(document(@uri,.)/*/@id)"/>
         
         <xsl:result-document href="{$outputDir}/OSGI-INF/{replace($id,'.*:','')}.xml" method="xml">
             <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="{$id}">
-                <scr:implementation class="org.daisy.pipeline.datatypes.DatatypeService"/>
+                <scr:implementation class="org.daisy.pipeline.datatypes.UrlBasedDatatypeService"/>
                 <scr:service>
                     <scr:provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
                 </scr:service>

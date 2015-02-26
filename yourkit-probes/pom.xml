@@ -39,6 +39,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.daisy.libs</groupId>
+        <artifactId>com.xmlcalabash</artifactId>
+        <version>1.0.18</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.daisy.pipeline</groupId>
         <artifactId>pax-exam-helper</artifactId>
         <version>${pipeline.version}</version>
@@ -69,6 +75,11 @@
     <dependency>
       <groupId>org.daisy.pipeline</groupId>
       <artifactId>saxon-adapter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.libs</groupId>
+      <artifactId>com.xmlcalabash</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

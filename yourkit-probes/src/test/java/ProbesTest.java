@@ -13,6 +13,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.transform.stream.StreamSource;
 
+import com.xmlcalabash.core.XProcConfiguration;
+import com.xmlcalabash.core.XProcRuntime;
+import com.xmlcalabash.runtime.XPipeline;
+import com.xmlcalabash.util.Input;
+
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
@@ -128,6 +133,16 @@ public class ProbesTest {
 		transformer.transform();
 	}
 	
+	@Test
+	public void testXProc() throws SaxonApiException {
+		System.setProperty("com.xmlcalabash.config.user", "false");
+		System.setProperty("com.xmlcalabash.config.local", "false");
+		XProcRuntime runtime = new XProcRuntime(new XProcConfiguration("he", false));
+		XPipeline pipeline = runtime.load(new Input("file:" + new File(PathUtils.getBaseDir(), "target/test-classes/identity.xpl")));
+		pipeline.writeTo("source", runtime.parse(new InputSource("file:" + new File(PathUtils.getBaseDir(), "target/test-classes/hello.xml"))));
+		pipeline.run();
+	}
+	
 	@Configuration
 	public Option[] config() {
 		File probeClasspath = new File(PathUtils.getBaseDir() + "/target/classes");
@@ -139,6 +154,7 @@ public class ProbesTest {
 			         + ",probe=org.daisy.pipeline.yourkit.probes.Liblouis"
 			         + ",probe=org.daisy.pipeline.yourkit.probes.XPath"
 			         + ",probe=org.daisy.pipeline.yourkit.probes.XSLT"
+			         + ",probe=org.daisy.pipeline.yourkit.probes.XProc"
 			),
 			vmOption("-Xbootclasspath/a:" + probeClasspath),
 			bootDelegationPackage("org.daisy.pipeline.yourkit.probes"),
@@ -153,6 +169,10 @@ public class ProbesTest {
 			forThisPlatform(brailleModule("liblouis-native")),
 			mavenBundle().groupId("org.daisy.libs").artifactId("saxon-he").versionAsInProject(),
 			mavenBundle().groupId("org.daisy.pipeline").artifactId("saxon-adapter").versionAsInProject(),
+			mavenBundle().groupId("org.daisy.libs").artifactId("com.xmlcalabash").versionAsInProject(),
+			mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient-osgi").versionAsInProject(),
+			mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore-osgi").versionAsInProject(),
+			mavenBundle().groupId("org.slf4j").artifactId("jcl-over-slf4j").versionAsInProject(),
 			junitBundles()
 		);
 	}

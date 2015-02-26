@@ -11,12 +11,18 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.Serializer;
+import net.sf.saxon.s9api.XdmDestination;
+import net.sf.saxon.s9api.XsltTransformer;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
@@ -109,6 +115,19 @@ public class ProbesTest {
 		assertEquals("foobar", xpath.compile("ex:foo()").evaluate(null, XPathConstants.STRING));
 	}
 	
+	@Inject
+	Processor processor;
+	
+	@Test
+	public void testXsltTransformation() throws SaxonApiException {
+		XsltTransformer transformer = processor.newXsltCompiler().compile(
+				new StreamSource(new File(PathUtils.getBaseDir(), "target/test-classes/identity.xsl"))).load();
+		transformer.setSource(new StreamSource(new File(PathUtils.getBaseDir(), "target/test-classes/hello.xml")));
+		XdmDestination dest = new XdmDestination();
+		transformer.setDestination(dest);
+		transformer.transform();
+	}
+	
 	@Configuration
 	public Option[] config() {
 		File probeClasspath = new File(PathUtils.getBaseDir() + "/target/classes");
@@ -119,6 +138,7 @@ public class ProbesTest {
 			         + ",probeclasspath=" + probeClasspath
 			         + ",probe=org.daisy.pipeline.yourkit.probes.Liblouis"
 			         + ",probe=org.daisy.pipeline.yourkit.probes.XPath"
+			         + ",probe=org.daisy.pipeline.yourkit.probes.XSLT"
 			),
 			vmOption("-Xbootclasspath/a:" + probeClasspath),
 			bootDelegationPackage("org.daisy.pipeline.yourkit.probes"),

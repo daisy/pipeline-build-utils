@@ -15,7 +15,7 @@
         <xsl:result-document href="{$outputDir}/bnd.bnd" method="text" xml:space="preserve">
 <xsl:if test="//cat:nextCatalog">Require-Bundle: <xsl:value-of select="string-join(//cat:nextCatalog/translate(@catalog,':','.'),',')"/></xsl:if>
 <xsl:if test="//cat:uri[@px:script]">Service-Component: <xsl:value-of select="string-join(//cat:uri[@px:script]/concat('OSGI-INF/',substring-after(document(@uri,..)/*/@type,':'),'.xml'),',')"/>
-Import-Package: org.daisy.pipeline.script</xsl:if>
+Import-Package: org.daisy.pipeline.script, *</xsl:if>
         </xsl:result-document>
 
         <xsl:apply-templates mode="ds"/>

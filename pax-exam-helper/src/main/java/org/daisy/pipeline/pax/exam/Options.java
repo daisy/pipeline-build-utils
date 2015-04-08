@@ -1,12 +1,16 @@
 package org.daisy.pipeline.pax.exam;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.jar.Manifest;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
@@ -206,21 +210,38 @@ public abstract class Options {
 	}
 	
 	public static UrlProvisionOption thisBundle() {
-		return thisBundle(false);
+		File classes = new File(PathUtils.getBaseDir() + "/target/classes");
+		Manifest manifest;
+		try {
+			manifest = new Manifest(new File(classes, "META-INF/MANIFEST.MF").toURI().toURL().openStream()); }
+		catch (IOException e) {
+			throw new RuntimeException(e); }
+		String components = manifest.getMainAttributes().getValue("Service-Component");
+		if (components != null)
+			for (String component : components.split(","))
+				if (!(new File(classes, component)).exists())
+					return bundle("reference:"
+					              + (new File(PathUtils.getBaseDir() + "/target/")).listFiles(
+					                  new FilenameFilter() {
+					                      public boolean accept(File dir, String name) {
+					                          return name.endsWith(".jar"); }}
+						              )[0].toURI());
+		return bundle("reference:" + classes.toURI());
 	}
 	
-	public static UrlProvisionOption thisBundle(boolean jar) {
-		if (jar)
-			return bundle("reference:"
-			              + (new File(PathUtils.getBaseDir() + "/target/")).listFiles(
-			                    new FilenameFilter() {
-			                        public boolean accept(File dir, String name) {
-			                            return name.endsWith(".jar"); }}
-			                )[0].toURI());
+	public static Option thisBundle(String groupId, String artifactId) {
+		Properties dependencies = new Properties();
+		try {
+			dependencies.load(new FileInputStream(new File(PathUtils.getBaseDir() + "/target/classes/META-INF/maven/dependencies.properties"))); }
+		catch (IOException e) {
+			throw new RuntimeException(e); }
+		String projectGroupId = dependencies.getProperty("groupId");
+		String projectArtifactId = dependencies.getProperty("artifactId");
+		if (groupId.equals(projectGroupId) && artifactId.equals(projectArtifactId))
+			return thisBundle();
 		else
-			return bundle("reference:file:" + PathUtils.getBaseDir() + "/target/classes/");
+			return mavenBundle().groupId(groupId).artifactId(artifactId).versionAsInProject();
 	}
-	
 	
 	public static MavenArtifactProvisionOption forThisPlatform(MavenArtifactProvisionOption bundle) {
 		String name = System.getProperty("os.name").toLowerCase();

@@ -327,7 +327,7 @@ public abstract class Options {
 					.setLocalRepositoryManager(
 						system.newLocalRepositoryManager(
 							new LocalRepository(LOCAL_REPOSITORY.getAbsolutePath())))
-					.setOffline(true);
+					.setOffline(false);
 				Set<Artifact> deps = new HashSet<Artifact>();
 				try {
 					addDependencies(deps, system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot()); }

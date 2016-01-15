@@ -11,9 +11,12 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
+import org.apache.maven.wagon.providers.http.HttpWagon;
+import org.apache.maven.wagon.Wagon;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.composite;
@@ -33,12 +36,16 @@ import org.ops4j.pax.exam.util.PathUtils;
 
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.collection.CollectRequest;
+import org.sonatype.aether.connector.wagon.WagonProvider;
+import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.LocalRepository;
+import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.resolution.DependencyRequest;
 import org.sonatype.aether.resolution.DependencyResolutionException;
+import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
@@ -321,13 +328,20 @@ public abstract class Options {
 				CollectRequest request = new CollectRequest();
 				for (MavenBundle bundle : fromBundles) {
 					request.addDependency(new Dependency(bundle.asArtifact(), "compile")); }
+				RemoteRepository central = new RemoteRepository("central", "default", "http://repo1.maven.org/maven2/");
+				request.addRepository(central);
 				request.setRequestContext("runtime");
-				RepositorySystem system = new DefaultServiceLocator().getService(RepositorySystem.class);
+				DefaultServiceLocator locator = new DefaultServiceLocator();
+				locator.addService(WagonProvider.class, HttpWagonProvider.class);
+				locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
+				RepositorySystem system = locator.getService(RepositorySystem.class);
 				DefaultRepositorySystemSession session = new MavenRepositorySystemSession()
 					.setLocalRepositoryManager(
 						system.newLocalRepositoryManager(
 							new LocalRepository(LOCAL_REPOSITORY.getAbsolutePath())))
 					.setOffline(false);
+				List<RemoteRepository> repositories = new Vector<RemoteRepository>();
+				repositories.add(central);
 				Set<Artifact> deps = new HashSet<Artifact>();
 				try {
 					addDependencies(deps, system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot()); }
@@ -391,6 +405,15 @@ public abstract class Options {
 					try {
 						jar.close(); }
 					catch (IOException e) {}}
+		}
+		
+		public static class HttpWagonProvider implements WagonProvider {
+			public Wagon lookup(String roleHint) throws Exception {
+				if ("http".equals(roleHint) || "https".equals(roleHint))
+					return new HttpWagon();
+				return null;
+			}
+			public void release(Wagon wagon) {}
 		}
 	}
 	

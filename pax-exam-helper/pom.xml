@@ -21,9 +21,11 @@
     <felix.version>4.4.1</felix.version>
     <pax-exam.version>3.3.0</pax-exam.version>
     <junit.version>4.11</junit.version>
-    <logback.version>0.9.20</logback.version>
+    <slf4j.version>1.6.3</slf4j.version>
+    <logback.version>0.9.30</logback.version>
     <aether.version>1.13.1</aether.version>
     <maven.version>3.0.4</maven.version>
+    <wagon.version>2.2</wagon.version>
   </properties>
   
   <dependencies>
@@ -38,14 +40,35 @@
       <version>${aether.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.sonatype.aether</groupId>
+      <artifactId>aether-connector-wagon</artifactId>
+      <version>${aether.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-utils</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-aether-provider</artifactId>
       <version>${maven.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-provider-api</artifactId>
+      <version>${wagon.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-http</artifactId>
+      <version>${wagon.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.5.11</version>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.exam</groupId>

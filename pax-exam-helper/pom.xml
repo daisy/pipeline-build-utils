@@ -193,6 +193,10 @@
               <postBuildHookScript>verify</postBuildHookScript>
               <properties>
                 <pax-exam-helper.version>${project.version}</pax-exam-helper.version>
+                <xspec-runner.version>1.0.0</xspec-runner.version>
+                <xprocspec.version>1.1.0</xprocspec.version>
+                <xprocspec-runner.version>1.0.0</xprocspec-runner.version>
+                <xproc-engine-daisy-pipeline.version>1.10</xproc-engine-daisy-pipeline.version>
               </properties>
               <goals>
                 <goal>clean</goal>

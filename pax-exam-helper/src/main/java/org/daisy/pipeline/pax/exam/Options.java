@@ -225,15 +225,7 @@ public abstract class Options {
 		}
 		
 		public MavenBundle forThisPlatform() {
-			String name = System.getProperty("os.name").toLowerCase();
-			if (name.startsWith("windows"))
-				return classifier("windows");
-			else if (name.startsWith("mac os x"))
-				return classifier("mac");
-			else if (name.startsWith("linux"))
-				return classifier("linux");
-			else
-				throw new RuntimeException("Unsupported OS: " + name);
+			return classifier(thisPlatform());
 		}
 		
 		public MavenBundle version(String version) {
@@ -352,11 +344,15 @@ public abstract class Options {
 					try {
 						String groupId = dep.getGroupId();
 						String artifactId = dep.getArtifactId();
+						String classifier = dep.getClassifier();
 						if (// these should not be runtime dependencies -> fix in POMs
 							!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))
 							// fragment bundles not supported
 							&& !(groupId.equals("org.slf4j") && artifactId.equals("slf4j-jdk14"))
 							) {
+							if ((classifier.equals("linux") || classifier.equals("mac") || classifier.equals("windows")))
+								if (!classifier.equals(thisPlatform()))
+									continue;
 							if (!(groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")))
 								validateBundle(dep.getFile());
 							list.add(new MavenBundle(dep)); }}
@@ -438,5 +434,17 @@ public abstract class Options {
 				b.append(classifier).append(":"); }
 		b.append(version);
 		return b.toString();
+	}
+	
+	private static String thisPlatform() {
+		String name = System.getProperty("os.name").toLowerCase();
+		if (name.startsWith("windows"))
+			return "windows";
+		else if (name.startsWith("mac os x"))
+			return "mac";
+		else if (name.startsWith("linux"))
+			return "linux";
+		else
+			throw new RuntimeException("Unsupported OS: " + name);
 	}
 }

@@ -151,14 +151,21 @@ public abstract class Options {
 	
 	public static class MavenBundle extends AbstractProvisionOption<MavenBundle> implements MavenBundleOption {
 		
+		private boolean versionAsInProject = true;
+		
 		private MavenBundle() {}
 		
 		private MavenBundle(Artifact artifact) {
+			this(artifact, false);
+		}
+		
+		private MavenBundle(Artifact artifact, boolean forceVersionAsInProject) {
 			groupId(artifact.getGroupId());
 			artifactId(artifact.getArtifactId());
 			type(artifact.getExtension());
 			classifier(artifact.getClassifier());
-			version(artifact.getVersion());
+			if (!forceVersionAsInProject)
+				version(artifact.getVersion());
 		}
 		
 		private String url = null;
@@ -172,8 +179,8 @@ public abstract class Options {
 					bundle.type(type);
 				if (classifier != null && !"".equals(classifier))
 					bundle.classifier(classifier);
-				if (version == null || version.equals("?"))
-					version(versionAsInProject.getVersion(groupId, artifactId));
+				if (versionAsInProject)
+					version = MavenUtils.asInProject().getVersion(groupId, artifactId);
 				bundle.version(version);
 				// special handling of xprocspec
 				if (groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec"))
@@ -197,7 +204,7 @@ public abstract class Options {
 		private String groupId = null;
 		private String artifactId = null;
 		private String type = "jar";
-		private String classifier = null;
+		private String classifier = "";
 		private String version = null;
 		
 		public MavenBundle groupId(String groupId) {
@@ -230,8 +237,16 @@ public abstract class Options {
 		
 		public MavenBundle version(String version) {
 			checkURLResolved();
-			this.version = version;
+			if (version == null || version.equals("?"))
+				versionAsInProject = true;
+			else {
+				this.version = version;
+				versionAsInProject = false; }
 			return this;
+		}
+		
+		public MavenBundle versionAsInProject() {
+			return version("?");
 		}
 		
 		private Artifact asArtifact() {
@@ -249,6 +264,23 @@ public abstract class Options {
 			StringBuilder sb = new StringBuilder();
 			sb.append("mavenBundle(\"").append(artifactCoords(asArtifact())).append("\")");
 			return sb.toString();
+		}
+		
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+	
+		@Override
+		public boolean equals(Object object) {
+			if (this == object)
+				return true;
+			if (object == null)
+				return false;
+			if (getClass() != object.getClass())
+				return false;
+			MavenBundle that = (MavenBundle)object;
+			return that.toString().equals(toString());
 		}
 	}
 	
@@ -334,32 +366,53 @@ public abstract class Options {
 					.setOffline(false);
 				List<RemoteRepository> repositories = new Vector<RemoteRepository>();
 				repositories.add(central);
-				Set<Artifact> deps = new HashSet<Artifact>();
+				Set<MavenBundle> set;
 				try {
-					addDependencies(deps, system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot()); }
+					set = dependenciesAsBundles(
+						system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot());
+					bundles = set.toArray(new MavenBundle[set.size()]); }
 				catch (DependencyResolutionException e) {
 					throw new RuntimeException(e); }
-				List<MavenBundle> list = new ArrayList<MavenBundle>();
-				for (Artifact dep : deps)
-					try {
-						String groupId = dep.getGroupId();
-						String artifactId = dep.getArtifactId();
-						String classifier = dep.getClassifier();
-						if (// these should not be runtime dependencies -> fix in POMs
-							!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))
-							// fragment bundles not supported
-							&& !(groupId.equals("org.slf4j") && artifactId.equals("slf4j-jdk14"))
-							) {
-							if ((classifier.equals("linux") || classifier.equals("mac") || classifier.equals("windows")))
-								if (!classifier.equals(thisPlatform()))
-									continue;
-							if (!(groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")))
-								validateBundle(dep.getFile());
-							list.add(new MavenBundle(dep)); }}
-					catch(Exception e) {}
-				bundles = list.toArray(new MavenBundle[list.size()]);
 			}
 			return bundles;
+		}
+		
+		private Set<MavenBundle> dependenciesAsBundles(DependencyNode node) {
+			Set<MavenBundle> bundles = new HashSet<MavenBundle>();
+			dependenciesAsBundles(bundles, node, false);
+			return bundles;
+		}
+		
+		private void dependenciesAsBundles(Set<MavenBundle> bundles, DependencyNode node, boolean versionAsInProject) {
+			Dependency dep = node.getDependency();
+			if (dep != null) {
+				Artifact a = dep.getArtifact();
+				String groupId = a.getGroupId();
+				String artifactId = a.getArtifactId();
+				String type = a.getExtension();
+				String classifier = a.getClassifier();
+				try {
+					if (// these should not be runtime dependencies -> fix in POMs
+						!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))
+						// fragment bundles not supported
+						&& !(groupId.equals("org.slf4j") && artifactId.equals("slf4j-jdk14"))
+						) {
+						if ((classifier.equals("linux") || classifier.equals("mac") || classifier.equals("windows"))
+						    && !classifier.equals(thisPlatform()));
+						else {
+							if (!(groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")))
+								validateBundle(a.getFile());
+							for (MavenBundle b : fromBundles)
+								if (b.groupId.equals(groupId)
+								    && b.artifactId.equals(artifactId)
+								    && b.type.equals(type)
+								    && b.classifier.equals(classifier)) {
+									versionAsInProject = b.versionAsInProject;
+									break; }
+							bundles.add(new MavenBundle(a, versionAsInProject)); }}}
+				catch(Exception e) {}}
+			for (DependencyNode n : node.getChildren())
+				dependenciesAsBundles(bundles, n, versionAsInProject);
 		}
 		
 		@Override
@@ -373,14 +426,6 @@ public abstract class Options {
 				i++; }
 			sb.append(")");
 			return sb.toString();
-		}
-		
-		private static void addDependencies(Set<Artifact> deps, DependencyNode node) {
-			Dependency dep = node.getDependency();
-			if (dep != null)
-				deps.add(dep.getArtifact());
-			for (DependencyNode n : node.getChildren())
-				addDependencies(deps, n);
 		}
 		
 		private static void validateBundle(File bundle) {
@@ -412,8 +457,6 @@ public abstract class Options {
 			public void release(Wagon wagon) {}
 		}
 	}
-	
-	private static final VersionResolver versionAsInProject = MavenUtils.asInProject();
 	
 	private static Artifact artifactFromCoords(String coords) {
 		return new DefaultArtifact(coords);

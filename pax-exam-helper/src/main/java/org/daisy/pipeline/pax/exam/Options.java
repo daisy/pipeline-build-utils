@@ -196,7 +196,7 @@ public abstract class Options {
 		
 		private String groupId = null;
 		private String artifactId = null;
-		private String type = null;
+		private String type = "jar";
 		private String classifier = null;
 		private String version = null;
 		

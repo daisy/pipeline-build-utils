@@ -349,44 +349,50 @@ public abstract class Options {
 		
 		public MavenBundle[] getBundles() {
 			if (bundles == null) {
-				CollectRequest request = new CollectRequest();
-				for (MavenBundle bundle : fromBundles) {
-					request.addDependency(new Dependency(bundle.asArtifact(), "compile")); }
-				RemoteRepository central = new RemoteRepository("central", "default", "http://repo1.maven.org/maven2/");
-				request.addRepository(central);
-				request.setRequestContext("runtime");
-				DefaultServiceLocator locator = new DefaultServiceLocator();
-				locator.addService(WagonProvider.class, HttpWagonProvider.class);
-				locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
-				RepositorySystem system = locator.getService(RepositorySystem.class);
-				DefaultRepositorySystemSession session = new MavenRepositorySystemSession()
-					.setLocalRepositoryManager(
-						system.newLocalRepositoryManager(
-							new LocalRepository(LOCAL_REPOSITORY.getAbsolutePath())))
-					.setOffline(false);
-				List<RemoteRepository> repositories = new Vector<RemoteRepository>();
-				repositories.add(central);
-				Set<MavenBundle> set;
-				try {
-					set = dependenciesAsBundles(
-						system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot());
-					bundles = set.toArray(new MavenBundle[set.size()]); }
-				catch (DependencyResolutionException e) {
-					throw new RuntimeException(e); }
-			}
+				Set<MavenBundle> set = resolveBundles(fromBundles);
+				bundles = set.toArray(new MavenBundle[set.size()]); }
 			return bundles;
 		}
 		
-		private Set<MavenBundle> dependenciesAsBundles(DependencyNode node) {
+		private static Set<MavenBundle> resolveBundles(List<MavenBundle> fromBundles) {
+			CollectRequest request = new CollectRequest();
+			for (MavenBundle bundle : fromBundles) {
+				request.addDependency(new Dependency(bundle.asArtifact(), "runtime")); }
+			RemoteRepository central = new RemoteRepository("central", "default", "http://repo1.maven.org/maven2/");
+			request.addRepository(central);
+			request.setRequestContext("runtime");
+			DefaultServiceLocator locator = new DefaultServiceLocator();
+			locator.addService(WagonProvider.class, HttpWagonProvider.class);
+			locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
+			RepositorySystem system = locator.getService(RepositorySystem.class);
+			DefaultRepositorySystemSession session = new MavenRepositorySystemSession()
+				.setLocalRepositoryManager(
+					system.newLocalRepositoryManager(
+						new LocalRepository(LOCAL_REPOSITORY.getAbsolutePath())))
+				.setOffline(false);
+			List<RemoteRepository> repositories = new Vector<RemoteRepository>();
+			repositories.add(central);
 			Set<MavenBundle> bundles = new HashSet<MavenBundle>();
-			dependenciesAsBundles(bundles, node, false);
-			return bundles;
+			try {
+				if (dependenciesAsBundles(
+					    bundles,
+					    system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot(),
+					    false,
+					    fromBundles,
+					    null))
+					return bundles;
+				else
+					return resolveBundles(fromBundles); }
+			catch (DependencyResolutionException e) {
+				throw new RuntimeException(e); }
 		}
 		
-		private void dependenciesAsBundles(Set<MavenBundle> bundles, DependencyNode node, boolean versionAsInProject) {
+		private static boolean dependenciesAsBundles(Set<MavenBundle> bundles, DependencyNode node, boolean versionAsInProject,
+		                                             List<MavenBundle> fromBundles, Artifact parent) {
 			Dependency dep = node.getDependency();
+			Artifact a = null;
 			if (dep != null) {
-				Artifact a = dep.getArtifact();
+				a = dep.getArtifact();
 				String groupId = a.getGroupId();
 				String artifactId = a.getArtifactId();
 				String type = a.getExtension();
@@ -407,12 +413,24 @@ public abstract class Options {
 								    && b.artifactId.equals(artifactId)
 								    && b.type.equals(type)
 								    && b.classifier.equals(classifier)) {
+									if (b.versionAsInProject && !a.getVersion().equals(b.version))
+										throw new Exception("Coding error");
 									versionAsInProject = b.versionAsInProject;
 									break; }
-							bundles.add(new MavenBundle(a, versionAsInProject)); }}}
+							if (versionAsInProject
+							    && !a.getVersion().equals(MavenUtils.asInProject().getVersion(groupId, artifactId))) {
+								MavenBundle b = new MavenBundle(a, true);
+								logger.info("Forcing transitive dependency \"" + artifactCoords(b.asArtifact()) + "\" (version as in project) "
+								            + "because it would otherwise resolve to version \"" + a.getVersion() + "\" "
+								            + "(through \"" + artifactCoords(parent) + "\")");
+								fromBundles.add(b);
+								return false; }
+							bundles.add(new MavenBundle(a)); }}}
 				catch(Exception e) {}}
 			for (DependencyNode n : node.getChildren())
-				dependenciesAsBundles(bundles, n, versionAsInProject);
+				if (!dependenciesAsBundles(bundles, n, versionAsInProject, fromBundles, a != null ? a : parent))
+					return false;
+			return true;
 		}
 		
 		@Override

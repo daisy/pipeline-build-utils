@@ -326,9 +326,10 @@ public abstract class Options {
 		
 		private MavenBundlesWithDependencies(MavenBundleOption... options) {
 			fromBundles = new ArrayList<MavenBundle>();
-			for (MavenBundleOption o : options)
+			for (MavenBundleOption o : options) {
+				if (o == null) continue;
 				for (MavenBundle b : o.getBundles())
-					fromBundles.add(b);
+					fromBundles.add(b); }
 			logger.info(this.toString());
 			StringBuilder sb = new StringBuilder();
 			List<String> bundlesAsStrings = new ArrayList<String>();

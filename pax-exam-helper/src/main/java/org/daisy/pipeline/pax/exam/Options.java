@@ -180,7 +180,11 @@ public abstract class Options {
 				if (classifier != null && !"".equals(classifier))
 					bundle.classifier(classifier);
 				if (versionAsInProject)
-					version = MavenUtils.asInProject().getVersion(groupId, artifactId);
+					try {
+						version = MavenUtils.asInProject().getVersion(groupId, artifactId); }
+					catch (Throwable e) {
+						logger.error("Could not find version of " + groupId + ":" + artifactId + " in Maven project");
+						throw new RuntimeException("Could not find version of " + groupId + ":" + artifactId + " in Maven project"); }
 				bundle.version(version);
 				// special handling of xprocspec
 				if (groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec"))

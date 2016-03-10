@@ -423,11 +423,11 @@ public abstract class Options {
 									versionAsInProject = b.versionAsInProject;
 									break; }
 							if (versionAsInProject
-							    && !a.getVersion().equals(MavenUtils.asInProject().getVersion(groupId, artifactId))) {
+							    && !a.getBaseVersion().equals(MavenUtils.asInProject().getVersion(groupId, artifactId))) {
 								MavenBundle b = new MavenBundle(a, true);
 								logger.info("Forcing transitive dependency \"" + artifactCoords(b.asArtifact()) + "\" (version as in project) "
-								            + "because it would otherwise resolve to version \"" + a.getVersion() + "\" "
-								            + "(through \"" + artifactCoords(parent) + "\")");
+								            + "because it would otherwise resolve to version \"" + a.getBaseVersion() + "\" "
+								            + "(via \"" + artifactCoords(parent) + "\")");
 								fromBundles.add(b);
 								return false; }
 							bundles.add(new MavenBundle(a)); }}}

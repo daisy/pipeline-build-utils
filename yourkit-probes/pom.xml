@@ -18,9 +18,8 @@
   <name>DAISY Pipeline 2 :: YourKit Probes</name>
   
   <properties>
-    <pipeline.version>1.9</pipeline.version>
     <yourkit.version>12.0.6</yourkit.version>
-    <yourkit.home>/Users/bert/Desktop/YourKit_Java_Profiler_${yourkit.version}.app</yourkit.home>
+    <yourkit.home>/Users/bert/Applications/YourKit_Java_Profiler_${yourkit.version}.app</yourkit.home>
   </properties>
   
   <dependencyManagement>
@@ -28,7 +27,7 @@
       <dependency>
         <groupId>org.daisy.pipeline.modules.braille</groupId>
         <artifactId>braille-modules-bom</artifactId>
-        <version>${pipeline.version}</version>
+        <version>1.9.12</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -36,19 +35,16 @@
         <groupId>org.daisy.pipeline</groupId>
         <artifactId>saxon-adapter</artifactId>
         <version>1.1</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.daisy.libs</groupId>
         <artifactId>com.xmlcalabash</artifactId>
         <version>1.0.18</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.daisy.pipeline</groupId>
         <artifactId>pax-exam-helper</artifactId>
-        <version>${pipeline.version}</version>
-        <scope>test</scope>
+        <version>2.0.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -60,6 +56,11 @@
       <version>${yourkit.version}</version>
       <scope>system</scope>
       <systemPath>${yourkit.home}/lib/yjp.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline.modules.braille</groupId>
+      <artifactId>common-utils</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.daisy.pipeline.modules.braille</groupId>

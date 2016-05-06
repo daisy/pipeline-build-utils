@@ -1,11 +1,12 @@
 import javax.inject.Inject;
 
 import java.io.File;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
-
+import java.util.List;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -32,13 +33,17 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
 
-import org.daisy.pipeline.braille.liblouis.Liblouis;
+import org.daisy.pipeline.braille.common.CSSStyledText;
+import static org.daisy.pipeline.braille.common.Query.util.mutableQuery;
+import org.daisy.pipeline.braille.liblouis.LiblouisTranslator;
 
 import static org.daisy.pipeline.pax.exam.Options.brailleModule;
+import static org.daisy.pipeline.pax.exam.Options.domTraversalPackage;
 import static org.daisy.pipeline.pax.exam.Options.felixDeclarativeServices;
-import static org.daisy.pipeline.pax.exam.Options.forThisPlatform;
-import static org.daisy.pipeline.pax.exam.Options.logbackBundles;
+import static org.daisy.pipeline.pax.exam.Options.logbackClassic;
 import static org.daisy.pipeline.pax.exam.Options.logbackConfigFile;
+import static org.daisy.pipeline.pax.exam.Options.mavenBundle;
+import static org.daisy.pipeline.pax.exam.Options.mavenBundlesWithDependencies;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -53,7 +58,6 @@ import org.ops4j.pax.exam.util.PathUtils;
 
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackage;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
@@ -66,13 +70,27 @@ import org.xml.sax.InputSource;
 public class ProbesTest {
 	
 	@Inject
-	Liblouis liblouis;
+	LiblouisTranslator.Provider liblouis;
 	
 	@Test
 	public void testLiblouisTranslation() {
-		assertEquals("foobar",
-		             liblouis.translate("file:" + PathUtils.getBaseDir() + "/target/test-classes/foobar.cti",
-		                                "foobar", false, null));
+		assertEquals(braille("foobar"),
+		             liblouis.get(mutableQuery().add("table","file:" + PathUtils.getBaseDir() + "/target/test-classes/foobar.cti")
+		                                        .add("output", "ascii"))
+		                     .iterator().next()
+		                     .fromStyledTextToBraille()
+		                     .transform(text("foobar")));
+	}
+	
+	private Iterable<CSSStyledText> text(String... text) {
+		List<CSSStyledText> styledText = new ArrayList<CSSStyledText>();
+		for (String t : text)
+			styledText.add(new CSSStyledText(t, ""));
+		return styledText;
+	}
+	
+	private Iterable<String> braille(String... text) {
+		return Arrays.asList(text);
 	}
 	
 	@Inject
@@ -159,21 +177,16 @@ public class ProbesTest {
 			vmOption("-Xbootclasspath/a:" + probeClasspath),
 			bootDelegationPackage("org.daisy.pipeline.yourkit.probes"),
 			logbackConfigFile(),
-			logbackBundles(),
 			felixDeclarativeServices(),
-			mavenBundle().groupId("com.google.guava").artifactId("guava").versionAsInProject(),
-			mavenBundle().groupId("net.java.dev.jna").artifactId("jna").versionAsInProject(),
-			mavenBundle().groupId("org.liblouis").artifactId("liblouis-java").versionAsInProject(),
-			brailleModule("common-java"),
-			brailleModule("liblouis-core"),
-			forThisPlatform(brailleModule("liblouis-native")),
-			mavenBundle().groupId("org.daisy.libs").artifactId("saxon-he").versionAsInProject(),
-			mavenBundle().groupId("org.daisy.pipeline").artifactId("saxon-adapter").versionAsInProject(),
-			mavenBundle().groupId("org.daisy.libs").artifactId("com.xmlcalabash").versionAsInProject(),
-			mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient-osgi").versionAsInProject(),
-			mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore-osgi").versionAsInProject(),
-			mavenBundle().groupId("org.slf4j").artifactId("jcl-over-slf4j").versionAsInProject(),
-			junitBundles()
+			domTraversalPackage(),
+			junitBundles(),
+			mavenBundlesWithDependencies(
+				brailleModule("common-utils"),
+				brailleModule("liblouis-core"),
+				brailleModule("liblouis-native").forThisPlatform(),
+				mavenBundle("org.daisy.pipeline:saxon-adapter:?"),
+				mavenBundle("org.daisy.libs:com.xmlcalabash:?"),
+				logbackClassic())
 		);
 	}
 }

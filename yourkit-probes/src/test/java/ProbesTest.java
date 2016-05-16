@@ -69,23 +69,10 @@ import org.xml.sax.InputSource;
 @ExamReactorStrategy(PerClass.class)
 public class ProbesTest {
 	
-	@Test
-	public void runTests() throws InterruptedException, XPathExpressionException, SaxonApiException {
-		// Wait a few seconds to give me some time to attach the profiler to the process.
-		// The process is called "RemoteFrameworkImpl"
-		Thread.sleep(10000);
-		// run tests in a specific order
-		testLiblouisTranslation();
-		testCustomXPathFunction();
-		testXsltTransformation();
-		testXProc();
-		// Give some time to refresh the view before the process ends
-		Thread.sleep(10000);
-	}
-	
 	@Inject
 	LiblouisTranslator.Provider liblouis;
 	
+	@Test
 	public void testLiblouisTranslation() {
 		assertEquals(braille("foobar"),
 		             liblouis.get(mutableQuery().add("table","file:" + PathUtils.getBaseDir() + "/target/test-classes/foobar.cti")
@@ -109,6 +96,7 @@ public class ProbesTest {
 	@Inject
 	BundleContext context;
 	
+	@Test
 	public void testCustomXPathFunction() throws XPathExpressionException {
 		context.registerService(
 			ExtensionFunctionDefinition.class.getName(),
@@ -153,6 +141,7 @@ public class ProbesTest {
 	@Inject
 	Processor processor;
 	
+	@Test
 	public void testXsltTransformation() throws SaxonApiException {
 		XsltTransformer transformer = processor.newXsltCompiler().compile(
 				new StreamSource(new File(PathUtils.getBaseDir(), "target/test-classes/identity.xsl"))).load();
@@ -162,6 +151,7 @@ public class ProbesTest {
 		transformer.transform();
 	}
 	
+	@Test
 	public void testXProc() throws SaxonApiException {
 		System.setProperty("com.xmlcalabash.config.user", "false");
 		System.setProperty("com.xmlcalabash.config.local", "false");

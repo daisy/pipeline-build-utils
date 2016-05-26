@@ -165,7 +165,9 @@ public class ProbesTest {
 	public Option[] config() {
 		File probeClasspath = new File(PathUtils.getBaseDir() + "/target/classes");
 		return options(
-			vmOption("-agentpath:${yourkit.home}/bin/mac/libyjpagent.jnilib="
+			vmOption("-agentpath:${yourkit.home}/bin/"+(System.getProperty("os.name").startsWith("Linux")
+															? (System.getProperty("os.arch").equals("i386") ? "linux-x86-32" : "linux-x86-64")+"/libyjpagent.so="
+															: "mac/libyjpagent.jnilib=")
 			         + "dir=" + PathUtils.getBaseDir() + "/target/yourkit"
 			         + ",onexit=memory"
 			         + ",probeclasspath=" + probeClasspath

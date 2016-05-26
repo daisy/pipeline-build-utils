@@ -19,7 +19,7 @@
   
   <properties>
     <yourkit.version>12.0.6</yourkit.version>
-    <yourkit.home>/Users/bert/Applications/YourKit_Java_Profiler_${yourkit.version}.app</yourkit.home>
+    <yourkit.home>/home/jostein/yourkit/yjp-${yourkit.version}</yourkit.home>
   </properties>
   
   <dependencyManagement>

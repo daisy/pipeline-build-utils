@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import static java.util.Collections.sort;
 import java.util.HashSet;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.List;
@@ -404,15 +405,13 @@ public abstract class Options {
 				String classifier = a.getClassifier();
 				try {
 					if (// these should not be runtime dependencies -> fix in POMs
-						!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))
-						// fragment bundles not supported
-						&& !(groupId.equals("org.slf4j") && artifactId.equals("slf4j-jdk14"))
-						) {
+						!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))) {
 						if ((classifier.equals("linux") || classifier.equals("mac") || classifier.equals("windows"))
 						    && !classifier.equals(thisPlatform()));
 						else {
+							boolean noStart = false;
 							if (!(groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")))
-								validateBundle(a.getFile());
+								noStart = validateBundleAndIsFragmentBundle(a.getFile());
 							for (MavenBundle b : fromBundles)
 								if (b.groupId.equals(groupId)
 								    && b.artifactId.equals(artifactId)
@@ -430,7 +429,10 @@ public abstract class Options {
 								            + "(via \"" + artifactCoords(parent) + "\")");
 								fromBundles.add(b);
 								return false; }
-							bundles.add(new MavenBundle(a)); }}}
+							MavenBundle b = new MavenBundle(a);
+							if (noStart)
+								b.noStart();
+							bundles.add(b); }}}
 				catch(Exception e) {}}
 			for (DependencyNode n : node.getChildren())
 				if (!dependenciesAsBundles(bundles, n, versionAsInProject, fromBundles, a != null ? a : parent))
@@ -451,17 +453,20 @@ public abstract class Options {
 			return sb.toString();
 		}
 		
-		private static void validateBundle(File bundle) {
+		// throw exception if bundle is not valid, and return true if it is a fragment bundle
+		private static boolean validateBundleAndIsFragmentBundle(File bundle) {
 			JarFile jar = null;
 			try {
 				jar = new JarFile(bundle, false);
 				Manifest manifest = jar.getManifest();
 				if (manifest == null)
 					throw new RuntimeException("[" + bundle + "] is not a valid bundle: manifest is missing");
-				String bundleSymbolicName = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
-				String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
-				if (bundleSymbolicName == null && bundleName == null) {
-					throw new RuntimeException("[" + bundle + "] is not a valid bundle: Bundle-SymbolicName and Bundle-Name are missing"); }}
+				Attributes mainAttrs = manifest.getMainAttributes();
+				String bundleSymbolicName = mainAttrs.getValue("Bundle-SymbolicName");
+				String bundleName = mainAttrs.getValue("Bundle-Name");
+				if (bundleSymbolicName == null && bundleName == null)
+					throw new RuntimeException("[" + bundle + "] is not a valid bundle: Bundle-SymbolicName and Bundle-Name are missing");
+				return (mainAttrs.getValue("Fragment-Host") != null); }
 			catch (IOException e) {
 				throw new RuntimeException("[" + bundle + "] is not a valid bundle: failed reading jar", e); }
 			finally {

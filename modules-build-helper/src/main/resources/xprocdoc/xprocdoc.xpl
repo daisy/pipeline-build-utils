@@ -3,6 +3,7 @@
             xmlns:c="http://www.w3.org/ns/xproc-step"
             xmlns:xd="http://github.com/vojtechtoman/xprocdoc"
             xmlns:xderr="http://github.com/vojtechtoman/xprocdoc-err"
+            xmlns:px="http://www.daisy.org/ns/pipeline/xproc"
             type="xd:xprocdoc" name="xprocdoc" exclude-inline-prefixes="#all">
 
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -252,6 +253,21 @@
               <p:empty/>
             </p:with-option>
           </p:add-attribute>
+          <p:choose>
+            <p:xpath-context>
+              <p:pipe step="process-library-as-source" port="source"/>
+            </p:xpath-context>
+            <p:when test="/*/@px:public-name">
+              <p:add-attribute match="xd:source" attribute-name="name">
+                <p:with-option name="attribute-value" select="/*/@px:public-name">
+                  <p:pipe step="process-library-as-source" port="source"/>
+                </p:with-option>
+              </p:add-attribute>
+            </p:when>
+            <p:otherwise>
+              <p:identity/>
+            </p:otherwise>
+          </p:choose>
         </p:group>
         
         <p:group name="add-source-to-summary">
@@ -464,6 +480,21 @@
               <p:empty/>
             </p:with-option>
           </p:add-attribute>
+          <p:choose>
+            <p:xpath-context>
+              <p:pipe step="process-step-as-source" port="source"/>
+            </p:xpath-context>
+            <p:when test="/*/@px:public-name">
+              <p:add-attribute match="xd:source" attribute-name="name">
+                <p:with-option name="attribute-value" select="/*/@px:public-name">
+                  <p:pipe step="process-step-as-source" port="source"/>
+                </p:with-option>
+              </p:add-attribute>
+            </p:when>
+            <p:otherwise>
+              <p:identity/>
+            </p:otherwise>
+          </p:choose>
         </p:group>
 
         <p:group name="add-source-to-summary">

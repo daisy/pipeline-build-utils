@@ -405,12 +405,58 @@
                   <outputDirectory>${project.build.directory}/doc/</outputDirectory>
                 </configuration>
               </execution>
+              <execution>
+                <id>copy-sources-for-xprocdoc</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${project.basedir}</directory>
+                      <includes>
+                        <include>src/main/resources/**/*</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                  <outputDirectory>${project.build.directory}/xprocdoc/</outputDirectory>
+                </configuration>
+              </execution>
+              <execution>
+                <id>copy-xprocdoc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${project.build.directory}/xprocdoc/xprocdoc</directory>
+                    </resource>
+                  </resources>
+                  <outputDirectory>${project.build.directory}/doc/xprocdoc</outputDirectory>
+                </configuration>
+              </execution>
             </executions>
           </plugin>
           <plugin>
             <groupId>org.daisy.pipeline.build</groupId>
             <artifactId>modules-build-helper</artifactId>
             <executions>
+              <execution>
+                <id>xprocdoc</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>xprocdoc</goal>
+                </goals>
+                <configuration>
+                  <sourceDirectory>${project.build.directory}/xprocdoc/src/main/resources</sourceDirectory>
+                  <outputDirectory>${project.build.directory}/xprocdoc/xprocdoc</outputDirectory>
+                  <catalogXmlFile>${project.build.directory}/xprocdoc/src/main/resources/META-INF/catalog.xml</catalogXmlFile>
+                  <includes>xml/**/*.xpl</includes>
+                </configuration>
+              </execution>
               <execution>
                 <id>htmlize-sources</id>
                 <phase>prepare-package</phase>

@@ -2,6 +2,7 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xd="http://github.com/vojtechtoman/xprocdoc"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:pf="http://www.daisy.org/ns/pipeline/functions"
                 xmlns="http://www.w3.org/1999/xhtml"
                 exclude-result-prefixes="xd xs">
 
@@ -9,6 +10,8 @@
   <xsl:param name="input-base-uri"/>
   <xsl:param name="output-base-uri"/>
   <xsl:param name="overview-file"/>
+
+  <xsl:include href="../lib/uri-functions.xsl"/>
 
   <xsl:output name="xhtml-frameset" method="xhtml"
               doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"
@@ -54,8 +57,8 @@
   <!-- -->
 
   <xsl:template name="create-library-index">
-    <xsl:result-document format="xhtml-frameset"
-                         href="{xd:resolve-uri('libraries.html', $output-base-uri)}">
+    <xsl:variable name="result-href" select="xd:resolve-uri('libraries.html', $output-base-uri)"/>
+    <xsl:result-document format="xhtml-frameset" href="{$result-href}">
       <html>
         <xsl:call-template name="head">
           <xsl:with-param name="title">Library Index</xsl:with-param>
@@ -66,7 +69,8 @@
           <xsl:choose>
             <xsl:when test="//xd:library">
               <xsl:apply-templates select="//xd:library" mode="library-index">
-                <xsl:sort select="xd:relativize(../@href, $input-base-uri)"/>
+                <xsl:sort select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/>
+                <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
               </xsl:apply-templates>
             </xsl:when>
             <xsl:otherwise>
@@ -82,7 +86,8 @@
 
   <xsl:template name="create-overview">
     <xsl:variable name="overview-title" select="if ($product != '') then concat ('Overview (', $product, ')') else 'Overview'"/>
-    <xsl:result-document format="xhtml-frameset" href="{xd:resolve-uri('overview.html', $output-base-uri)}">
+    <xsl:variable name="result-href" select="xd:resolve-uri('overview.html', $output-base-uri)"/>
+    <xsl:result-document format="xhtml-frameset" href="{$result-href}">
       <html>
         <xsl:call-template name="head">
           <xsl:with-param name="title" select="$overview-title"/>
@@ -106,7 +111,8 @@
                 </thead>
                 <tbody>
                   <xsl:apply-templates select="//xd:library" mode="table-row">
-                    <xsl:sort select="xd:relativize(../@href, $input-base-uri)"/>
+                    <xsl:sort select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/>
+                    <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
                   </xsl:apply-templates>
                 </tbody>
               </table>
@@ -123,7 +129,8 @@
                 </thead>
                 <tbody>
                   <xsl:apply-templates select="//xd:step" mode="table-row">
-                    <xsl:sort select="xd:relativize(../@href, $input-base-uri)"/>
+                    <xsl:sort select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/>
+                    <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
                   </xsl:apply-templates>
                 </tbody>
               </table>
@@ -145,7 +152,7 @@
   <xsl:template match="xd:library" mode="library-index">
     <div class="nowrap name">
       <xsl:call-template name="nodelink">
-        <xsl:with-param name="linktext" select="xd:relativize(../@href, $input-base-uri)"/>
+        <xsl:with-param name="linktext" select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/>
       </xsl:call-template>
     </div>
   </xsl:template>
@@ -156,7 +163,7 @@
     <tr>
       <td width="150px" class="nowrap name">
         <xsl:call-template name="nodelink">
-          <xsl:with-param name="linktext"><xsl:value-of select="xd:relativize(../@href, $input-base-uri)"/></xsl:with-param>
+          <xsl:with-param name="linktext"><xsl:value-of select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/></xsl:with-param>
         </xsl:call-template>
       </td>
       <td>
@@ -167,13 +174,31 @@
 
   <!-- -->
 
+  <xsl:template match="xd:library" mode="included-steps">
+    <xsl:sequence select="xd:step"/>
+    <xsl:for-each select="xd:import">
+      <xsl:for-each select="//xd:source[@href=current()/@href]">
+        <xsl:sequence select="xd:step"/>
+        <xsl:apply-templates mode="#current" select="xd:library"/>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="xd:step|xd:library" mode="included-in-libraries">
+    <xsl:sequence select="self::xd:library"/>
+    <xsl:apply-templates mode="#current" select="parent::xd:library"/>
+    <xsl:variable name="href" select="parent::xd:source/@href"/>
+    <xsl:apply-templates mode="#current" select="//xd:library[xd:import/@href=$href]"/>
+  </xsl:template>
+
   <xsl:template match="xd:library" mode="detail">
-    <xsl:variable name="source-href"><xsl:value-of select="xd:relativize(../@href, $input-base-uri)"/></xsl:variable>
+    <xsl:variable name="source-href"><xsl:value-of select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/></xsl:variable>
     <xsl:variable name="result-href"><xsl:value-of select="xd:resolve-uri(xd:generate-output-uri(.), $output-base-uri)"/></xsl:variable>
     <xsl:result-document format="xhtml-frameset" href="{$result-href}">
       <html>
         <xsl:call-template name="head">
           <xsl:with-param name="title" select="$source-href"></xsl:with-param>
+          <xsl:with-param name="source" select="pf:relativize-uri(../@href, $result-href)"/>
         </xsl:call-template>
 
         <body>
@@ -181,41 +206,25 @@
 
           <xsl:apply-templates select="xd:documentation"/>
 
-          <xsl:if test="xd:import">
-            <h3>Imports</h3>
-            <ul>
-              <xsl:for-each select="xd:import">
-                <xsl:variable name="import-href" select="@href"/>
-                <xsl:variable name="import-target" select="//xd:source[@href=$import-href and (xd:library or xd:step[@type != ''])]"/>
-                <xsl:if test="$import-target">
-                  <!-- import points to a library or to a step with type information -->
-                  <li>
-                    <span class="uri">
-                      <a href="{xd:generate-output-uri($import-target/*[1])}"><xsl:value-of select="xd:relativize($import-href, $input-base-uri)"/></a>
-                    </span>
-                 </li>
-                </xsl:if>
-              </xsl:for-each>
-            </ul>
-          </xsl:if>
-
-          <xsl:if test="xd:step">
-            <h3>Steps</h3>
-            <table border="1">
-              <thead>
-                <tr>
-                  <td>Local Name</td>
-                  <td>Namespace URI</td>
-                  <td>Description</td>
-                </tr>
-              </thead>
-              <tbody>
-                <xsl:apply-templates select="xd:step" mode="table-row">
-                  <xsl:sort select="concat(@local-name, @namespace-uri)"/>
-                </xsl:apply-templates>
-              </tbody>
-            </table>
-          </xsl:if>
+          <xsl:variable name="steps" as="element()*">
+            <xsl:apply-templates mode="included-steps" select="."/>
+          </xsl:variable>
+          <h3>Steps</h3>
+          <table border="1">
+            <thead>
+              <tr>
+                <td>Local Name</td>
+                <td>Namespace URI</td>
+                <td>Description</td>
+              </tr>
+            </thead>
+            <tbody>
+              <xsl:apply-templates select="$steps" mode="table-row">
+                <xsl:sort select="concat(@local-name, @namespace-uri)"/>
+                <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
+              </xsl:apply-templates>
+            </tbody>
+          </table>
         </body>
       </html>
     </xsl:result-document>
@@ -224,7 +233,8 @@
   <!-- -->
 
   <xsl:template name="create-step-index">
-    <xsl:result-document format="xhtml-frameset" href="{xd:resolve-uri('steps.html', $output-base-uri)}">
+    <xsl:variable name="result-href" select="xd:resolve-uri('steps.html', $output-base-uri)"/>
+    <xsl:result-document format="xhtml-frameset" href="{$result-href}">
       <html>
         <xsl:call-template name="head">
           <xsl:with-param name="title">Step Index</xsl:with-param>
@@ -235,6 +245,7 @@
             <xsl:when test="//xd:step">
               <xsl:apply-templates select="//xd:step" mode="step-index">
                 <xsl:sort select="concat(@local-name, @namespace-uri)"/>
+                <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
               </xsl:apply-templates>
             </xsl:when>
             <xsl:otherwise>
@@ -286,7 +297,7 @@
   <!-- -->
 
   <xsl:template match="xd:step" mode="detail">
-    <xsl:variable name="source-href" select="xd:relativize(ancestor::xd:source/@href, $input-base-uri)"/>
+    <xsl:variable name="source-href" select="(ancestor::xd:source/@name/string(),xd:relativize(ancestor::xd:source/@href, $input-base-uri))[1]"/>
     <xsl:variable name="step-local-name" select="xd:step-local-name(@local-name)"/>
     <xsl:variable name="step-namespace-uri" select="xd:step-namespace-uri(@namespace-uri)"/>
     <xsl:variable name="result-href"><xsl:value-of select="xd:resolve-uri(xd:generate-output-uri(.), $output-base-uri)"/></xsl:variable>
@@ -295,6 +306,7 @@
       <html>
         <xsl:call-template name="head">
           <xsl:with-param name="title" select="concat($step-local-name, ' ', $step-namespace-uri)"/>
+          <xsl:with-param name="source" select="pf:relativize-uri(../@href, $result-href)"/>
         </xsl:call-template>
         <body>
           <h2>
@@ -305,12 +317,22 @@
 
           <xsl:apply-templates select="xd:documentation"/>
 
+          <xsl:variable name="libraries" as="element()*">
+            <xsl:apply-templates mode="included-in-libraries" select="."/>
+          </xsl:variable>
+
           <div>Defined in:
           <span class="uri">
             <xsl:choose>
-              <xsl:when test="ancestor::xd:library">
-                <!-- for steps in a librayr, generate a link to the library -->
-                <a href="{xd:generate-output-uri(ancestor::xd:library)}"><xsl:value-of select="$source-href"/></a>
+              <xsl:when test="exists($libraries)">
+                <!-- for steps in a library, generate a link to the library -->
+                <xsl:for-each select="$libraries[1]">
+                  <xsl:variable name="source-href" select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/>
+                  <xsl:call-template name="nodelink">
+                    <xsl:with-param name="linktext" select="$source-href"/>
+                    <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
+                  </xsl:call-template>
+                </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="$source-href"/>
@@ -329,7 +351,9 @@
                 </tr>
               </thead>
               <tbody>
-                <xsl:apply-templates select="xd:input" mode="table-row"/>
+                <xsl:apply-templates select="xd:input" mode="table-row">
+                  <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
+                </xsl:apply-templates>
               </tbody>
             </table>
           </xsl:if>
@@ -343,7 +367,9 @@
                 </tr>
               </thead>
               <tbody>
-                <xsl:apply-templates select="xd:output" mode="table-row"/>
+                <xsl:apply-templates select="xd:output" mode="table-row">
+                  <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
+                </xsl:apply-templates>
               </tbody>
             </table>
           </xsl:if>
@@ -359,7 +385,9 @@
                 </tr>
               </thead>
               <tbody>
-                <xsl:apply-templates select="xd:option" mode="table-row"/>
+                <xsl:apply-templates select="xd:option" mode="table-row">
+                  <xsl:with-param name="result-href" tunnel="yes" select="$result-href"/>
+                </xsl:apply-templates>
               </tbody>
             </table>
           </xsl:if>
@@ -424,9 +452,10 @@
   <!-- -->
 
   <xsl:template name="nodelink">
+    <xsl:param name="result-href" tunnel="yes" required="yes"/>
     <xsl:param name="linktext"/>
 
-    <a href="{xd:generate-output-uri(.)}" target="detail"><xsl:copy-of select="$linktext"/></a>
+    <a href="{pf:relativize-uri(resolve-uri(xd:generate-output-uri(.), $output-base-uri), $result-href)}" target="detail"><xsl:copy-of select="$linktext"/></a>
   </xsl:template>
 
   <!-- -->
@@ -464,16 +493,30 @@
 
   <xsl:function name="xd:generate-output-uri" as="xs:string">
     <xsl:param name="node"/>
-    <xsl:value-of select="concat(generate-id($node),'.html')"/>
+    <xsl:choose>
+      <xsl:when test="$node/parent::xd:source/@name[matches(.,'^http://www\.daisy\.org/')]">
+        <xsl:value-of select="concat(replace($node/parent::xd:source/@name,'^http://www\.daisy\.org/','org/daisy/'),'.html')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat(generate-id($node),'.html')"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
 
   <!-- -->
 
   <xsl:template name="head">
     <xsl:param name="title"/>
-    <head>
-      <title><xsl:value-of select="$title"/></title>
-      <style type="text/css">
+    <xsl:param name="source" select="()"/>
+    <head prefix="dc: http://purl.org/dc/elements/1.1/
+                  dp2: http://www.daisy.org/ns/pipeline/">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+      <title property="dc:title"><xsl:value-of select="$title"/></title>
+      <xsl:if test="exists($source)">
+        <link rev="dp2:doc" href="{$source}"/>
+        <link rel="rdf:type" href="http://www.daisy.org/ns/pipeline/apidoc"/>
+      </xsl:if>
+      <style type="text/css" prefix="">
         <![CDATA[
                  table                   { width: 100%; empty-cells: show; }
                  thead                   { background-color: 184882; color: white; font-weight: bold; }

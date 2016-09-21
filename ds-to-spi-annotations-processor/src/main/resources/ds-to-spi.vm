@@ -13,22 +13,32 @@ public class ${component.spiClassName} extends ${component.qualifiedClassName} {
 		{
 			Iterator<${reference.service}> services = ServiceLoader.load(${reference.service}.class).iterator();
 #if( ${reference.cardinality} == "1..1" )
-			if (!services.hasNext())
-				throw new RuntimeException("No ${reference.service} found");
-			${reference.methodName}(services.next());
+			int minRef = 1;
+			int maxRef = 1;
 #elseif( ${reference.cardinality} == "1..n" )
-			if (!services.hasNext())
-				throw new RuntimeException("No ${reference.service} found");
-			while (services.hasNext())
-				${reference.methodName}(services.next());
+			int minRef = 1;
+			int maxRef = -1;
 #elseif( ${reference.cardinality} == "0..1" )
-			if (services.hasNext())
-				${reference.methodName}(services.next());
+			int minRef = 0;
+			int maxRef = 1;
 #else
-			while (services.hasNext())
-				${reference.methodName}(services.next());
-		}
+			int minRef = 0;
+			int maxRef = -1;
 #end
+			int refCount = 0;
+			while (services.hasNext()) {
+				try {
+					${reference.methodName}(services.next());
+					refCount++;
+					if (maxRef > 0 && refCount == maxRef)
+						break;
+				} catch (Exception e) {
+				}
+			}
+			if (refCount < minRef) {
+				throw new RuntimeException("No ${reference.service} found");
+			}
+		}
 #end
 #if( ${component.activate} )
 #if( ${component.activate.propertiesArgumentType} )

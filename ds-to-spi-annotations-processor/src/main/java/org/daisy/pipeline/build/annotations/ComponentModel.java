@@ -10,6 +10,7 @@ public class ComponentModel {
 	String qualifiedClassName;
 	String spiClassName;
 	ActivateModel activate;
+	boolean immediate;
 	final List<PropertyModel> properties = new ArrayList<PropertyModel>();
 	final List<String> services = new ArrayList<String>();
 	final List<ReferenceModel> references = new ArrayList<ReferenceModel>();
@@ -36,6 +37,10 @@ public class ComponentModel {
 	
 	public ActivateModel getActivate() {
 		return activate;
+	}
+	
+	public boolean getImmediate() {
+		return immediate || services.isEmpty();
 	}
 	
 	public List<ReferenceModel> getReferences() {

@@ -19,6 +19,7 @@
   <description>Resources for the Pipeline 2 modules build system.</description>
 
   <properties>
+    <ds-to-spi-runtime.version>1.0.0-SNAPSHOT</ds-to-spi-runtime.version>
     <xprocspec.version>1.3.0</xprocspec.version>
     <framework.version>1.11.2</framework.version>
   </properties>
@@ -135,6 +136,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.daisy.pipeline</groupId>
+      <artifactId>ds-to-spi-runtime</artifactId>
+      <version>${ds-to-spi-runtime.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.daisy.xprocspec</groupId>
       <artifactId>xprocspec</artifactId>
       <version>${xprocspec.version}</version>
@@ -171,6 +178,7 @@
           <postBuildHookScript>verify</postBuildHookScript>
           <properties>
             <modules-build-helper.version>${project.version}</modules-build-helper.version>
+            <ds-to-spi-runtime.version>${ds-to-spi-runtime.version}</ds-to-spi-runtime.version>
             <xprocspec.version>${xprocspec.version}</xprocspec.version>
             <framework.version>${framework.version}</framework.version>
           </properties>

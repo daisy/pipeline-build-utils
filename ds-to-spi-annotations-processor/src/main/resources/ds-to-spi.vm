@@ -1,0 +1,45 @@
+#if( ${component.packageName} )
+package ${component.packageName};
+
+#end
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+public class ${component.spiClassName} extends ${component.qualifiedClassName} {
+	
+	public ${component.spiClassName}() {
+		super();
+#foreach($reference in ${component.references})
+		{
+			Iterator<${reference.service}> services = ServiceLoader.load(${reference.service}.class).iterator();
+#if( ${reference.cardinality} == "1..1" )
+			if (!services.hasNext())
+				throw new RuntimeException("No ${reference.service} found");
+			${reference.methodName}(services.next());
+#elseif( ${reference.cardinality} == "1..n" )
+			if (!services.hasNext())
+				throw new RuntimeException("No ${reference.service} found");
+			while (services.hasNext())
+				${reference.methodName}(services.next());
+#elseif( ${reference.cardinality} == "0..1" )
+			if (services.hasNext())
+				${reference.methodName}(services.next());
+#else
+			while (services.hasNext())
+				${reference.methodName}(services.next());
+		}
+#end
+#end
+#if( ${component.activate} )
+#if( ${component.activate.propertiesArgumentType} )
+		${component.activate.propertiesArgumentType.getName()} props = new ${component.activate.propertiesArgumentType.getName()}();
+#foreach($property in ${component.properties})
+		props.put(${property.keyLiteral}, ${property.valueLiteral});
+#end
+		${component.activate.methodName}(props);
+#else
+		${component.activate.methodName}();
+#end
+#end
+	}
+}

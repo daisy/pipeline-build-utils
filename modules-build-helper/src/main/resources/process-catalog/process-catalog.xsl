@@ -25,6 +25,7 @@
                     <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type/*" mode="data-type-xml"/>
                 </xsl:variable>
                 <xsl:for-each select="$data-types">
+                    <xsl:variable name="url" as="xs:string" select="concat($name,'/data-types/',replace(@id,'^.*:',''),'.xml')"/>
                     <xsl:result-document href="{concat($outputDir,'/data-types/',replace(@id,'^.*:',''),'.xml')}" method="xml">
                         <xsl:sequence select="."/>
                     </xsl:result-document>
@@ -37,37 +38,53 @@
                             <scr:reference bind="setUriResolver" cardinality="1..1"
                                            interface="javax.xml.transform.URIResolver" name="resolver" policy="static"/>
                             <scr:property name="data-type.id" type="String" value="{@id}"/>
-                            <scr:property name="data-type.url" type="String"
-                                          value="{concat($name,'/data-types/',replace(@id,'^.*:',''),'.xml')}"/>
+                            <scr:property name="data-type.url" type="String" value="{$url}"/>
                         </scr:component>
                     </xsl:result-document>
+                    <xsl:call-template name="data-type-class">
+                        <xsl:with-param name="id" select="@id"/>
+                        <xsl:with-param name="url" select="$url"/>
+                    </xsl:call-template>
                 </xsl:for-each>
             </xsl:if>
         </xsl:for-each>
         <xsl:variable name="data-types" as="xs:string*">
             <xsl:for-each select="cat:uri">
-                <xsl:variable name="name" select="@name"/>
                 <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
                     <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type" mode="data-type-id"/>
                 </xsl:if>
             </xsl:for-each>
         </xsl:variable>
-        <xsl:result-document href="{$outputDir}/bnd.bnd" method="text" xml:space="preserve"><c:data>
-<xsl:if test="//cat:nextCatalog">Require-Bundle: <xsl:value-of select="string-join(//cat:nextCatalog/translate(@catalog,':','.'),',')"/></xsl:if>
-<xsl:variable name="service-components" as="xs:string*"
-              select="(//cat:uri[@px:script]/concat('OSGI-INF/',replace(document(@uri,..)/*/@type,'^.*:',''),'.xml'),
-                       //cat:uri[@px:data-type]/concat('OSGI-INF/',replace(document(@uri,..)/*/@id,'^.*:',''),'.xml'),
-                       for $id in $data-types return concat('OSGI-INF/data-types/',replace($id,'^.*:',''),'.xml'))"/>
-<xsl:if test="exists($service-components)">
-        Service-Component: <xsl:value-of select="string-join($service-components,',')"/></xsl:if>
-<!-- my xslt skills are long forgotten, this sucks-->
-<xsl:if test="(//cat:uri[@px:data-type] or exists($data-types)) and not(//cat:uri[@px:script])">
-        Import-Package: org.daisy.pipeline.datatypes,*</xsl:if>
-<xsl:if test="//cat:uri[@px:script] and not(//cat:uri[@px:data-type] or exists($data-types))">
-        Import-Package: org.daisy.pipeline.script,*</xsl:if>
-<xsl:if test="//cat:uri[@px:script] and (//cat:uri[@px:data-type] or exists($data-types))">
-        Import-Package: org.daisy.pipeline.script,org.daisy.pipeline.datatypes,*</xsl:if>
+        <xsl:result-document href="{$outputDir}/bnd.bnd" method="text"><c:data>
+            <xsl:if test="//cat:nextCatalog">
+                <xsl:text>Require-Bundle: </xsl:text>
+                <xsl:value-of select="string-join(//cat:nextCatalog/translate(@catalog,':','.'),',')"/>
+                <xsl:text>&#xa;</xsl:text>
+            </xsl:if>
+            <xsl:variable name="service-components" as="xs:string*"
+                          select="(//cat:uri[@px:script]/concat('OSGI-INF/',replace(document(@uri,..)/*/@type,'^.*:',''),'.xml'),
+                                   //cat:uri[@px:data-type]/concat('OSGI-INF/',replace(document(@uri,..)/*/@id,'^.*:',''),'.xml'),
+                                   for $id in $data-types return concat('OSGI-INF/data-types/',replace($id,'^.*:',''),'.xml'))"/>
+            <xsl:if test="exists($service-components)">
+                <xsl:text>Service-Component: </xsl:text>
+                <xsl:value-of select="string-join($service-components,',')"/>
+                <xsl:text>&#xa;</xsl:text>
+            </xsl:if>
         </c:data></xsl:result-document>
+        <xsl:if test="//cat:uri[@px:script]">
+            <xsl:result-document href="{$outputDir}/META-INF/services/org.daisy.pipeline.script.XProcScriptService" method="text">
+                <c:data>
+                    <xsl:apply-templates select="//cat:uri[@px:script]" mode="services"/>
+                </c:data>
+            </xsl:result-document>
+        </xsl:if>
+        <xsl:if test="//cat:uri[@px:data-type] or exists($data-types)">
+            <xsl:result-document href="{$outputDir}/META-INF/services/org.daisy.pipeline.datatypes.DatatypeService" method="text">
+                <c:data>
+                    <xsl:apply-templates select="//cat:uri[@px:data-type]" mode="services"/>
+                </c:data>
+            </xsl:result-document>
+        </xsl:if>
         <xsl:result-document href="{$outputDir}/META-INF/catalog.xml" method="xml">
             <xsl:copy>
                 <xsl:apply-templates select="@*|node()" mode="ds"/>
@@ -87,10 +104,24 @@
         </xsl:result-document>
     </xsl:template>
     
+    <xsl:template match="cat:uri[@px:script]" mode="services">
+        <xsl:variable name="type" select="string(document(@uri,.)/*/@type)"/>
+        <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
+        <xsl:variable name="className" select="concat('impl.XProcScript_',replace($id,'[:-]','_'),'_SPI')"/>
+        <xsl:value-of select="$className"/>
+        <xsl:text>&#xA;</xsl:text>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:data-type]" mode="services">
+        <xsl:variable name="id" select="string(document(@uri,.)/*/@id)"/>
+        <xsl:variable name="className" select="concat('impl.Datatype_',replace($id,'[:-]','_'),'_SPI')"/>
+        <xsl:value-of select="$className"/>
+        <xsl:text>&#xA;</xsl:text>
+     </xsl:template>
+     
     <xsl:template match="cat:uri[@px:script]" mode="ds" priority="1">
         <xsl:variable name="type" select="string(document(@uri,.)/*/@type)"/>
         <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
-        <xsl:variable name="name" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='name'])[1]"/>
         <xsl:variable name="desc" as="element()?" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
         <xsl:variable name="desc" select="if ($desc/@xml:space='preserve')
                                           then tokenize(string($desc),'&#xa;')[1]
@@ -102,13 +133,44 @@
                     <scr:provide interface="org.daisy.pipeline.script.XProcScriptService"/>
                 </scr:service>
                 <scr:property name="script.id" type="String" value="{$id}"/>
-                <scr:property name="script.name" type="String" value="{$name}"/>
                 <scr:property name="script.description" type="String" value="{$desc}"/>
                 <scr:property name="script.url" type="String" value="{@name}"/>
                 <scr:property name="script.version" type="String" value="{$version}"/>
             </scr:component>
         </xsl:result-document>
+        <xsl:call-template name="script-class">
+            <xsl:with-param name="id" select="$id"/>
+            <xsl:with-param name="desc" select="$desc"/>
+            <xsl:with-param name="url" select="@name"/>
+            <xsl:with-param name="version" select="$version"/>
+        </xsl:call-template>
         <xsl:next-match/>
+    </xsl:template>
+    
+    <xsl:template name="script-class">
+        <xsl:param name="id" as="xs:string" required="yes"/>
+        <xsl:param name="desc" as="xs:string" required="yes"/>
+        <xsl:param name="url" as="xs:string" required="yes"/>
+        <xsl:param name="version" as="xs:string" required="yes"/>
+        <xsl:variable name="className" select="concat('XProcScript_',replace($id,'[:-]','_'),'_SPI')"/>
+        <xsl:result-document href="{$outputDir}/java/impl/{$className}.java" method="text" xml:space="preserve"><c:data>package impl;
+
+import java.util.Map;
+import java.util.HashMap;
+
+import org.daisy.pipeline.script.XProcScriptService;
+
+public class <xsl:value-of select="$className"/> extends XProcScriptService {
+
+    public <xsl:value-of select="$className"/>() {
+        Map props = new HashMap();
+        props.put(XProcScriptService.SCRIPT_ID, "<xsl:value-of select="$id"/>");
+        props.put(XProcScriptService.SCRIPT_DESCRIPTION, "<xsl:value-of select="replace(replace($desc,'&quot;','\\&quot;'),'\\','\\\\')"/>");
+        props.put(XProcScriptService.SCRIPT_URL, "<xsl:value-of select="$url"/>");
+        props.put(XProcScriptService.SCRIPT_VERSION, "<xsl:value-of select="$version"/>");
+        activate(props);
+    }
+}</c:data></xsl:result-document>
     </xsl:template>
     
     <xsl:template match="cat:uri[@px:extends]" mode="ds">
@@ -183,7 +245,33 @@
                 <scr:property name="data-type.url" type="String" value="{@name}"/>
             </scr:component>
         </xsl:result-document>
+        <xsl:call-template name="data-type-class">
+            <xsl:with-param name="id" select="$id"/>
+            <xsl:with-param name="url" select="@name"/>
+        </xsl:call-template>
         <xsl:next-match/>
+    </xsl:template>
+    
+    <xsl:template name="data-type-class">
+        <xsl:param name="id" as="xs:string" required="yes"/>
+        <xsl:param name="url" as="xs:string" required="yes"/>
+        <xsl:variable name="className" select="concat('Datatype_',replace($id,'[:-]','_'),'_SPI')"/>
+        <xsl:result-document href="{$outputDir}/java/impl/{$className}.java" method="text" xml:space="preserve"><c:data>package impl;
+
+import java.util.Map;
+import java.util.HashMap;
+
+import org.daisy.pipeline.datatypes.UrlBasedDatatypeService;
+
+public class <xsl:value-of select="$className"/> extends UrlBasedDatatypeService {
+
+    public <xsl:value-of select="$className"/>() {
+        Map props = new HashMap();
+        props.put(UrlBasedDatatypeService.DATATYPE_ID, "<xsl:value-of select="$id"/>");
+        props.put(UrlBasedDatatypeService.DATATYPE_URL, "<xsl:value-of select="$url"/>");
+        activate(props);
+    }
+}</c:data></xsl:result-document>
     </xsl:template>
     
     <xsl:template match="cat:uri/@px:script|

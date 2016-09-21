@@ -43,6 +43,11 @@ public class ProcessTestCatalogMojo extends AbstractMojo {
 	private boolean addResources;
 	
 	@Parameter(
+		defaultValue = "true"
+	)
+	private boolean addSources;
+	
+	@Parameter(
 		defaultValue = "0"
 	)
 	private String moduleVersion;
@@ -68,10 +73,15 @@ public class ProcessTestCatalogMojo extends AbstractMojo {
 					generatedResources.setDirectory(outputDirectory.getAbsolutePath());
 					List<String> excludes = new ArrayList<String>(); {
 						excludes.add("bnd.bnd");
+						excludes.add("java");
+						excludes.add("java/**");
 					}
 					generatedResources.setExcludes(excludes);
 				}
 				mavenProject.addTestResource(generatedResources);
+			}
+			if (addSources) {
+				mavenProject.addTestCompileSourceRoot(new File(outputDirectory, "java").getAbsolutePath());
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

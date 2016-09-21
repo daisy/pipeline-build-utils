@@ -28,6 +28,8 @@
 					<c:file name="META-INF/catalog.xml"/>
 					<c:file name="META-INF/services/org.daisy.Foo"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.XProcStepProvider"/>
+					<c:file name="META-INF/services/org.daisy.pipeline.datatypes.DatatypeService"/>
+					<c:file name="META-INF/services/org.daisy.pipeline.script.XProcScriptService"/>
 					<c:file name="OSGI-INF/choice.xml"/>
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
@@ -35,10 +37,12 @@
 					<c:file name="OSGI-INF/my-script.xml"/>
 					<c:file name="css/foo.css"/>
 					<c:file name="data-types/type.xml"/>
+					<c:file name="impl/Datatype_foo_choice_SPI.class"/>
 					<c:file name="impl/JavaStep$1.class"/>
 					<c:file name="impl/JavaStep$Provider.class"/>
 					<c:file name="impl/JavaStep.class"/>
 					<c:file name="impl/JavaStep_Provider_SPI.class"/>
+					<c:file name="impl/XProcScript_my_script_SPI.class"/>
 					<c:file name="org/daisy/Foo.class"/>
 					<c:file name="org/daisy/impl/FooImpl.class"/>
 					<c:file name="org/daisy/impl/FooImpl_SPI.class"/>
@@ -73,7 +77,6 @@
 						<scr:provide interface="org.daisy.pipeline.script.XProcScriptService"/>
 					</scr:service>
 					<scr:property name="script.id" type="String" value="my-script"/>
-					<scr:property name="script.name" type="String" value="Example script"/>
 					<scr:property name="script.description" type="String" value="Does stuff."/>
 					<scr:property name="script.url" type="String" value="/xml/script.xpl"/>
 					<scr:property name="script.version" type="String" value="${project.version}"/>
@@ -119,8 +122,10 @@
 				<c:zipfile name="it-pipeline-module-${project.version}-doc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="src/main/java/allclasses-frame.html"/>
+					<c:file name="src/main/java/impl/Datatype_foo_choice_SPI.html"/>
 					<c:file name="src/main/java/impl/JavaStep.html"/>
 					<c:file name="src/main/java/impl/JavaStep_Provider_SPI.html"/>
+					<c:file name="src/main/java/impl/XProcScript_my_script_SPI.html"/>
 					<c:file name="src/main/java/impl/package-frame.html"/>
 					<c:file name="src/main/java/impl/package-summary.html"/>
 					<c:file name="src/main/java/index.html"/>

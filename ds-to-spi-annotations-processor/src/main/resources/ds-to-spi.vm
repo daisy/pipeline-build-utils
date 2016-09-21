@@ -5,7 +5,11 @@ package ${component.packageName};
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-public class ${component.spiClassName} extends ${component.qualifiedClassName} {
+public class ${component.spiClassName} extends ${component.qualifiedClassName}
+#if( ${component.immediate} )
+implements org.daisy.common.spi.CreateOnStart  ## maybe this is not exactly what we want but it's close enough
+#end
+{
 	
 	public ${component.spiClassName}() {
 		super();

@@ -25,6 +25,12 @@
       <groupId>org.daisy.pipeline</groupId>
       <version>2.0.5</version>
     </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.3.1</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <pluginManagement>
@@ -49,6 +55,13 @@
         <groupId>org.daisy.pipeline.build</groupId>
         <artifactId>modules-build-helper</artifactId>
         <executions>
+          <execution>
+            <id>generate-spi-classes</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate-spi-classes</goal>
+            </goals>
+          </execution>
           <execution>
             <id>htmlize-sources</id>
             <phase>prepare-package</phase>

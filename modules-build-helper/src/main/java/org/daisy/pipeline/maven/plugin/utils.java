@@ -3,8 +3,11 @@ package org.daisy.pipeline.maven.plugin;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+
+import com.google.common.base.Optional;
 
 abstract class utils {
 	
@@ -30,6 +33,44 @@ abstract class utils {
 					return (URI)o; }
 			catch (Exception e) {}
 			throw new RuntimeException("Object can not be converted to URI: " + o);
+		}
+		
+		static URI relativize(URI base, URI child) {
+			try {
+				if (base.isOpaque() || child.isOpaque()
+				    || !Optional.fromNullable(base.getScheme()).or("").equalsIgnoreCase(Optional.fromNullable(child.getScheme()).or(""))
+				    || !Optional.fromNullable(base.getAuthority()).equals(Optional.fromNullable(child.getAuthority())))
+					return child;
+				else {
+					String bp = base.normalize().getPath();
+					String cp = child.normalize().getPath();
+					String relativizedPath;
+					if (cp.startsWith("/")) {
+						String[] bpSegments = bp.split("/", -1);
+						String[] cpSegments = cp.split("/", -1);
+						int i = bpSegments.length - 1;
+						int j = 0;
+						while (i > 0) {
+							if (bpSegments[j].equals(cpSegments[j])) {
+								i--;
+								j++; }
+							else
+								break; }
+						relativizedPath = "";
+						while (i > 0) {
+							relativizedPath += "../";
+							i--; }
+						while (j < cpSegments.length) {
+							relativizedPath += cpSegments[j] + "/";
+							j++; }
+						relativizedPath = relativizedPath.substring(0, relativizedPath.length() - 1); }
+					else
+						relativizedPath = cp;
+					if (relativizedPath.isEmpty())
+						relativizedPath = "./";
+					return new URI(null, null, relativizedPath, child.getQuery(), child.getFragment()); }}
+			catch (URISyntaxException e) {
+				throw new RuntimeException(e); }
 		}
 	}
 	

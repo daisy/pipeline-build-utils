@@ -18,6 +18,10 @@
   <name>DAISY Pipeline 2 :: Modules Build Helper</name>
   <description>Resources for the Pipeline 2 modules build system.</description>
 
+  <properties>
+    <xprocspec.version>1.2.0</xprocspec.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>net.sf.saxon</groupId>
@@ -66,6 +70,12 @@
       <version>3.0</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.daisy.xprocspec</groupId>
+      <artifactId>xprocspec</artifactId>
+      <version>${xprocspec.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -97,6 +107,7 @@
           <postBuildHookScript>verify</postBuildHookScript>
           <properties>
             <modules-build-helper.version>${project.version}</modules-build-helper.version>
+            <xprocspec.version>${xprocspec.version}</xprocspec.version>
           </properties>
           <goals>
             <goal>install</goal>

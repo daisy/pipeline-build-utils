@@ -443,6 +443,9 @@
                     <include>**/*.md</include>
                     <include>**/*.html</include>
                   </includes>
+                  <archive>
+                    <addMavenDescriptor>false</addMavenDescriptor>
+                  </archive>
                 </configuration>
               </execution>
             </executions>

@@ -27,6 +27,14 @@
           <artifactId>modules-build-helper</artifactId>
           <version>${modules-build-helper.version}</version>
         </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <archive>
+              <addMavenDescriptor>false</addMavenDescriptor>
+            </archive>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>

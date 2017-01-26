@@ -59,7 +59,8 @@
     <plugins>
       <plugin>
         <groupId>org.daisy.pipeline.build</groupId>
-        <artifactId>modules-build-helper</artifactId>
+        <artifactId>ds-to-spi-maven-plugin</artifactId>
+        <version>${ds-to-spi-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>generate-spi-classes</id>
@@ -68,6 +69,12 @@
               <goal>generate-spi-classes</goal>
             </goals>
           </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.daisy.pipeline.build</groupId>
+        <artifactId>modules-build-helper</artifactId>
+        <executions>
           <execution>
             <id>htmlize-sources</id>
             <phase>prepare-package</phase>

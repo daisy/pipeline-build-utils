@@ -22,7 +22,8 @@
     <ds-to-spi-maven-plugin.version>1.0.0-SNAPSHOT</ds-to-spi-maven-plugin.version>
     <ds-to-spi-runtime.version>1.0.0-SNAPSHOT</ds-to-spi-runtime.version>
     <xprocspec.version>1.3.0</xprocspec.version>
-    <framework.version>1.11.2</framework.version>
+    <framework.version>1.12.1-SNAPSHOT</framework.version>
+    <braille-modules.version>1.12.1-SNAPSHOT</braille-modules.version>
   </properties>
 
   <dependencyManagement>
@@ -31,6 +32,13 @@
         <groupId>org.daisy.pipeline</groupId>
         <artifactId>framework-bom</artifactId>
         <version>${framework.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.daisy.pipeline.modules.braille</groupId>
+        <artifactId>braille-modules-bom</artifactId>
+        <version>${braille-modules.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -47,6 +55,10 @@
       <groupId>org.daisy.maven</groupId>
       <artifactId>xproc-engine-calabash</artifactId>
       <version>1.1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
     <!-- avoid circular dependency on framework -->
     <?fixed-dependency?>
@@ -98,8 +110,30 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.daisy.pipeline.modules.braille</groupId>
+      <artifactId>braille-modules-bom</artifactId>
+      <version>${braille-modules.version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.daisy.pipeline</groupId>
       <artifactId>calabash-adapter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline</groupId>
+      <artifactId>framework-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline.modules.braille</groupId>
+      <artifactId>liblouis-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline.modules.braille</groupId>
+      <artifactId>libhyphen-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -155,6 +189,7 @@
             <ds-to-spi-runtime.version>${ds-to-spi-runtime.version}</ds-to-spi-runtime.version>
             <xprocspec.version>${xprocspec.version}</xprocspec.version>
             <framework.version>${framework.version}</framework.version>
+            <braille-modules.version>${braille-modules.version}</braille-modules.version>
           </properties>
           <extraArtifacts>
             <!-- test dependencies are not automatically installed -->

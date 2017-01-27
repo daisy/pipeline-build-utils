@@ -27,25 +27,31 @@
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="META-INF/catalog.xml"/>
 					<c:file name="META-INF/services/org.daisy.Foo"/>
+					<c:file name="META-INF/services/org.daisy.common.spi.CreateOnStart"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.XProcStepProvider"/>
+					<c:file name="META-INF/services/org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.datatypes.DatatypeService"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.script.XProcScriptService"/>
-					<c:file name="OSGI-INF/choice.xml"/>
+					<c:file name="OSGI-INF/foo-choice.xml"/>
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
 					<c:file name="OSGI-INF/liblouis-tables.xml"/>
 					<c:file name="OSGI-INF/my-script.xml"/>
 					<c:file name="css/foo.css"/>
 					<c:file name="data-types/type.xml"/>
-					<c:file name="impl/Datatype_foo_choice_SPI.class"/>
 					<c:file name="impl/JavaStep$1.class"/>
 					<c:file name="impl/JavaStep$Provider.class"/>
 					<c:file name="impl/JavaStep.class"/>
 					<c:file name="impl/JavaStep_Provider_SPI.class"/>
-					<c:file name="impl/XProcScript_my_script_SPI.class"/>
 					<c:file name="org/daisy/Foo.class"/>
 					<c:file name="org/daisy/impl/FooImpl.class"/>
 					<c:file name="org/daisy/impl/FooImpl_SPI.class"/>
+					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath.class"/>
+					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_SPI.class"/>
+					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice.class"/>
+					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice_SPI.class"/>
+					<c:file name="org/daisy/pipeline/script/impl/XProcScript_my_script.class"/>
+					<c:file name="org/daisy/pipeline/script/impl/XProcScript_my_script_SPI.class"/>
 					<c:file name="xml/a.xml"/>
 					<c:file name="xml/a.xml.xsl"/>
 					<c:file name="xml/foo.xpl"/>
@@ -71,30 +77,30 @@
 		</x:context>
 		<x:expect label="The OSGI-INF/my-script.xml file" type="compare">
 			<x:document type="inline">
-				<scr:component immediate="true" name="my-script">
-					<scr:implementation class="org.daisy.pipeline.script.XProcScriptService"/>
-					<scr:service>
-						<scr:provide interface="org.daisy.pipeline.script.XProcScriptService"/>
-					</scr:service>
-					<scr:property name="script.id" type="String" value="my-script"/>
-					<scr:property name="script.description" type="String" value="Does stuff."/>
-					<scr:property name="script.url" type="String" value="/xml/script.xpl"/>
-					<scr:property name="script.version" type="String" value="${project.version}"/>
+				<scr:component immediate="true" activate="activate" name="my-script">
+					<implementation class="org.daisy.pipeline.script.impl.XProcScript_my_script"/>
+					<service>
+						<provide interface="org.daisy.pipeline.script.XProcScriptService"/>
+					</service>
+					<property name="script.version" type="String" value="${project.version}"/>
+					<property name="script.id" type="String" value="my-script"/>
+					<property name="script.description" type="String" value="Does stuff."/>
+					<property name="script.url" type="String" value="/xml/script.xpl"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
-		<x:context label="The OSGI-INF/choice.xml file">
-			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/choice.xml"/>
+		<x:context label="The OSGI-INF/foo-choice.xml file">
+			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/foo-choice.xml"/>
 		</x:context>
-		<x:expect label="The OSGI-INF/choice.xml file" type="compare">
+		<x:expect label="The OSGI-INF/foo-choice.xml file" type="compare">
 			<x:document type="inline">
-				<scr:component immediate="true" name="foo:choice">
-					<scr:implementation class="org.daisy.pipeline.datatypes.UrlBasedDatatypeService"/>
-					<scr:service>
-						<scr:provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
-					</scr:service>
-					<scr:property name="data-type.id" type="String" value="foo:choice"/>
-					<scr:property name="data-type.url" type="String" value="/data-types/type.xml"/>
+				<scr:component name="foo:choice" immediate="true" activate="activate">
+					<implementation class="org.daisy.pipeline.datatypes.impl.Datatype_foo_choice"/>
+					<service>
+						<provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
+					</service>
+					<property name="data-type.id" type="String" value="foo:choice"/>
+					<property name="data-type.url" type="String" value="/data-types/type.xml"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -103,14 +109,14 @@
 		</x:context>
 		<x:expect label="The OSGI-INF/liblouis-tables.xml file" type="compare">
 			<x:document type="inline">
-				<scr:component activate="activate" name="Liblouis table path http://www.daisy.org/pipeline/modules/foo-utils/liblouis/">
-					<scr:implementation class="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
-					<scr:service>
-						<scr:provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
-					</scr:service>
-					<scr:property name="identifier" type="String" value="http://www.daisy.org/pipeline/modules/foo-utils/liblouis/"/>
-					<scr:property name="path" type="String" value="/liblouis/"/>
-					<scr:property name="includes" type="String" value="*"/>
+				<scr:component activate="activate" name="liblouis-tables">
+					<implementation class="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath"/>
+					<service>
+						<provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
+					</service>
+					<property name="identifier" type="String" value="http://www.daisy.org/pipeline/modules/foo-utils/liblouis/"/>
+					<property name="path" type="String" value="/liblouis/"/>
+					<property name="includes" type="String" value="*"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -122,10 +128,8 @@
 				<c:zipfile name="it-pipeline-module-${project.version}-doc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="src/main/java/allclasses-frame.html"/>
-					<c:file name="src/main/java/impl/Datatype_foo_choice_SPI.html"/>
 					<c:file name="src/main/java/impl/JavaStep.html"/>
 					<c:file name="src/main/java/impl/JavaStep_Provider_SPI.html"/>
-					<c:file name="src/main/java/impl/XProcScript_my_script_SPI.html"/>
 					<c:file name="src/main/java/impl/package-frame.html"/>
 					<c:file name="src/main/java/impl/package-summary.html"/>
 					<c:file name="src/main/java/index.html"/>
@@ -136,6 +140,18 @@
 					<c:file name="src/main/java/org/daisy/impl/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/package-frame.html"/>
 					<c:file name="src/main/java/org/daisy/package-summary.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/package-frame.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/package-summary.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_foo_choice.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_foo_choice_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/package-frame.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/package-summary.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/script/impl/XProcScript_my_script.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/script/impl/XProcScript_my_script_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/script/impl/package-frame.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/script/impl/package-summary.html"/>
 					<c:file name="src/main/java/overview-frame.html"/>
 					<c:file name="src/main/java/overview-summary.html"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>

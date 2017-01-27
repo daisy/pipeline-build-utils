@@ -2,7 +2,9 @@ package org.daisy.pipeline.maven.plugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -35,7 +37,12 @@ public class ProcessTestCatalogMojo extends AbstractMojo {
 	@Parameter(
 		defaultValue = "${project.build.directory}/generated-test-resources/process-catalog/"
 	)
-	private File outputDirectory;
+	private File generatedResourcesDirectory;
+	
+	@Parameter(
+		defaultValue = "${project.build.directory}/generated-test-sources/process-catalog/"
+	)
+	private File generatedSourcesDirectory;
 	
 	@Parameter(
 		defaultValue = "true"
@@ -62,26 +69,28 @@ public class ProcessTestCatalogMojo extends AbstractMojo {
 		try {
 			@SuppressWarnings("unchecked")
 			XProcEngine engine = new CalabashWithPipelineModules(mavenProject.getCompileClasspathElements());
+			Map<String,String> options = new HashMap<String,String>(); {
+				options.put("generatedResourcesDirectory", asURI(generatedResourcesDirectory).toASCIIString());
+				options.put("generatedSourcesDirectory", asURI(generatedSourcesDirectory).toASCIIString());
+				options.put("moduleVersion", moduleVersion);
+			}
 			engine.run(asURI(this.getClass().getResource("/process-catalog/process-catalog.xpl")).toASCIIString(),
 			           ImmutableMap.of("source", (List<String>)ImmutableList.of(asURI(catalogFile).toASCIIString())),
 			           null,
-			           ImmutableMap.of("outputDir", asURI(outputDirectory).toASCIIString(),
-			                           "version", moduleVersion),
+			           options,
 			           null);
 			if (addResources) {
 				Resource generatedResources = new Resource(); {
-					generatedResources.setDirectory(outputDirectory.getAbsolutePath());
+					generatedResources.setDirectory(generatedResourcesDirectory.getAbsolutePath());
 					List<String> excludes = new ArrayList<String>(); {
 						excludes.add("bnd.bnd");
-						excludes.add("java");
-						excludes.add("java/**");
 					}
 					generatedResources.setExcludes(excludes);
 				}
 				mavenProject.addTestResource(generatedResources);
 			}
 			if (addSources) {
-				mavenProject.addTestCompileSourceRoot(new File(outputDirectory, "java").getAbsolutePath());
+				mavenProject.addTestCompileSourceRoot(generatedSourcesDirectory.getAbsolutePath());
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

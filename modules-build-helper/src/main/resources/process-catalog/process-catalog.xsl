@@ -167,7 +167,10 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="name" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='name'])[1]"/>
-        <xsl:variable name="descr" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
+        <xsl:variable name="desc" as="element()?" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
+        <xsl:variable name="desc" select="if ($desc/@xml:space='preserve')
+                                          then tokenize(string($desc),'&#xa;')[1]
+                                          else normalize-space(string($desc))"/>
         <!--
             assuming catalog.xml is placed in META-INF
         -->
@@ -181,7 +184,7 @@
                 </scr:service>
                 <scr:property name="script.id" type="String" value="{$id}"/>
                 <scr:property name="script.name" type="String" value="{$name}"/>
-                <scr:property name="script.description" type="String" value="{$descr}"/>
+                <scr:property name="script.description" type="String" value="{$desc}"/>
                 <scr:property name="script.url" type="String" value="{$path}"/>
                 <scr:property name="script.version" type="String" value="{$version}"/>
             </scr:component>

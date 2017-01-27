@@ -91,7 +91,10 @@
         <xsl:variable name="type" select="string(document(@uri,.)/*/@type)"/>
         <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
         <xsl:variable name="name" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='name'])[1]"/>
-        <xsl:variable name="descr" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
+        <xsl:variable name="desc" as="element()?" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
+        <xsl:variable name="desc" select="if ($desc/@xml:space='preserve')
+                                          then tokenize(string($desc),'&#xa;')[1]
+                                          else normalize-space(string($desc))"/>
         <xsl:result-document href="{$outputDir}/OSGI-INF/{replace($id,'^.*:','')}.xml" method="xml">
             <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="{$id}">
                 <scr:implementation class="org.daisy.pipeline.script.XProcScriptService"/>
@@ -100,7 +103,7 @@
                 </scr:service>
                 <scr:property name="script.id" type="String" value="{$id}"/>
                 <scr:property name="script.name" type="String" value="{$name}"/>
-                <scr:property name="script.description" type="String" value="{$descr}"/>
+                <scr:property name="script.description" type="String" value="{$desc}"/>
                 <scr:property name="script.url" type="String" value="{@name}"/>
                 <scr:property name="script.version" type="String" value="{$version}"/>
             </scr:component>

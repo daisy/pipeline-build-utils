@@ -34,8 +34,10 @@
 					<c:file name="OSGI-INF/foo-choice.xml"/>
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
+					<c:file name="OSGI-INF/px-script-option-1.xml"/>
 					<c:file name="OSGI-INF/script.xml"/>
 					<c:file name="css/foo.css"/>
+					<c:file name="data-types/script-option-1.xml"/>
 					<c:file name="data-types/type.xml"/>
 					<c:file name="impl/JavaStep$1.class"/>
 					<c:file name="impl/JavaStep$Provider.class"/>
@@ -46,8 +48,11 @@
 					<c:file name="org/daisy/impl/FooImpl_SPI.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice_SPI.class"/>
+					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1.class"/>
+					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1_SPI.class"/>
 					<c:file name="org/daisy/pipeline/script/impl/XProcScript_script.class"/>
 					<c:file name="org/daisy/pipeline/script/impl/XProcScript_script_SPI.class"/>
+					<c:file name="xml/__processed__script.xpl"/>
 					<c:file name="xml/a.xml"/>
 					<c:file name="xml/a.xml.xsl"/>
 					<c:file name="xml/foo.xpl"/>
@@ -63,11 +68,76 @@
 		<x:expect label="The META-INF/catalog.xml file" type="compare">
 			<x:document type="inline">
 				<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl" uri="../xml/script.xpl"/>
+					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl" uri="../xml/__processed__script.xpl"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/library.xpl" uri="../xml/library.xpl"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/foo.css" uri="../css/foo.css"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/type.xml" uri="../data-types/type.xml"/>
+					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl/data-types/script-option-1.xml"
+					     uri="../data-types/script-option-1.xml"/>
 				</catalog>
+			</x:document>
+		</x:expect>
+		<x:context label="The datatype file">
+			<x:document type="file" href="../../../target/it-pipeline-module-0-SNAPSHOT.jar!/data-types/script-option-1.xml"/>
+		</x:context>
+		<x:expect label="The datatype file" type="compare">
+			<x:document type="inline">
+				<choice id="px:script-option-1">
+					<value>value-1</value>
+					<value>value-2</value>
+				</choice>
+			</x:document>
+		</x:expect>
+		<x:context label="The datatype DS file">
+			<x:document type="file" href="../../../target/it-pipeline-module-0-SNAPSHOT.jar!/OSGI-INF/px-script-option-1.xml"/>
+		</x:context>
+		<x:expect label="The datatype DS file" type="compare">
+			<x:document type="inline">
+				<scr:component immediate="true" activate="activate" name="px:script-option-1">
+					<implementation class="org.daisy.pipeline.datatypes.impl.Datatype_px_script_option_1"/>
+					<service>
+						<provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
+					</service>
+					<reference bind="setUriResolver" cardinality="1..1"
+					           interface="javax.xml.transform.URIResolver" name="URIResolver" policy="static"/>
+					<property name="data-type.id" type="String" value="px:script-option-1"/>
+					<property name="data-type.url" type="String"
+					          value="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl/data-types/script-option-1.xml"/>
+				</scr:component>
+			</x:document>
+		</x:expect>
+		<x:context label="The processed script file">
+			<x:document type="file" href="../../../target/it-pipeline-module-0-SNAPSHOT.jar!/xml/__processed__script.xpl"/>
+		</x:context>
+		<x:expect label="The processed script file" type="compare">
+			<x:document type="inline">
+				<p:declare-step type="px:script" version="1.0">
+					<p:documentation xmlns="http://www.w3.org/1999/xhtml">
+						<h1 px:role="name">Example script</h1>
+						<p px:role="desc">Does stuff.</p>
+					</p:documentation>
+					<p:input port="source">
+						<p:documentation xmlns="http://www.w3.org/1999/xhtml">
+							<h1 px:role="name">Source document</h1>
+						</p:documentation>
+					</p:input>
+					<p:option name="option-1" required="true" px:data-type="px:script-option-1">
+						<p:documentation xmlns="http://www.w3.org/1999/xhtml">
+							<h1 px:role="name">Option 1</h1>
+							<p px:role="desc" xml:space="preserve">Enables something.
+
+							For more info see [link](http://example.org/more-info).</p>
+						</p:documentation>
+					</p:option>
+					<p:option name="option-2" required="false" select="'xyz'">
+						<p:documentation xmlns="http://www.w3.org/1999/xhtml">
+							<h1 px:role="name">Option 2</h1>
+						</p:documentation>
+					</p:option>
+					<p:output port="result"/>
+					<p:import href="foo.xpl"/>
+					<px:foo/>
+				</p:declare-step>
 			</x:document>
 		</x:expect>
 		<x:context label="The OSGI-INF/script.xml file">
@@ -125,6 +195,8 @@
 					<c:file name="src/main/java/org/daisy/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_foo_choice.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_foo_choice_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1_SPI.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/package-frame.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/script/impl/XProcScript_script.html"/>

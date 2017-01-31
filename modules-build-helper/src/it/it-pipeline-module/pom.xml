@@ -77,6 +77,7 @@
       impl.JavaStep$Provider,
       org.daisy.pipeline.script.impl.XProcScript_my_script,
       org.daisy.pipeline.datatypes.impl.Datatype_foo_choice,
+      org.daisy.pipeline.datatypes.impl.Datatype_px_script_option_1,
       org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath,
       org.daisy.pipeline.modules.impl.Module_it_pipeline_module
     </expose-services>

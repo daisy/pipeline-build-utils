@@ -157,6 +157,15 @@ public abstract class Options {
 		return bundle("reference:" + classes.toURI());
 	}
 	
+	public static Option systemProperties(Properties properties) {
+		Set<String> keys = properties.stringPropertyNames();
+		SystemPropertyOption[] options = new SystemPropertyOption[keys.size()];
+		int i = 0;
+		for (String key : keys)
+			options[i++] = systemProperty(key).value(properties.getProperty(key));
+		return composite(options);
+	}
+	
 	public static MavenBundle pipelineModule(String artifactId) {
 		return mavenBundle().groupId("org.daisy.pipeline.modules").artifactId(artifactId);
 	}

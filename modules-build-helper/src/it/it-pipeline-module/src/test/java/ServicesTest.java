@@ -6,15 +6,13 @@ import org.daisy.pipeline.datatypes.DatatypeRegistry;
 import org.daisy.pipeline.datatypes.DatatypeService;
 import org.daisy.pipeline.script.XProcScriptService;
 
-import org.daisy.pipeline.junit.OSGiLessRunner;
+import org.daisy.pipeline.junit.AbstractTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.runner.RunWith;
 import org.junit.Test;
 
-@RunWith(OSGiLessRunner.class)
-public class SPITest {
+public class ServicesTest extends AbstractTest {
 	
 	@Inject
 	// public DatatypeRegistry datatypes;
@@ -42,5 +40,18 @@ public class SPITest {
 	@Test
 	public void testScript() {
 		assertEquals("my-script", script.getId());
+	}
+	
+	/* ------------- */
+	/* For OSGi only */
+	/* ------------- */
+	
+	@Override
+	protected String[] testDependencies() {
+		return new String[]{
+			"org.daisy.pipeline:framework-core:?",
+			"org.daisy.pipeline:calabash-adapter:?",
+			"org.daisy.pipeline.modules.braille:liblouis-core:?"
+		};
 	}
 }

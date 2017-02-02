@@ -1,6 +1,7 @@
 package org.daisy.pipeline.junit;
 
 import java.io.File;
+import java.util.Properties;
 
 import javax.inject.Inject;
 
@@ -8,8 +9,7 @@ import org.daisy.maven.xproc.xprocspec.XProcSpecRunner;
 import org.daisy.maven.xspec.TestResults;
 import org.daisy.maven.xspec.XSpecRunner;
 
-import static org.daisy.pipeline.pax.exam.Options.calabashConfigFile;
-import static org.daisy.pipeline.pax.exam.Options.logbackConfigFile;
+import org.daisy.pipeline.pax.exam.Options;
 import static org.daisy.pipeline.pax.exam.Options.mavenBundle;
 import static org.daisy.pipeline.pax.exam.Options.mavenBundles;
 import static org.daisy.pipeline.pax.exam.Options.xprocspec;
@@ -18,7 +18,6 @@ import static org.daisy.pipeline.pax.exam.Options.xspec;
 import org.junit.Test;
 
 import org.ops4j.pax.exam.Configuration;
-import static org.ops4j.pax.exam.CoreOptions.composite;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.util.PathUtils;
 
@@ -61,12 +60,21 @@ public abstract class AbstractXSpecAndXProcSpecTest extends AbstractTest {
 		}
 	}
 	
+	@Override
+	protected Properties allSystemProperties() {
+		return mergeProperties(
+			super.allSystemProperties(),
+			calabashConfiguration());
+	}
+	
+	/* ------------- */
+	/* For OSGi only */
+	/* ------------- */
+	
 	@Override @Configuration
 	public Option[] config() {
 		return _.config(
-			composite(
-				logbackConfigFile(),
-				calabashConfigFile()),
+			Options.systemProperties(allSystemProperties()),
 			mavenBundles(
 				mavenBundles(testDependencies()),
 				// xprocspec

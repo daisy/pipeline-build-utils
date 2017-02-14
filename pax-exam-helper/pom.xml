@@ -27,10 +27,10 @@
     <aether.version>1.13.1</aether.version>
     <maven.version>3.0.4</maven.version>
     <wagon.version>2.2</wagon.version>
-    <xspec-runner.version>1.0.2</xspec-runner.version>
+    <xspec-runner.version>1.0.3-SNAPSHOT</xspec-runner.version>
     <xprocspec.version>1.2.0</xprocspec.version>
-    <xprocspec-runner.version>1.1.0</xprocspec-runner.version>
-    <xproc-engine-daisy-pipeline.version>1.10.2</xproc-engine-daisy-pipeline.version>
+    <xprocspec-runner.version>1.1.1-SNAPSHOT</xprocspec-runner.version>
+    <xproc-engine-daisy-pipeline.version>1.11.0-SNAPSHOT</xproc-engine-daisy-pipeline.version>
     <framework.version>1.10.4</framework.version>
   </properties>
   

@@ -13,7 +13,9 @@
     
     <xsl:param name="generatedSourcesDirectory" required="yes" as="xs:string"/>
     <xsl:param name="generatedResourcesDirectory" required="yes" as="xs:string"/>
+    <xsl:param name="moduleName" required="yes" as="xs:string"/>
     <xsl:param name="moduleVersion" required="yes" as="xs:string"/>
+    <xsl:param name="moduleTitle" required="yes" as="xs:string"/>
     
     <xsl:include href="../lib/extend-script.xsl"/>
     
@@ -44,6 +46,101 @@
                 <xsl:text>&#xa;</xsl:text>
             </xsl:if>
         </c:data></xsl:result-document>
+        <xsl:variable name="className" select="concat('Module_',replace($moduleName,'-','_'))"/>
+        <xsl:result-document href="{$generatedSourcesDirectory}/org/daisy/pipeline/modules/impl/{$className}.java" method="text" xml:space="preserve"><c:data>package org.daisy.pipeline.modules.impl;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.daisy.pipeline.modules.JarModuleBuilder;
+import org.daisy.pipeline.modules.Module;
+import org.daisy.pipeline.modules.ModuleRef;
+import org.daisy.pipeline.modules.OSGIModuleBuilder;
+import org.daisy.pipeline.xmlcatalog.XmlCatalog;
+import org.daisy.pipeline.xmlcatalog.XmlCatalogParser;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+@Component(
+    name = "org.daisy.pipeline.modules.impl.<xsl:value-of select="$className"/>",
+    service = { ModuleRef.class },
+    immediate = true
+)
+public class <xsl:value-of select="$className"/> implements ModuleRef {
+    
+    private Module instance;
+    private XmlCatalogParser catalogParser;
+    
+    public Module get() {
+        if (instance == null) {
+            URI jarFileURI; {
+                try {
+                    jarFileURI = <xsl:value-of select="$className"/>.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            File jarFile; {
+                try {
+                    jarFile = new File(jarFileURI);
+                } catch (IllegalArgumentException e) {
+                    // Could be because we are running in OSGi context
+                    instance = OSGiHelper.getOSGiModule(catalogParser);
+                    return instance;
+                }
+            }
+            XmlCatalog catalog = catalogParser.parse(
+                jarFile.isDirectory() ?
+                new File(jarFile, "/META-INF/catalog.xml").toURI() :
+                URI.create("jar:" + jarFileURI.toASCIIString() + "!/META-INF/catalog.xml")
+            );
+            instance = new JarModuleBuilder()
+                .withName("<xsl:value-of select="$moduleName"/>")
+                .withVersion("<xsl:value-of select="$moduleVersion"/>")
+                .withTitle("<xsl:value-of select="replace(replace($moduleTitle,'&quot;','\\&quot;'),'\\','\\\\')"/>")
+                .withJarFile(jarFile)
+                .withCatalog(catalog)
+                .build();
+        }
+        return instance;
+    }
+    
+    @Reference(
+        name = "XmlCatalogParser",
+        unbind = "-",
+        service = XmlCatalogParser.class,
+        cardinality = ReferenceCardinality.MANDATORY,
+        policy = ReferencePolicy.STATIC
+    )
+    public void setParser(XmlCatalogParser parser) {
+        catalogParser = parser;
+    }
+    
+    private static abstract class OSGiHelper {
+        static Module getOSGiModule(XmlCatalogParser catalogParser) {
+            Bundle bundle = FrameworkUtil.getBundle(<xsl:value-of select="$className"/>.class);
+            URI catalogURI; {
+                try {
+                    catalogURI = bundle.getResource("META-INF/catalog.xml").toURI();
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return new OSGIModuleBuilder()
+                .withBundle(bundle)
+                .withCatalog(catalogParser.parse(catalogURI))
+                .build();
+        }
+    }
+}
+</c:data></xsl:result-document>
         <xsl:result-document href="{$generatedResourcesDirectory}/META-INF/catalog.xml" method="xml">
             <xsl:copy>
                 <xsl:apply-templates select="@*|node()"/>

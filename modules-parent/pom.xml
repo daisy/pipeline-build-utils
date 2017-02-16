@@ -138,7 +138,7 @@
         <plugin>
           <groupId>org.daisy.pipeline.build</groupId>
           <artifactId>modules-build-helper</artifactId>
-          <version>2.1.0</version>
+          <version>2.1.1-SNAPSHOT</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -334,7 +334,7 @@
             <executions>
               <execution>
                 <id>process-catalog</id>
-                <phase>generate-resources</phase>
+                <phase>generate-sources</phase>
                 <goals>
                   <goal>process-catalog</goal>
                 </goals>

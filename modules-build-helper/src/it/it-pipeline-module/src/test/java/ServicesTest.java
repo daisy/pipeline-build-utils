@@ -12,9 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-import org.ops4j.pax.exam.ProbeBuilder;
-import org.ops4j.pax.exam.TestProbeBuilder;
-
 public class ServicesTest extends AbstractTest {
 	
 	@Inject
@@ -47,17 +44,12 @@ public class ServicesTest extends AbstractTest {
 	/* For OSGi only */
 	/* ------------- */
 	
-	@ProbeBuilder
-	public TestProbeBuilder probeConfiguration(TestProbeBuilder probe) {
-		probe.setHeader("Service-Component", "OSGI-INF/resolver-mock.xml");
-		return probe;
-	}
-	
 	@Override
 	protected String[] testDependencies() {
 		return new String[]{
 			"org.daisy.pipeline:framework-core:?",
-			"org.daisy.pipeline:calabash-adapter:?"
+			"org.daisy.pipeline:calabash-adapter:?",
+			"org.daisy.pipeline:modules-registry:?"
 		};
 	}
 }

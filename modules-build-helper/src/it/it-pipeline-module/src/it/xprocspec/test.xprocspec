@@ -30,10 +30,12 @@
 					<c:file name="META-INF/services/org.daisy.common.spi.CreateOnStart"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.XProcStepProvider"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.datatypes.DatatypeService"/>
+					<c:file name="META-INF/services/org.daisy.pipeline.modules.ModuleRef"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.script.XProcScriptService"/>
 					<c:file name="OSGI-INF/foo-choice.xml"/>
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
+					<c:file name="OSGI-INF/org.daisy.pipeline.modules.impl.Module_it_pipeline_module.xml"/>
 					<c:file name="OSGI-INF/px-script-option-1.xml"/>
 					<c:file name="OSGI-INF/script.xml"/>
 					<c:file name="css/foo.css"/>
@@ -50,6 +52,8 @@
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice_SPI.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1_SPI.class"/>
+					<c:file name="org/daisy/pipeline/modules/impl/Module_it_pipeline_module.class"/>
+					<c:file name="org/daisy/pipeline/modules/impl/Module_it_pipeline_module_SPI.class"/>
 					<c:file name="org/daisy/pipeline/script/impl/XProcScript_script.class"/>
 					<c:file name="org/daisy/pipeline/script/impl/XProcScript_script_SPI.class"/>
 					<c:file name="xml/__processed__script.xpl"/>
@@ -199,6 +203,10 @@
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1_SPI.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/package-frame.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/package-summary.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/modules/impl/Module_it_pipeline_module.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/modules/impl/Module_it_pipeline_module_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/modules/impl/package-frame.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/modules/impl/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/script/impl/XProcScript_script.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/script/impl/XProcScript_script_SPI.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/script/impl/package-frame.html"/>

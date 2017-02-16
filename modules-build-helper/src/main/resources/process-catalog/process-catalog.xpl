@@ -11,7 +11,9 @@
 	
 	<p:option name="generatedSourcesDirectory" required="true"/>
 	<p:option name="generatedResourcesDirectory" required="true"/>
+	<p:option name="moduleName" required="true"/>
 	<p:option name="moduleVersion" required="true"/>
+	<p:option name="moduleTitle" required="true"/>
 	
 	<p:xslt name="xslt">
 		<p:input port="stylesheet">
@@ -19,7 +21,9 @@
 		</p:input>
 		<p:with-param name="generatedSourcesDirectory" select="$generatedSourcesDirectory"/>
 		<p:with-param name="generatedResourcesDirectory" select="$generatedResourcesDirectory"/>
+		<p:with-param name="moduleName" select="$moduleName"/>
 		<p:with-param name="moduleVersion" select="$moduleVersion"/>
+		<p:with-param name="moduleTitle" select="$moduleTitle"/>
 	</p:xslt>
 	<p:sink/>
 	

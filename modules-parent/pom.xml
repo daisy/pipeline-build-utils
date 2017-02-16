@@ -357,7 +357,7 @@
             <executions>
               <execution>
                 <id>process-catalog</id>
-                <phase>generate-resources</phase>
+                <phase>generate-sources</phase>
                 <goals>
                   <goal>process-catalog</goal>
                 </goals>

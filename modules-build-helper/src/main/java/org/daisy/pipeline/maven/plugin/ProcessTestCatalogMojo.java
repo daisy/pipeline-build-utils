@@ -55,9 +55,19 @@ public class ProcessTestCatalogMojo extends AbstractMojo {
 	private boolean addSources;
 	
 	@Parameter(
+		defaultValue = "test-module"
+	)
+	private String moduleName;
+	
+	@Parameter(
 		defaultValue = "0"
 	)
 	private String moduleVersion;
+	
+	@Parameter(
+		defaultValue = ""
+	)
+	private String moduleTitle;
 	
 	@Parameter(
 		readonly = true,
@@ -72,7 +82,9 @@ public class ProcessTestCatalogMojo extends AbstractMojo {
 			Map<String,String> options = new HashMap<String,String>(); {
 				options.put("generatedResourcesDirectory", asURI(generatedResourcesDirectory).toASCIIString());
 				options.put("generatedSourcesDirectory", asURI(generatedSourcesDirectory).toASCIIString());
+				options.put("moduleName", moduleName);
 				options.put("moduleVersion", moduleVersion);
+				options.put("moduleTitle", moduleTitle);
 			}
 			engine.run(asURI(this.getClass().getResource("/process-catalog/process-catalog.xpl")).toASCIIString(),
 			           ImmutableMap.of("source", (List<String>)ImmutableList.of(asURI(catalogFile).toASCIIString())),

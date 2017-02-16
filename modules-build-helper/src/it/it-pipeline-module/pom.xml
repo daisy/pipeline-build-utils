@@ -44,6 +44,10 @@
     </dependency>
     <dependency>
       <groupId>org.daisy.pipeline</groupId>
+      <artifactId>modules-registry</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline</groupId>
       <artifactId>framework-core</artifactId>
     </dependency>
     <dependency>
@@ -73,7 +77,8 @@
       impl.JavaStep$Provider,
       org.daisy.pipeline.script.impl.XProcScript_my_script,
       org.daisy.pipeline.datatypes.impl.Datatype_foo_choice,
-      org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath
+      org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath,
+      org.daisy.pipeline.modules.impl.Module_it_pipeline_module
     </expose-services>
   </properties>
   <build>
@@ -114,6 +119,7 @@
             <Import-Package>!org.daisy.common.spi,*</Import-Package>
             <Private-Package>
               org.daisy.impl,
+              org.daisy.pipeline.modules.impl;-split-package:=first,
               org.daisy.pipeline.script.impl;-split-package:=first,
               org.daisy.pipeline.datatypes.impl;-split-package:=first,
               org.daisy.pipeline.braille.liblouis.impl;-split-package:=first

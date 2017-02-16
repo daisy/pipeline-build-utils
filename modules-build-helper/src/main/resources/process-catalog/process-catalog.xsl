@@ -14,7 +14,9 @@
     
     <xsl:param name="generatedSourcesDirectory" required="yes" as="xs:string"/>
     <xsl:param name="generatedResourcesDirectory" required="yes" as="xs:string"/>
+    <xsl:param name="moduleName" required="yes" as="xs:string"/>
     <xsl:param name="moduleVersion" required="yes" as="xs:string"/>
+    <xsl:param name="moduleTitle" required="yes" as="xs:string"/>
     
     <xsl:include href="../lib/uri-functions.xsl"/>
     <xsl:include href="../lib/extend-script.xsl"/>
@@ -53,6 +55,7 @@
         <!--
             generate Java files
         -->
+        <xsl:call-template name="module-class"/>
         <xsl:apply-templates mode="java"/>
         <!--
             process XProc files
@@ -72,6 +75,64 @@
                 </xsl:copy>
             </xsl:result-document>
         </xsl:if>
+    </xsl:template>
+    
+    <xsl:template name="module-class">
+        <xsl:variable name="className" select="concat('Module_',replace($moduleName,'-','_'))"/>
+        <xsl:result-document href="{$generatedSourcesDirectory}/org/daisy/pipeline/modules/impl/{$className}.java" method="text" xml:space="preserve"><c:data>package org.daisy.pipeline.modules.impl;
+
+import java.io.File;
+import java.net.URI;
+
+import org.daisy.pipeline.modules.AbstractModuleBuilder;
+import org.daisy.pipeline.modules.JarModuleBuilder;
+import org.daisy.pipeline.modules.Module;
+import org.daisy.pipeline.modules.ModuleRef;
+import org.daisy.pipeline.xmlcatalog.XmlCatalogParser;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+@Component(
+    name = "org.daisy.pipeline.modules.impl.<xsl:value-of select="$className"/>",
+    service = { ModuleRef.class },
+    immediate = true
+)
+public class <xsl:value-of select="$className"/> implements ModuleRef {
+    
+    private Module instance;
+    private XmlCatalogParser catalogParser;
+    
+    public Module get() {
+        if (instance == null) {
+            AbstractModuleBuilder builder
+            = AbstractModuleBuilder.fromContainedClass(<xsl:value-of select="$className"/>.class)
+                                   .withCatalogParser(catalogParser);
+            if (builder instanceof JarModuleBuilder) {
+                // name, version and title not set yet
+                builder.withName("<xsl:value-of select="$moduleName"/>")
+                       .withVersion("<xsl:value-of select="$moduleVersion"/>")
+                       .withTitle("<xsl:value-of select="replace(replace($moduleTitle,'&quot;','\\&quot;'),'\\','\\\\')"/>");
+            }
+            instance = builder.build();
+        }
+        return instance;
+    }
+    
+    @Reference(
+        name = "XmlCatalogParser",
+        unbind = "-",
+        service = XmlCatalogParser.class,
+        cardinality = ReferenceCardinality.MANDATORY,
+        policy = ReferencePolicy.STATIC
+    )
+    public void setParser(XmlCatalogParser parser) {
+        catalogParser = parser;
+    }
+}
+</c:data></xsl:result-document>
     </xsl:template>
     
     <xsl:template match="@*|node()">

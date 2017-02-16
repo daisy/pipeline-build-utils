@@ -223,6 +223,32 @@ public class DsToSpiProcessor extends AbstractProcessor {
 									printWarning("No component updating with SPI: method '" + updatedMethod + "' (if it exists) will never be called", e);
 								}
 							}
+							if (exeElement.getParameters().size() == 1) {
+								reference.propertiesArgumentType = null;
+							} else if (exeElement.getParameters().size() == 2) {
+								String argTypeName = exeElement.getParameters().get(1).asType().toString();
+								Class<?> argType; {
+									try {
+										argType = Class.forName(argTypeName.replaceAll("<.+>$", ""));
+									} catch (ClassNotFoundException ex) {
+										printError("@Reference method with argument type '" + argTypeName + "' not supported", e);
+										throw new RuntimeException();
+									}
+								}
+								if (argType == Dictionary.class) {
+									printWarning("No component configuration with SPI except within component declaration itself", e);
+									reference.propertiesArgumentType = Dictionary.class;
+								} else if (argType == Map.class) {
+									printWarning("No component configuration with SPI except within component declaration itself", e);
+									reference.propertiesArgumentType = HashMap.class;
+								} else {
+									printError("@Reference method with argument type '" + argTypeName + "' not supported", e);
+									throw new RuntimeException();
+								}
+							} else {
+								printError("@Reference method with more than 2 arguments not supported", e);
+								throw new RuntimeException();
+							}
 						}
 						component.references.add(reference);
 					} else {

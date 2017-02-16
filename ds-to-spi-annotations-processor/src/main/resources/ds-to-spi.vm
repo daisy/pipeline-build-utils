@@ -2,14 +2,22 @@
 package ${component.packageName};
 
 #end
-public class ${component.spiClassName} extends ${component.qualifiedClassName}
+public class ${component.spiClassName}
+       extends ${component.qualifiedClassName}
+       implements org.daisy.common.spi.ServiceWithProperties
 #if( ${component.immediate} )
-implements org.daisy.common.spi.CreateOnStart  ## maybe this is not exactly what we want but it's close enough
+                , org.daisy.common.spi.CreateOnStart ## maybe this is not exactly what we want but it's close enough
 #end
 {
 	
+	private final java.util.Map spi_props;
+	
 	public ${component.spiClassName}() {
 		super();
+		spi_props = new java.util.HashMap();
+#foreach($property in ${component.properties})
+		spi_props.put(${property.keyLiteral}, ${property.valueLiteral});
+#end
 #foreach($reference in ${component.references})
 		{
 			java.util.Iterator<${reference.service}> services
@@ -30,7 +38,17 @@ implements org.daisy.common.spi.CreateOnStart  ## maybe this is not exactly what
 			int refCount = 0;
 			while (services.hasNext()) {
 				try {
-					${reference.methodName}(services.next());
+					${reference.service} service = services.next();
+#if( ${reference.propertiesArgumentType} )
+					${reference.propertiesArgumentType.getName()} props = new ${reference.propertiesArgumentType.getName()}();
+					for (java.util.Map.Entry kv : (java.util.Set<java.util.Map.Entry>)
+							((org.daisy.common.spi.ServiceWithProperties)service).spi_getProperties().entrySet()) {
+						props.put(kv.getKey(), kv.getValue());
+					}
+					${reference.methodName}(service, props);
+#else
+					${reference.methodName}(service);
+#end
 					refCount++;
 					if (maxRef > 0 && refCount == maxRef)
 						break;
@@ -53,5 +71,9 @@ implements org.daisy.common.spi.CreateOnStart  ## maybe this is not exactly what
 		${component.activate.methodName}();
 #end
 #end
+	}
+	
+	public java.util.Map spi_getProperties() {
+		return spi_props;
 	}
 }

@@ -66,6 +66,7 @@ public class ComponentModel {
 		String methodName;
 		String service;
 		String cardinality;
+		String filter;
 		Class<?> propertiesArgumentType;
 		
 		public String getMethodName() {
@@ -78,6 +79,10 @@ public class ComponentModel {
 		
 		public String getCardinality() {
 			return cardinality;
+		}
+		
+		public String getFilter() {
+			return filter == null ? null : "\"" + filter.replaceAll("\"", "\\\"") + "\"";
 		}
 		
 		public Class<?> getPropertiesArgumentType() {

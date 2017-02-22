@@ -1,6 +1,7 @@
 package org.daisy.pipeline.junit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.runner.Description;
@@ -27,8 +28,20 @@ public class TestRunner extends ParentRunner<Runner> {
 		super(testClass);
 		// set default strategy to PerClass instead of PerMethod
 		System.setProperty(EXAM_REACTOR_STRATEGY_KEY, EXAM_REACTOR_STRATEGY_PER_CLASS);
-		osgiRunner = new ProbeRunner(testClass);
-		osgilessRunner = new OSGiLessRunner(testClass);
+		String runnersProperty = System.getProperty("org.daisy.pipeline.junit.runners");
+		if (runnersProperty == null)
+			runnersProperty = "PaxExam,OSGiLessRunner";
+		List<String> runners = Arrays.asList(runnersProperty.replaceAll("\\s+","").split(","));
+		if (runners.contains("PaxExam"))
+			osgiRunner = new ProbeRunner(testClass);
+		else {
+			System.out.println("Skipping tests with OSGi");
+			osgiRunner = null; }
+		if (runners.contains("OSGiLessRunner"))
+			osgilessRunner = new OSGiLessRunner(testClass);
+		else {
+			System.out.println("Skipping tests without OSGi");
+			osgilessRunner = null; }
 	}
 	
 	@Override
@@ -50,8 +63,10 @@ public class TestRunner extends ParentRunner<Runner> {
 	@Override
 	protected List<Runner> getChildren() {
 		List<Runner> children = new ArrayList<Runner>();
-		children.add(osgiRunner);
-		children.add(osgilessRunner);
+		if (osgiRunner != null)
+			children.add(osgiRunner);
+		if (osgilessRunner != null)
+			children.add(osgilessRunner);
 		return children;
 	}
 }

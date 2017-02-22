@@ -99,6 +99,11 @@
       <version>3.0</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline</groupId>
+      <artifactId>ds-to-spi-runtime</artifactId>
+      <version>${ds-to-spi-runtime.version}</version>
+    </dependency>
     <!--
         test dependencies
     -->
@@ -134,12 +139,6 @@
     <dependency>
       <groupId>org.daisy.pipeline.modules.braille</groupId>
       <artifactId>libhyphen-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.daisy.pipeline</groupId>
-      <artifactId>ds-to-spi-runtime</artifactId>
-      <version>${ds-to-spi-runtime.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -198,7 +197,6 @@
             <extraArtifact>org.daisy.pipeline:ds-to-spi-runtime:${ds-to-spi-runtime.version}</extraArtifact>
             <extraArtifact>org.daisy.pipeline.build:ds-to-spi-maven-plugin:${ds-to-spi-maven-plugin.version}:maven-plugin</extraArtifact>
             <extraArtifact>org.daisy.xprocspec:xprocspec:${xprocspec.version}</extraArtifact>
-            <extraArtifact>org.daisy.pipeline.build:modules-test-helper:${modules-test-helper.version}</extraArtifact>
           </extraArtifacts>
           <goals>
             <goal>install</goal>

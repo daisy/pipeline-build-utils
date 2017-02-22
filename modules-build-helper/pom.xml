@@ -93,6 +93,15 @@
       <scope>provided</scope>
     </dependency>
     <!--
+        for framework bundles
+    -->
+    <dependency>
+      <groupId>org.daisy.pipeline</groupId>
+      <artifactId>ds-to-spi-runtime</artifactId>
+      <version>${ds-to-spi-runtime.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <!--
         test dependencies
     -->
     <dependency>
@@ -105,12 +114,6 @@
     <dependency>
       <groupId>org.daisy.pipeline</groupId>
       <artifactId>framework-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.daisy.pipeline</groupId>
-      <artifactId>ds-to-spi-runtime</artifactId>
-      <version>${ds-to-spi-runtime.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

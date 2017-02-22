@@ -80,7 +80,6 @@ public class ProcessCatalogMojo extends AbstractMojo {
 	
 	public void execute() throws MojoFailureException {
 		try {
-			@SuppressWarnings("unchecked")
 			XProcEngine engine = new CalabashWithPipelineModules(mavenProject.getCompileClasspathElements());
 			Map<String,String> options = new HashMap<String,String>(); {
 				options.put("generatedResourcesDirectory", asURI(generatedResourcesDirectory).toASCIIString());

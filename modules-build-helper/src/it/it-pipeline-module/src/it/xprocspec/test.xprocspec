@@ -26,6 +26,7 @@
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="META-INF/catalog.xml"/>
+					<c:file name="META-INF/services/net.sf.saxon.lib.ExtensionFunctionDefinition"/>
 					<c:file name="META-INF/services/org.daisy.Foo"/>
 					<c:file name="META-INF/services/org.daisy.common.spi.CreateOnStart"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.XProcStepProvider"/>
@@ -36,11 +37,15 @@
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
 					<c:file name="OSGI-INF/org.daisy.pipeline.modules.impl.Module_it_pipeline_module.xml"/>
+					<c:file name="OSGI-INF/pf-java-function.xml"/>
 					<c:file name="OSGI-INF/px-script-option-1.xml"/>
 					<c:file name="OSGI-INF/script.xml"/>
 					<c:file name="css/foo.css"/>
 					<c:file name="data-types/script-option-1.xml"/>
 					<c:file name="data-types/type.xml"/>
+					<c:file name="impl/JavaFunction$1.class"/>
+					<c:file name="impl/JavaFunction.class"/>
+					<c:file name="impl/JavaFunction_SPI.class"/>
 					<c:file name="impl/JavaStep$1.class"/>
 					<c:file name="impl/JavaStep$Provider.class"/>
 					<c:file name="impl/JavaStep.class"/>
@@ -185,6 +190,8 @@
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-doc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="src/main/java/allclasses-frame.html"/>
+					<c:file name="src/main/java/impl/JavaFunction.html"/>
+					<c:file name="src/main/java/impl/JavaFunction_SPI.html"/>
 					<c:file name="src/main/java/impl/JavaStep.html"/>
 					<c:file name="src/main/java/impl/JavaStep_Provider_SPI.html"/>
 					<c:file name="src/main/java/impl/package-frame.html"/>

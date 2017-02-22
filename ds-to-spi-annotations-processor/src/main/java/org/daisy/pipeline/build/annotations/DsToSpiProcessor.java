@@ -195,9 +195,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 								printWarning("No dynamic binding with SPI: method '" + bindMethod + "' will never be called after component has been activated", e);
 							}
 							if (!"".equals(referenceAnnotation.target())) {
-								// supporting this would require a re-implementation of OSGi's filtering functionality
-								printError("@Component with target = " + referenceAnnotation.target() + " not supported", e);
-								throw new RuntimeException();
+								reference.filter = referenceAnnotation.target();
 							}
 							if (!"-".equals(referenceAnnotation.unbind())) {
 								String unbindMethod = referenceAnnotation.unbind();

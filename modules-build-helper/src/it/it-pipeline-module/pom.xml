@@ -71,6 +71,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.daisy.pipeline</groupId>
+      <artifactId>framework-volatile</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
@@ -86,6 +91,7 @@
   <properties>
     <expose-services>
       org.daisy.impl.FooImpl,
+      impl.JavaFunction,
       impl.JavaStep$Provider,
       org.daisy.pipeline.script.impl.XProcScript_my_script,
       org.daisy.pipeline.datatypes.impl.Datatype_foo_choice,
@@ -343,6 +349,17 @@
                 <addMavenDescriptor>false</addMavenDescriptor>
               </archive>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.daisy.maven</groupId>
+        <artifactId>xspec-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <id>xspecTest</id>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>

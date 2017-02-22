@@ -6,7 +6,7 @@ import org.daisy.pipeline.datatypes.DatatypeRegistry;
 import org.daisy.pipeline.datatypes.DatatypeService;
 import org.daisy.pipeline.script.XProcScriptService;
 
-import org.daisy.pipeline.junit.AbstractTest;
+import org.daisy.pipeline.junit.AbstractXSpecAndXProcSpecTest;
 import static org.daisy.pipeline.pax.exam.Options.mavenBundle;
 
 import static org.junit.Assert.assertEquals;
@@ -18,7 +18,7 @@ import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import org.ops4j.pax.exam.Option;
 
-public class ServicesTest extends AbstractTest {
+public class ServicesTest extends AbstractXSpecAndXProcSpecTest {
 	
 	@Inject
 	public DatatypeRegistry datatypes;

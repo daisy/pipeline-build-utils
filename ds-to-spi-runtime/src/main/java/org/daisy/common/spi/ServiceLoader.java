@@ -8,7 +8,12 @@ import java.util.NoSuchElementException;
 
 import com.google.common.collect.AbstractIterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ServiceLoader<S> implements Iterable<S> {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ServiceLoader.class);
 	
 	private static final Map<Class<?>,ServiceLoader<?>> cache = new HashMap<Class<?>,ServiceLoader<?>>();
 	
@@ -35,13 +40,22 @@ public class ServiceLoader<S> implements Iterable<S> {
 			Iterator<S> serviceIterator;
 			public S computeNext() {
 				if (serviceIterator == null) {
-					if (serviceLoader == null) {
-						serviceLoader = memoize(java.util.ServiceLoader.load(serviceType));
+					try {
+						if (serviceLoader == null) {
+							serviceLoader = memoize(java.util.ServiceLoader.load(serviceType));
+						}
+						serviceIterator = serviceLoader.iterator();
+					} catch (Throwable e) {
+						logger.error("Failed to instantiate services", e);
+						return endOfData();
 					}
-					serviceIterator = serviceLoader.iterator();
 				}
-				if (serviceIterator.hasNext()) {
-					return serviceIterator.next();
+				while (serviceIterator.hasNext()) {
+					try {
+						return serviceIterator.next();
+					} catch (Throwable e) {
+						logger.error("Failed to instantiate service", e);
+					}
 				}
 				return endOfData();
 			}

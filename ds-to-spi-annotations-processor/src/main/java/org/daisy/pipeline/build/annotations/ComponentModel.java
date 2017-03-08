@@ -1,7 +1,11 @@
 package org.daisy.pipeline.build.annotations;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 public class ComponentModel {
 	
@@ -44,6 +48,16 @@ public class ComponentModel {
 	}
 	
 	public List<ReferenceModel> getReferences() {
+		Collections.sort(references, new Comparator<ReferenceModel>() {
+			public int compare(ReferenceModel o1, ReferenceModel o2) {
+				if (o1.policy == ReferencePolicy.STATIC && o2.policy != ReferencePolicy.STATIC)
+					return -1;
+				else if (o1.policy != ReferencePolicy.STATIC && o2.policy == ReferencePolicy.STATIC)
+					return 1;
+				else
+					return 0;
+			}
+		});
 		return references;
 	}
 	
@@ -66,6 +80,7 @@ public class ComponentModel {
 		String methodName;
 		String service;
 		String cardinality;
+		ReferencePolicy policy;
 		String filter;
 		Class<?> propertiesArgumentType;
 		

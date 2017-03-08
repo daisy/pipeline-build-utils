@@ -191,7 +191,8 @@ public class DsToSpiProcessor extends AbstractProcessor {
 							reference.methodName = bindMethod;
 							reference.service = getAnnotationValue(exeElement, Reference.class.getName(), "service").getValue().toString();
 							reference.cardinality = referenceAnnotation.cardinality().toString();
-							if (referenceAnnotation.policy() != ReferencePolicy.STATIC) {
+							reference.policy = referenceAnnotation.policy();
+							if (reference.policy != ReferencePolicy.STATIC) {
 								printWarning("No dynamic binding with SPI: method '" + bindMethod + "' will never be called after component has been activated", e);
 							}
 							if (!"".equals(referenceAnnotation.target())) {

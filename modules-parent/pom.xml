@@ -138,7 +138,7 @@
         <plugin>
           <groupId>org.daisy.pipeline.build</groupId>
           <artifactId>modules-build-helper</artifactId>
-          <version>2.0.0</version>
+          <version>2.0.1-SNAPSHOT</version>
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>

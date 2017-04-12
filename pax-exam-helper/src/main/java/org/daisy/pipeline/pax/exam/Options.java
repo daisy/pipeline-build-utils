@@ -192,7 +192,8 @@ public abstract class Options {
 						logger.error("Could not find version of " + groupId + ":" + artifactId + " in Maven project");
 						throw new RuntimeException("Could not find version of " + groupId + ":" + artifactId + " in Maven project"); }
 				bundle.version(version);
-				// special handling of xprocspec
+				// FIXME: special handling of xprocspec
+				// xprocspec 1.2.0 is a bundle but does not export resources
 				if (groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec"))
 					url = wrappedBundle(bundle)
 						.bundleSymbolicName("org.daisy.xprocspec")

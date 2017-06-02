@@ -367,10 +367,14 @@ public abstract class Options {
 		private MavenBundle[] bundles = null;
 		
 		public MavenBundle[] getBundles() {
-			if (bundles == null) {
-				Set<MavenBundle> set = resolveBundles(fromBundles);
-				bundles = set.toArray(new MavenBundle[set.size()]); }
-			return bundles;
+			try {
+				if (bundles == null) {
+					Set<MavenBundle> set = resolveBundles(fromBundles);
+					bundles = set.toArray(new MavenBundle[set.size()]); }
+				return bundles; }
+			catch (RuntimeException e) {
+				e.printStackTrace();
+				throw e; }
 		}
 		
 		private static Set<MavenBundle> resolveBundles(List<MavenBundle> fromBundles) {
@@ -438,7 +442,7 @@ public abstract class Options {
 								    && b.type.equals(type)
 								    && b.classifier.equals(classifier)) {
 									if (b.versionAsInProject && !a.getVersion().equals(b.version))
-										throw new Exception("Coding error");
+										throw new RuntimeException("Coding error");
 									versionAsInProject = b.versionAsInProject;
 									break; }
 							if (versionAsInProject
@@ -453,7 +457,8 @@ public abstract class Options {
 							if (noStart)
 								b.noStart();
 							bundles.add(b); }}}
-				catch(Exception e) {}}
+				catch (InvalidBundleException e) {
+					logger.info("Ignoring dependency " + groupId + ":" + artifactId + ": not a valid bundle."); }}
 			for (DependencyNode n : node.getChildren())
 				if (!dependenciesAsBundles(bundles, n, versionAsInProject, fromBundles, a != null ? a : parent))
 					return false;
@@ -474,7 +479,7 @@ public abstract class Options {
 		}
 		
 		// throw exception if bundle is not valid, and return true if it is a fragment bundle
-		private static boolean validateBundleAndIsFragmentBundle(File bundle) {
+		private static boolean validateBundleAndIsFragmentBundle(File bundle) throws InvalidBundleException {
 			JarFile jar = null;
 			try {
 				jar = new JarFile(bundle, false);
@@ -485,7 +490,7 @@ public abstract class Options {
 				String bundleSymbolicName = mainAttrs.getValue("Bundle-SymbolicName");
 				String bundleName = mainAttrs.getValue("Bundle-Name");
 				if (bundleSymbolicName == null && bundleName == null)
-					throw new RuntimeException("[" + bundle + "] is not a valid bundle: Bundle-SymbolicName and Bundle-Name are missing");
+					throw new InvalidBundleException("[" + bundle + "] is not a valid bundle: Bundle-SymbolicName and Bundle-Name are missing");
 				return (mainAttrs.getValue("Fragment-Host") != null); }
 			catch (IOException e) {
 				throw new RuntimeException("[" + bundle + "] is not a valid bundle: failed reading jar", e); }
@@ -503,6 +508,12 @@ public abstract class Options {
 				return null;
 			}
 			public void release(Wagon wagon) {}
+		}
+		
+		private static class InvalidBundleException extends Exception {
+			InvalidBundleException(String message) {
+				super(message);
+			}
 		}
 	}
 	

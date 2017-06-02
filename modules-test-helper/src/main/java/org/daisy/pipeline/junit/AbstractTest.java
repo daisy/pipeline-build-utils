@@ -47,20 +47,25 @@ public abstract class AbstractTest {
 	// wrapped in class to avoid ClassNotFoundException
 	protected static abstract class _ {
 		protected static Option[] config(Option systemProperties, MavenBundleOption testDependencies) {
-			return options(
-				systemProperties,
-				domTraversalPackage(),
-				felixDeclarativeServices(),
-				thisBundle(),
-				junitBundles(),
-				systemPackage("javax.xml.stream;version=\"1.0.1\""),
-				mavenBundle("org.daisy.pipeline.build:modules-test-helper:?"),
-				mavenBundlesWithDependencies(
-					testDependencies,
-					// logging
-					logbackClassic(),
-					mavenBundle("org.slf4j:jcl-over-slf4j:1.7.2")) // required by httpclient (FIXME: add to runtime dependencies of calabash)
-			);
+			try {
+				return options(
+					systemProperties,
+					domTraversalPackage(),
+					felixDeclarativeServices(),
+					thisBundle(),
+					junitBundles(),
+					systemPackage("javax.xml.stream;version=\"1.0.1\""),
+					mavenBundle("org.daisy.pipeline.build:modules-test-helper:?"),
+					mavenBundlesWithDependencies(
+						testDependencies,
+						// logging
+						logbackClassic(),
+						mavenBundle("org.slf4j:jcl-over-slf4j:1.7.2")) // required by httpclient (FIXME: add to runtime dependencies of calabash)
+				);
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+				throw e;
+			}
 		}
 	}
 }

@@ -192,6 +192,9 @@ public abstract class Options {
 						logger.error("Could not find version of " + groupId + ":" + artifactId + " in Maven project");
 						throw new RuntimeException("Could not find version of " + groupId + ":" + artifactId + " in Maven project"); }
 				bundle.version(version);
+				if (startLevel > 0) {
+					bundle.startLevel(startLevel);
+				}
 				// special handling of xprocspec
 				if (groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec"))
 					url = wrappedBundle(bundle)
@@ -255,6 +258,16 @@ public abstract class Options {
 			return this;
 		}
 		
+		private int startLevel = -1;
+		
+		public MavenBundle startLevel(int level) {
+			if (level <= 0) {
+				throw new IllegalArgumentException("start level must be > 0");
+			}
+			this.startLevel = level;
+			return this;
+		}
+		
 		public MavenBundle versionAsInProject() {
 			return version("?");
 		}
@@ -272,7 +285,10 @@ public abstract class Options {
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append("mavenBundle(\"").append(artifactCoords(asArtifact())).append("\")");
+			sb.append("mavenBundle(\"").append(artifactCoords(asArtifact()));
+			if (startLevel > 0)
+				sb.append("(start@").append(startLevel).append(")");
+			sb.append("\")");
 			return sb.toString();
 		}
 		
@@ -403,64 +419,67 @@ public abstract class Options {
 						new LocalRepository(localRepository.getAbsolutePath())))
 				.setOffline(false);
 			Set<MavenBundle> bundles = new HashSet<MavenBundle>();
-			try {
-				if (dependenciesAsBundles(
-					    bundles,
-					    system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot(),
-					    false,
-					    fromBundles,
-					    null))
-					return bundles;
-				else
-					return resolveBundles(fromBundles); }
-			catch (DependencyResolutionException e) {
-				throw new RuntimeException(e); }
+			DependencyNode root; {
+				try {
+					root = system.resolveDependencies(session, new DependencyRequest().setCollectRequest(request)).getRoot(); }
+				catch (DependencyResolutionException e) {
+					throw new RuntimeException(e); }}
+			int startLevel = 4;
+			for (DependencyNode n : root.getChildren())
+				if (!dependenciesAsBundles(bundles, n, false, fromBundles, null, startLevel++))
+					return resolveBundles(fromBundles);
+			return bundles;
 		}
 		
 		private static boolean dependenciesAsBundles(Set<MavenBundle> bundles, DependencyNode node, boolean versionAsInProject,
-		                                             List<MavenBundle> fromBundles, Artifact parent) {
+		                                             List<MavenBundle> fromBundles, Artifact parent, int startLevel) {
 			Dependency dep = node.getDependency();
-			Artifact a = null;
-			if (dep != null) {
-				a = dep.getArtifact();
-				String groupId = a.getGroupId();
-				String artifactId = a.getArtifactId();
-				String type = a.getExtension();
-				String classifier = a.getClassifier();
-				try {
-					if (// these should not be runtime dependencies -> fix in POMs
-						!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))) {
-						if ((classifier.equals("linux") || classifier.equals("mac") || classifier.equals("windows"))
-						    && !classifier.equals(thisPlatform()));
-						else {
-							boolean noStart = false;
-							if (!(groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")))
-								noStart = validateBundleAndIsFragmentBundle(a.getFile());
-							for (MavenBundle b : fromBundles)
-								if (b.groupId.equals(groupId)
-								    && b.artifactId.equals(artifactId)
-								    && b.type.equals(type)
-								    && b.classifier.equals(classifier)) {
-									if (b.versionAsInProject && !a.getVersion().equals(b.version))
-										throw new RuntimeException("Coding error");
-									versionAsInProject = b.versionAsInProject;
-									break; }
-							if (versionAsInProject
-							    && !a.getBaseVersion().equals(MavenUtils.asInProject().getVersion(groupId, artifactId))) {
-								MavenBundle b = new MavenBundle(a, true);
-								logger.info("Forcing transitive dependency \"" + artifactCoords(b.asArtifact()) + "\" (version as in project) "
-								            + "because it would otherwise resolve to version \"" + a.getBaseVersion() + "\" "
-								            + "(via \"" + artifactCoords(parent) + "\")");
-								fromBundles.add(b);
-								return false; }
-							MavenBundle b = new MavenBundle(a);
-							if (noStart)
-								b.noStart();
-							bundles.add(b); }}}
-				catch (InvalidBundleException e) {
-					logger.info("Ignoring dependency " + groupId + ":" + artifactId + ": not a valid bundle."); }}
+			if (dep == null)
+				throw new RuntimeException("Coding error");
+			Artifact a = dep.getArtifact();
+			String groupId = a.getGroupId();
+			String artifactId = a.getArtifactId();
+			String type = a.getExtension();
+			String classifier = a.getClassifier();
+			try {
+				if (// these should not be runtime dependencies -> fix in POMs
+					!(groupId.equals("org.osgi") && (artifactId.equals("org.osgi.compendium") || artifactId.equals("org.osgi.core")))) {
+					if ((classifier.equals("linux") || classifier.equals("mac") || classifier.equals("windows"))
+					    && !classifier.equals(thisPlatform()));
+					else {
+						boolean noStart = false;
+						if (!(groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")))
+							noStart = validateBundleAndIsFragmentBundle(a.getFile());
+						for (MavenBundle b : fromBundles)
+							if (b.groupId.equals(groupId)
+							    && b.artifactId.equals(artifactId)
+							    && b.type.equals(type)
+							    && b.classifier.equals(classifier)) {
+								if (b.versionAsInProject && !a.getVersion().equals(b.version))
+									throw new RuntimeException("Coding error");
+								versionAsInProject = b.versionAsInProject;
+								if (b.startLevel > 0)
+									startLevel = b.startLevel;
+								break; }
+						if (versionAsInProject
+						    && !a.getBaseVersion().equals(MavenUtils.asInProject().getVersion(groupId, artifactId))) {
+							MavenBundle b = new MavenBundle(a, true);
+							logger.info("Forcing transitive dependency \"" + artifactCoords(b.asArtifact()) + "\" (version as in project) "
+							            + "because it would otherwise resolve to version \"" + a.getBaseVersion() + "\" "
+							            + "(via \"" + artifactCoords(parent) + "\")");
+							b.startLevel(startLevel);
+							fromBundles.add(b);
+							return false; }
+						MavenBundle b = new MavenBundle(a);
+						if (noStart)
+							b.noStart();
+						else
+							b.startLevel(startLevel);
+						bundles.add(b); }}}
+			catch (InvalidBundleException e) {
+				logger.info("Ignoring dependency " + groupId + ":" + artifactId + ": not a valid bundle."); }
 			for (DependencyNode n : node.getChildren())
-				if (!dependenciesAsBundles(bundles, n, versionAsInProject, fromBundles, a != null ? a : parent))
+				if (!dependenciesAsBundles(bundles, n, versionAsInProject, fromBundles, a, startLevel))
 					return false;
 			return true;
 		}

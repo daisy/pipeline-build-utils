@@ -93,9 +93,9 @@ public abstract class Options {
 	
 	public static Option spiflyBundles() {
 		return composite(
-			mavenBundle().groupId("org.ow2.asm").artifactId("asm-all").version("4.0"),
+			mavenBundle().groupId("org.ow2.asm").artifactId("asm-all").version("5.0"),
 			mavenBundle().groupId("org.apache.aries").artifactId("org.apache.aries.util").version("1.0.0"),
-			mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.0.0")
+			mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.0.2")
 		);
 	}
 	

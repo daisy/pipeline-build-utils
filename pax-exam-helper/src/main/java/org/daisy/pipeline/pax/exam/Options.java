@@ -11,12 +11,23 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
+import org.apache.maven.settings.building.DefaultSettingsBuilderFactory;
+import org.apache.maven.settings.building.DefaultSettingsBuildingRequest;
+import org.apache.maven.settings.building.SettingsBuilder;
+import org.apache.maven.settings.building.SettingsBuildingException;
+import org.apache.maven.settings.building.SettingsBuildingRequest;
+import org.apache.maven.settings.building.SettingsBuildingResult;
+import org.apache.maven.settings.Profile;
+import org.apache.maven.settings.Repository;
+import org.apache.maven.settings.Settings;
+import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.HttpWagon;
 import org.apache.maven.wagon.Wagon;
 
@@ -44,6 +55,7 @@ import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.resolution.DependencyRequest;
 import org.sonatype.aether.resolution.DependencyResolutionException;
@@ -394,23 +406,72 @@ public abstract class Options {
 		}
 		
 		private static Set<MavenBundle> resolveBundles(List<MavenBundle> fromBundles) {
-			File localRepository; {
-				String prop = System.getProperty("org.ops4j.pax.url.mvn.localRepository");
+			File settingsFile; {
+				// For now don't use "org.ops4j.pax.url.mvn.settings" because Pax Exam itself does not support
+				// system properties inside a settings file.
+				String prop = System.getProperty("org.daisy.org.ops4j.pax.url.mvn.settings");
 				if (prop != null)
-					localRepository = new File(prop);
+					settingsFile = new File(prop);
 				else
-					localRepository = DEFAULT_LOCAL_REPOSITORY; }
+					settingsFile = new File(System.getProperty("user.home"), ".m2/settings.xml"); }
+			File localRepository;
+			List<RemoteRepository> repositories; {
+				localRepository = null;
+				repositories = new Vector<RemoteRepository>();
+				boolean centralRedefined = false;
+				String localRepositoryProp = System.getProperty("org.ops4j.pax.url.mvn.localRepository");
+				if (localRepositoryProp != null)
+					localRepository = new File(localRepositoryProp);
+				if (settingsFile.exists()) {
+					Settings settings; {
+						SettingsBuilder b = new DefaultSettingsBuilderFactory().newInstance();
+						SettingsBuildingRequest req = new DefaultSettingsBuildingRequest();
+						req.setGlobalSettingsFile(settingsFile);
+						req.setSystemProperties(System.getProperties());
+						try {
+							SettingsBuildingResult res = b.build(req);
+							settings = res.getEffectiveSettings(); }
+						catch (SettingsBuildingException e) {
+							throw new RuntimeException(e); }}
+					if (localRepository == null)
+						if (settings.getLocalRepository() != null)
+							localRepository = new File(settings.getLocalRepository());
+					for (Profile profile : settings.getProfiles()) {
+						String profileName = profile.getId();
+						if ((settings.getActiveProfiles() != null && settings.getActiveProfiles().contains(profileName))
+						    || (profile.getActivation() != null && profile.getActivation().isActiveByDefault())) {
+							for (Repository repo : profile.getRepositories()) {
+								RemoteRepository remoteRepo; {
+									remoteRepo = new RemoteRepository(repo.getId(), "default", repo.getUrl());
+									remoteRepo.setPolicy(false,
+										repo.getReleases() != null ?
+											new RepositoryPolicy(
+												repo.getReleases().isEnabled(),
+												repo.getReleases().getUpdatePolicy(),
+												repo.getReleases().getChecksumPolicy()) :
+											new RepositoryPolicy());
+									remoteRepo.setPolicy(true,
+										repo.getSnapshots() != null ?
+											new RepositoryPolicy(
+												repo.getSnapshots().isEnabled(),
+												repo.getSnapshots().getUpdatePolicy(),
+												repo.getSnapshots().getChecksumPolicy()) :
+											new RepositoryPolicy()); }
+								if ("central".equals(repo.getId()))
+									centralRedefined = true;
+								repositories.add(remoteRepo); }}}}
+				if (localRepository == null)
+					localRepository = DEFAULT_LOCAL_REPOSITORY;
+				if (!centralRedefined)
+					repositories.add(new RemoteRepository("central", "default", "http://repo1.maven.org/maven2/")); }
 			CollectRequest request = new CollectRequest();
 			for (MavenBundle bundle : fromBundles) {
 				request.addDependency(new Dependency(bundle.asArtifact(), "runtime")); }
-			List<RemoteRepository> repositories = new Vector<RemoteRepository>();
-			RemoteRepository central = new RemoteRepository("central", "default", "http://repo1.maven.org/maven2/");
-			repositories.add(central);
 			for (RemoteRepository r : repositories)
 				request.addRepository(r);
 			request.setRequestContext("runtime");
 			DefaultServiceLocator locator = new DefaultServiceLocator();
-			locator.addService(WagonProvider.class, HttpWagonProvider.class);
+			locator.addService(WagonProvider.class, HttpAndFileWagonProvider.class);
 			locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
 			RepositorySystem system = locator.getService(RepositorySystem.class);
 			DefaultRepositorySystemSession session = new MavenRepositorySystemSession()
@@ -485,7 +546,7 @@ public abstract class Options {
 		}
 		
 		@Override
-		public String toString() {
+			public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("mavenBundlesWithDependencies(");
 			int i = 0;
@@ -520,10 +581,12 @@ public abstract class Options {
 					catch (IOException e) {}}
 		}
 		
-		public static class HttpWagonProvider implements WagonProvider {
+		public static class HttpAndFileWagonProvider implements WagonProvider {
 			public Wagon lookup(String roleHint) throws Exception {
 				if ("http".equals(roleHint) || "https".equals(roleHint))
 					return new HttpWagon();
+				else if ("file".equals(roleHint))
+					return new FileWagon();
 				return null;
 			}
 			public void release(Wagon wagon) {}

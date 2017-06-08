@@ -70,6 +70,21 @@
       <version>${wagon.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-file</artifactId>
+      <version>${wagon.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings-builder</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -231,6 +246,8 @@
                 <xprocspec.version>${xprocspec.version}</xprocspec.version>
                 <xprocspec-runner.version>${xprocspec-runner.version}</xprocspec-runner.version>
                 <xproc-engine-daisy-pipeline.version>${xproc-engine-daisy-pipeline.version}</xproc-engine-daisy-pipeline.version>
+                <org.ops4j.pax.url.mvn.localRepository>${project.build.directory}/local-repo</org.ops4j.pax.url.mvn.localRepository>
+                <org.daisy.org.ops4j.pax.url.mvn.settings>${basedir}/src/it/settings.xml</org.daisy.org.ops4j.pax.url.mvn.settings>
               </properties>
               <goals>
                 <goal>clean</goal>

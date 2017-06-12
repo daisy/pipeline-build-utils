@@ -20,6 +20,7 @@
   <properties>
     <felix.version>4.4.1</felix.version>
     <pax-exam.version>3.3.0</pax-exam.version>
+    <pax-url.version>1.6.0</pax-url.version>
     <junit.version>4.11</junit.version>
     <slf4j.version>1.6.3</slf4j.version>
     <logback.version>0.9.30</logback.version>
@@ -70,6 +71,21 @@
       <version>${wagon.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-file</artifactId>
+      <version>${wagon.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings-builder</artifactId>
+      <version>${maven.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -85,22 +101,35 @@
       <version>${felix.version}</version>
       <scope>runtime</scope>
     </dependency>
+    <!--
+        Using the forked container can apparently result in the Surefire error "The forked VM
+        terminated without properly saying goodbye". Setting forkCount to 0 in Surefire doesn't help
+        because it results in the error "java.net.MalformedURLException: unknown protocol:
+        link". Using the native container does fix the problem. Note that according to the Pax Exam
+        documentation the native container could result in classloader issues, but fortunately this
+        is not the case for us. Also note that the forked container has better isolation and
+        resembles better a production environment. We should therefore also try to run tests with
+        the forked container.
+        
+        See https://ops4j1.jira.com/wiki/display/PAXEXAM3/OSGi+Containers.
+    -->
     <dependency>
       <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-container-forked</artifactId>
+      <!-- <artifactId>pax-exam-container-forked</artifactId> -->
+      <artifactId>pax-exam-container-native</artifactId>
       <version>${pax-exam.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.url</groupId>
       <artifactId>pax-url-reference</artifactId>
-      <version>1.6.0</version>
+      <version>${pax-url.version}</version>
      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.ops4j.pax.url</groupId>
       <artifactId>pax-url-wrap</artifactId>
-      <version>1.6.0</version>
+      <version>${pax-url.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -231,6 +260,8 @@
                 <xprocspec.version>${xprocspec.version}</xprocspec.version>
                 <xprocspec-runner.version>${xprocspec-runner.version}</xprocspec-runner.version>
                 <xproc-engine-daisy-pipeline.version>${xproc-engine-daisy-pipeline.version}</xproc-engine-daisy-pipeline.version>
+                <org.ops4j.pax.url.mvn.localRepository>${project.build.directory}/local-repo</org.ops4j.pax.url.mvn.localRepository>
+                <org.daisy.org.ops4j.pax.url.mvn.settings>${basedir}/src/it/settings.xml</org.daisy.org.ops4j.pax.url.mvn.settings>
               </properties>
               <goals>
                 <goal>clean</goal>

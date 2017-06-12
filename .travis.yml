@@ -5,6 +5,7 @@ before_install:
   - source <(curl -fsSL https://raw.github.com/daisy/maven-parents/travis/before_install)
 
 # main task, run the verify goal
+install: true
 script: mvn verify
 
 # if the build succeeds, deploy the artifact (tests are skipped)

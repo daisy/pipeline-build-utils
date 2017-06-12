@@ -92,7 +92,7 @@ public abstract class Options {
 	}
 	
 	public static MavenBundleOption xprocspec() {
-		return mavenBundleComposite(
+		return mavenBundles(
 			mavenBundle("org.daisy.maven:xprocspec-runner:?"),
 			mavenBundle("org.daisy.xprocspec:xprocspec:?")
 		);
@@ -294,12 +294,13 @@ public abstract class Options {
 		}
 	}
 	
-	private static MavenBundleOption mavenBundleComposite(final MavenBundleOption... options) {
+	public static MavenBundleOption mavenBundles(final MavenBundleOption... options) {
 		final MavenBundle[] bundles; {
 			List<MavenBundle> list = new ArrayList<MavenBundle>();
 			for (MavenBundleOption o : options)
-				for (MavenBundle b : o.getBundles())
-					list.add(b);
+				if (o != null)
+					for (MavenBundle b : o.getBundles())
+						list.add(b);
 			bundles = list.toArray(new MavenBundle[list.size()]); }
 		return new MavenBundleCompositeOption() {
 			public MavenBundle[] getBundles() {
@@ -318,6 +319,13 @@ public abstract class Options {
 				return sb.toString();
 			}
 		};
+	}
+	
+	public static MavenBundleOption mavenBundles(final String... artifactCoords) {
+		MavenBundle[] bundles = new MavenBundle[artifactCoords.length];
+		for (int i = 0; i < artifactCoords.length; i++)
+			bundles[i] = artifactCoords == null ? null : mavenBundle(artifactCoords[i]);
+		return mavenBundles(bundles);
 	}
 	
 	private static abstract class MavenBundleCompositeOption implements MavenBundleOption, CompositeOption {
@@ -359,10 +367,14 @@ public abstract class Options {
 		private MavenBundle[] bundles = null;
 		
 		public MavenBundle[] getBundles() {
-			if (bundles == null) {
-				Set<MavenBundle> set = resolveBundles(fromBundles);
-				bundles = set.toArray(new MavenBundle[set.size()]); }
-			return bundles;
+			try {
+				if (bundles == null) {
+					Set<MavenBundle> set = resolveBundles(fromBundles);
+					bundles = set.toArray(new MavenBundle[set.size()]); }
+				return bundles; }
+			catch (RuntimeException e) {
+				e.printStackTrace();
+				throw e; }
 		}
 		
 		private static Set<MavenBundle> resolveBundles(List<MavenBundle> fromBundles) {
@@ -430,7 +442,7 @@ public abstract class Options {
 								    && b.type.equals(type)
 								    && b.classifier.equals(classifier)) {
 									if (b.versionAsInProject && !a.getVersion().equals(b.version))
-										throw new Exception("Coding error");
+										throw new RuntimeException("Coding error");
 									versionAsInProject = b.versionAsInProject;
 									break; }
 							if (versionAsInProject
@@ -445,7 +457,8 @@ public abstract class Options {
 							if (noStart)
 								b.noStart();
 							bundles.add(b); }}}
-				catch(Exception e) {}}
+				catch (InvalidBundleException e) {
+					logger.info("Ignoring dependency " + groupId + ":" + artifactId + ": not a valid bundle."); }}
 			for (DependencyNode n : node.getChildren())
 				if (!dependenciesAsBundles(bundles, n, versionAsInProject, fromBundles, a != null ? a : parent))
 					return false;
@@ -466,7 +479,7 @@ public abstract class Options {
 		}
 		
 		// throw exception if bundle is not valid, and return true if it is a fragment bundle
-		private static boolean validateBundleAndIsFragmentBundle(File bundle) {
+		private static boolean validateBundleAndIsFragmentBundle(File bundle) throws InvalidBundleException {
 			JarFile jar = null;
 			try {
 				jar = new JarFile(bundle, false);
@@ -477,7 +490,7 @@ public abstract class Options {
 				String bundleSymbolicName = mainAttrs.getValue("Bundle-SymbolicName");
 				String bundleName = mainAttrs.getValue("Bundle-Name");
 				if (bundleSymbolicName == null && bundleName == null)
-					throw new RuntimeException("[" + bundle + "] is not a valid bundle: Bundle-SymbolicName and Bundle-Name are missing");
+					throw new InvalidBundleException("[" + bundle + "] is not a valid bundle: Bundle-SymbolicName and Bundle-Name are missing");
 				return (mainAttrs.getValue("Fragment-Host") != null); }
 			catch (IOException e) {
 				throw new RuntimeException("[" + bundle + "] is not a valid bundle: failed reading jar", e); }
@@ -495,6 +508,12 @@ public abstract class Options {
 				return null;
 			}
 			public void release(Wagon wagon) {}
+		}
+		
+		private static class InvalidBundleException extends Exception {
+			InvalidBundleException(String message) {
+				super(message);
+			}
 		}
 	}
 	
@@ -519,7 +538,7 @@ public abstract class Options {
 		return b.toString();
 	}
 	
-	private static String thisPlatform() {
+	public static String thisPlatform() {
 		String name = System.getProperty("os.name").toLowerCase();
 		if (name.startsWith("windows"))
 			return "windows";

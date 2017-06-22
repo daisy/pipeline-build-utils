@@ -414,6 +414,13 @@ public abstract class Options {
 					// Also support "org.ops4j.pax.url.mvn.settings"
 					// Assume this is set only when no system properties are used in the settings file
 					prop = System.getProperty("org.ops4j.pax.url.mvn.settings");
+				// Also support environment variables for more flexibility
+				if (prop == null)
+					prop = System.getenv().get("org.daisy.org.ops4j.pax.url.mvn.settings");
+				if (prop == null) {
+					prop = System.getenv().get("org.ops4j.pax.url.mvn.settings");
+					if (prop != null)
+						System.setProperty("org.ops4j.pax.url.mvn.settings", prop); }
 				if (prop != null)
 					settingsFile = new File(prop);
 				else

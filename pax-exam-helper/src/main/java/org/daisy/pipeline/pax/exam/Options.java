@@ -121,6 +121,13 @@ public abstract class Options {
 		return mavenBundle("org.daisy.maven:xspec-runner:?");
 	}
 	
+	// Note that thisBundle() may point to "target/classes" without really knowing whether it
+	// contains all the resources (it only checks for the OSGI-INF files listed in
+	// Service-Component). Therefore if resources are added it is important that this is done in
+	// such a way that they end up in target/classes. For instance, only resources that exist in
+	// the "generate-resources" phase are automatically copied to target/classes. If they are
+	// generated in the "process-resources" phase you are responsible for copying them to
+	// target/classes yourself.
 	public static UrlProvisionOption thisBundle() {
 		File classes = new File(PathUtils.getBaseDir() + "/target/classes");
 		Manifest manifest;

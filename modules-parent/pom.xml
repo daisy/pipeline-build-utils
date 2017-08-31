@@ -385,7 +385,7 @@
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
               <execution>
-                <id>copy-markdown</id>
+                <id>copy-markdown-and-html</id>
                 <phase>prepare-package</phase>
                 <goals>
                   <goal>copy-resources</goal>
@@ -396,6 +396,7 @@
                       <directory>src/main</directory>
                       <includes>
                         <include>**/*.md</include>
+                        <include>**/*.html</include>
                       </includes>
                     </resource>
                   </resources>

@@ -28,6 +28,9 @@
 					<c:file name="META-INF/catalog.xml"/>
 					<c:file name="OSGI-INF/script.xml"/>
 					<c:file name="css/foo.css"/>
+					<c:file name="impl/JavaStep$1.class"/>
+					<c:file name="impl/JavaStep$Provider.class"/>
+					<c:file name="impl/JavaStep.class"/>
 					<c:file name="xml/foo.xsl"/>
 					<c:file name="xml/script.xpl"/>
 				</c:zipfile>

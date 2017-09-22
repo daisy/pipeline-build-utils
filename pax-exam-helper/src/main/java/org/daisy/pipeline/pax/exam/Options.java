@@ -73,7 +73,11 @@ public abstract class Options {
 	private static final File DEFAULT_LOCAL_REPOSITORY = new File(System.getProperty("user.home"), ".m2/repository");
 	
 	public static SystemPropertyOption logbackConfigFile() {
-		return systemProperty("logback.configurationFile").value("file:" + PathUtils.getBaseDir() + "/src/test/resources/logback.xml");
+		File logbackXml = new File(PathUtils.getBaseDir(), "src/test/resources/logback.xml");
+		if (logbackXml.exists())
+			return systemProperty("logback.configurationFile").value("file:" + logbackXml);
+		else
+			return null;
 	}
 	
 	public static Option calabashConfigFile() {

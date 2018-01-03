@@ -527,7 +527,7 @@ public abstract class Options {
 							    && b.artifactId.equals(artifactId)
 							    && b.type.equals(type)
 							    && b.classifier.equals(classifier)) {
-								if (b.versionAsInProject && !a.getVersion().equals(b.version))
+								if (b.versionAsInProject && !a.getBaseVersion().equals(b.version))
 									throw new RuntimeException("Coding error");
 								versionAsInProject = b.versionAsInProject;
 								if (b.startLevel > 0)

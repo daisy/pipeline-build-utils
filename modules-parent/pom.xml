@@ -400,6 +400,9 @@
                         <include>doc/**/*.md</include>
                         <include>doc/**/*.html</include>
                       </includes>
+                      <excludes>
+                        <exclude>src/main/resources/**/*</exclude>
+                      </excludes>
                     </resource>
                   </resources>
                   <outputDirectory>${project.build.directory}/doc/</outputDirectory>

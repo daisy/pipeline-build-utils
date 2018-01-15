@@ -57,7 +57,7 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 	 * @parameter
 	 */
 	private String includes;
-	private final String defaultIncludes = "**/*.xpl,**/*.css";
+	private final String defaultIncludes = "**/*.xpl,**/*.xsl,**/*.css";
 	
 	/**
 	 * @parameter expression="${project.build.directory}/generated-resources/htmlize-sources"
@@ -119,6 +119,24 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 							for (File f : sources)
 								sourcesAsURIs.add(asURI(f).toASCIIString());
 								engine.run(asURI(HtmlizeSourcesMojo.class.getResource("/htmlize-sources/htmlize-xproc.xpl")).toASCIIString(),
+								           ImmutableMap.of("sources", sourcesAsURIs),
+								           null,
+								           ImmutableMap.of("input-base-uri", asURI(sourceDirectory).toASCIIString(),
+								                           "output-base-uri", asURI(outputDirectory).toASCIIString()),
+								           params);
+						}
+					}
+				);
+				htmlizers.put(
+					new FilenameFilter() {
+						public boolean accept(File dir, String name) {
+							return name.endsWith(".xsl"); }},
+					new Htmlizer() {
+						public void run(Iterable<File> sources, File sourceDirectory, File outputDirectory) throws XProcExecutionException {
+							List<String> sourcesAsURIs = new ArrayList<String>();
+							for (File f : sources)
+								sourcesAsURIs.add(asURI(f).toASCIIString());
+								engine.run(asURI(HtmlizeSourcesMojo.class.getResource("/htmlize-sources/htmlize-xslt.xpl")).toASCIIString(),
 								           ImmutableMap.of("sources", sourcesAsURIs),
 								           null,
 								           ImmutableMap.of("input-base-uri", asURI(sourceDirectory).toASCIIString(),

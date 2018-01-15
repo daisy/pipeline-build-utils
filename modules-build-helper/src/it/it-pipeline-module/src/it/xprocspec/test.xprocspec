@@ -81,6 +81,7 @@
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
 					<c:file name="src/main/resources/xml/a.xml/index.html"/>
 					<c:file name="src/main/resources/xml/foo.xpl/index.html"/>
+					<c:file name="src/main/resources/xml/foo.xsl/index.html"/>
 					<c:file name="src/main/resources/xml/library.xpl/index.html"/>
 					<c:file name="src/main/resources/xml/script.xpl/index.html"/>
 					<c:file name="xprocdoc/d190e56.html"/>

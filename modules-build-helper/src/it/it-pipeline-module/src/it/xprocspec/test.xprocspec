@@ -72,9 +72,9 @@
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-doc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
-					<c:file name="resources/css/foo.css/index.md"/>
-					<c:file name="resources/META-INF/catalog.xml/index.html"/>
-					<c:file name="resources/xml/script.xpl/index.html"/>
+					<c:file name="src/main/resources/css/foo.css/index.md"/>
+					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
+					<c:file name="src/main/resources/xml/script.xpl/index.html"/>
 				</c:zipfile>
 			</x:document>
 		</x:expect>

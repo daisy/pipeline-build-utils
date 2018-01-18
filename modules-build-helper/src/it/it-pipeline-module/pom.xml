@@ -50,6 +50,23 @@
         <artifactId>modules-build-helper</artifactId>
         <executions>
           <execution>
+            <id>htmlize-sources</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>htmlize-sources</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${project.basedir}</sourceDirectory>
+              <outputDirectory>${project.build.directory}/doc</outputDirectory>
+              <catalogXmlFile>${project.basedir}/src/main/resources/META-INF/catalog.xml</catalogXmlFile>
+              <includes>
+                src/main/resources/META-INF/catalog.xml,
+                src/main/resources/**/*.xpl,
+                src/main/resources/**/*.css
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
             <id>package-list</id>
             <phase>prepare-package</phase>
             <goals>

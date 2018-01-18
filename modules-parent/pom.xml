@@ -393,10 +393,12 @@
                 <configuration>
                   <resources>
                     <resource>
-                      <directory>src/main</directory>
+                      <directory>${project.basedir}</directory>
                       <includes>
-                        <include>**/*.md</include>
-                        <include>**/*.html</include>
+                        <include>index.md</include>
+                        <include>src/main/README.md</include>
+                        <include>doc/**/*.md</include>
+                        <include>doc/**/*.html</include>
                       </includes>
                     </resource>
                   </resources>
@@ -416,13 +418,13 @@
                   <goal>htmlize-sources</goal>
                 </goals>
                 <configuration>
-                  <sourceDirectory>${project.basedir}/src/main</sourceDirectory>
+                  <sourceDirectory>${project.basedir}</sourceDirectory>
                   <outputDirectory>${project.build.directory}/doc</outputDirectory>
                   <catalogXmlFile>${project.basedir}/src/main/resources/META-INF/catalog.xml</catalogXmlFile>
                   <includes>
-                    resources/META-INF/catalog.xml,
-                    resources/**/*.xpl,
-                    resources/**/*.css
+                    src/main/resources/META-INF/catalog.xml,
+                    src/main/resources/**/*.xpl,
+                    src/main/resources/**/*.css
                   </includes>
                 </configuration>
               </execution>
@@ -432,6 +434,7 @@
             <artifactId>maven-jar-plugin</artifactId>
             <executions>
               <execution>
+                <id>package-doc-jar</id>
                 <phase>package</phase>
                 <goals>
                   <goal>jar</goal>

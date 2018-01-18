@@ -6,11 +6,14 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
@@ -28,6 +31,9 @@ import org.daisy.maven.xproc.api.XProcExecutionException;
 
 import static org.daisy.pipeline.maven.plugin.utils.URIs.asURI;
 import static org.daisy.pipeline.maven.plugin.utils.URIs.relativize;
+import static org.daisy.pipeline.maven.plugin.utils.XML.evaluateXPath;
+import static org.daisy.pipeline.maven.plugin.utils.XML.transform;
+import org.daisy.pipeline.modules.impl.resolver.ModuleUriResolver;
 
 /**
  * @goal htmlize-sources
@@ -64,10 +70,14 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 	 */
 	private MavenProject mavenProject;
 	
+	private final static Pattern PSEUDO_ATTR_RE = Pattern.compile("(href|type|title|media|charset|alternate)=(\"([^\"]+)\"|'([^']+)')");
+	private final static Pattern STYLESHEET_RE = Pattern.compile("^\\s*" + PSEUDO_ATTR_RE + "(\\s+" + PSEUDO_ATTR_RE + ")*\\s*$");
+	
 	public void execute() throws MojoFailureException {
 		try {
 			@SuppressWarnings("unchecked")
-			final XProcEngine engine = new CalabashWithPipelineModules(mavenProject.getCompileClasspathElements());
+			final List<String> compileClassPath = mavenProject.getCompileClasspathElements();
+			final XProcEngine engine = new CalabashWithPipelineModules(compileClassPath);
 			List<File> sources = new ArrayList<File>();
 			if (includes == null)
 				includes = defaultIncludes;
@@ -147,6 +157,61 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 								} catch (Exception e) {
 									throw new RuntimeException("Error processing file " + f, e);
 								}
+							}
+						}
+					}
+				);
+				htmlizers.put(
+					new FilenameFilter() {
+						public boolean accept(File dir, String name) {
+							File f = new File(dir, name);
+							try {
+								String instruction = (String)evaluateXPath(
+									f, "/processing-instruction('xml-stylesheet')[1]", null, String.class);
+								if (instruction != null) {
+									Matcher m = STYLESHEET_RE.matcher(instruction);
+									if (m.matches()) {
+										m = PSEUDO_ATTR_RE.matcher(instruction);
+										while (m.find())
+											if ("href".equals(m.group(1))) {
+												String href = m.group(3);
+												if (href == null) href = m.group(4);
+												return (Boolean)evaluateXPath(asURI(f).resolve(href),
+												                              "/xsl:stylesheet",
+												                              ImmutableMap.of("xsl", "http://www.w3.org/1999/XSL/Transform"),
+												                              Boolean.class); }}}
+							} catch (RuntimeException e) {
+							}
+							return false;
+						}},
+					new Htmlizer() {
+						public void run(Iterable<File> sources, File sourceDirectory, File outputDirectory) {
+							for (File f : sources) {
+								File outputFile = new File(outputDirectory, relativize(asURI(sourceDirectory), asURI(f)) + "/index.html");
+								URI xslt; {
+									xslt = null;
+									String instruction = (String)evaluateXPath(
+										f, "/processing-instruction('xml-stylesheet')[1]", null, String.class);
+									Matcher m = STYLESHEET_RE.matcher(instruction);
+									m.matches();
+									m = PSEUDO_ATTR_RE.matcher(instruction);
+									while (m.find())
+										if ("href".equals(m.group(1))) {
+											String href = m.group(3);
+											if (href == null) href = m.group(4);
+											xslt = asURI(f).resolve(href);
+											break; }
+									if (xslt == null)
+										throw new RuntimeException();
+								}
+								ModuleUriResolver uriResolver = new ModuleUriResolver(); {
+									uriResolver.setModuleRegistry(new CalabashWithPipelineModules.OSGilessModuleRegistry(compileClassPath));
+								}
+								transform(f,
+								          outputFile,
+								          asURI(xslt),
+								          null,
+								          uriResolver);
 							}
 						}
 					}

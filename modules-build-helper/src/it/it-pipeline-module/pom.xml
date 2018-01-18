@@ -62,7 +62,8 @@
               <includes>
                 src/main/resources/META-INF/catalog.xml,
                 src/main/resources/**/*.xpl,
-                src/main/resources/**/*.css
+                src/main/resources/**/*.css,
+                src/main/resources/xml/a.xml
               </includes>
             </configuration>
           </execution>

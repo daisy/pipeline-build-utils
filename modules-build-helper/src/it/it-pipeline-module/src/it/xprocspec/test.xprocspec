@@ -31,6 +31,8 @@
 					<c:file name="impl/JavaStep$1.class"/>
 					<c:file name="impl/JavaStep$Provider.class"/>
 					<c:file name="impl/JavaStep.class"/>
+					<c:file name="xml/a.xml"/>
+					<c:file name="xml/a.xml.xsl"/>
 					<c:file name="xml/foo.xsl"/>
 					<c:file name="xml/script.xpl"/>
 				</c:zipfile>
@@ -74,6 +76,7 @@
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
+					<c:file name="src/main/resources/xml/a.xml/index.html"/>
 					<c:file name="src/main/resources/xml/script.xpl/index.html"/>
 				</c:zipfile>
 			</x:document>

@@ -31,13 +31,17 @@
     <dependency>
       <groupId>org.daisy.maven</groupId>
       <artifactId>xproc-engine-calabash</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
+    <!-- avoid circular dependency on framework -->
+    <?fixed-dependency?>
     <dependency>
       <groupId>org.daisy.pipeline</groupId>
       <artifactId>xmlcatalog</artifactId>
       <version>2.0.1</version>
     </dependency>
+    <!-- avoid circular dependency on framework -->
+    <?fixed-dependency?>
     <dependency>
       <groupId>org.daisy.pipeline</groupId>
       <artifactId>modules-registry</artifactId>

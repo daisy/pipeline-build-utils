@@ -192,17 +192,17 @@
   </xsl:template>
 
   <xsl:template match="xd:library" mode="detail">
-    <xsl:variable name="source-href"><xsl:value-of select="(../@name/string(),xd:relativize(../@href, $input-base-uri))[1]"/></xsl:variable>
+    <xsl:variable name="source-href"><xsl:value-of select="xd:relativize(../@href, $input-base-uri)"/></xsl:variable>
     <xsl:variable name="result-href"><xsl:value-of select="xd:resolve-uri(xd:generate-output-uri(.), $output-base-uri)"/></xsl:variable>
     <xsl:result-document format="xhtml-frameset" href="{$result-href}">
       <html>
         <xsl:call-template name="head">
-          <xsl:with-param name="title" select="$source-href"></xsl:with-param>
-          <xsl:with-param name="source" select="pf:relativize-uri(../@href, $result-href)"/>
+          <xsl:with-param name="title" select="(../@name/string(),$source-href)[1]"></xsl:with-param>
+          <xsl:with-param name="source" select="(../@name/string(),pf:relativize-uri(../@href, $result-href))[1]"/>
         </xsl:call-template>
 
         <body>
-          <h2>Library <span class="name"><xsl:value-of select="$source-href"/></span></h2>
+          <h2>Library <span class="name"><xsl:value-of select="(../@name/string(),$source-href)[1]"/></span></h2>
 
           <xsl:apply-templates select="xd:documentation"/>
 
@@ -297,7 +297,7 @@
   <!-- -->
 
   <xsl:template match="xd:step" mode="detail">
-    <xsl:variable name="source-href" select="(ancestor::xd:source/@name/string(),xd:relativize(ancestor::xd:source/@href, $input-base-uri))[1]"/>
+    <xsl:variable name="source-href" select="xd:relativize(ancestor::xd:source/@href, $input-base-uri)"/>
     <xsl:variable name="step-local-name" select="xd:step-local-name(@local-name)"/>
     <xsl:variable name="step-namespace-uri" select="xd:step-namespace-uri(@namespace-uri)"/>
     <xsl:variable name="result-href"><xsl:value-of select="xd:resolve-uri(xd:generate-output-uri(.), $output-base-uri)"/></xsl:variable>
@@ -306,7 +306,7 @@
       <html>
         <xsl:call-template name="head">
           <xsl:with-param name="title" select="concat($step-local-name, ' ', $step-namespace-uri)"/>
-          <xsl:with-param name="source" select="pf:relativize-uri(../@href, $result-href)"/>
+          <xsl:with-param name="source" select="(ancestor::xd:source/@name/string(),pf:relativize-uri(../@href, $result-href))[1]"/>
         </xsl:call-template>
         <body>
           <h2>
@@ -335,7 +335,7 @@
                 </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:value-of select="$source-href"/>
+                <xsl:value-of select="(ancestor::xd:source/@name/string(),$source-href)[1]"/>
               </xsl:otherwise>
             </xsl:choose>
           </span>

@@ -46,46 +46,6 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.7</version>
-        <executions>
-          <execution>
-            <id>copy-sources-for-xprocdoc</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}</directory>
-                  <includes>
-                    <include>src/main/resources/**/*</include>
-                  </includes>
-                </resource>
-              </resources>
-              <outputDirectory>${project.build.directory}/xprocdoc/</outputDirectory>
-            </configuration>
-          </execution>
-          <execution>
-            <id>copy-xprocdoc</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>${project.build.directory}/xprocdoc/xprocdoc</directory>
-                </resource>
-              </resources>
-              <outputDirectory>${project.build.directory}/doc/xprocdoc</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.daisy.pipeline.build</groupId>
         <artifactId>modules-build-helper</artifactId>
         <executions>
@@ -129,9 +89,9 @@
               <goal>xprocdoc</goal>
             </goals>
             <configuration>
-              <sourceDirectory>${project.build.directory}/xprocdoc/src/main/resources</sourceDirectory>
-              <outputDirectory>${project.build.directory}/xprocdoc/xprocdoc</outputDirectory>
-              <catalogXmlFile>${project.build.directory}/xprocdoc/src/main/resources/META-INF/catalog.xml</catalogXmlFile>
+              <sourceDirectory>src/main/resources</sourceDirectory>
+              <outputDirectory>${project.build.directory}/xprocdoc</outputDirectory>
+              <catalogXmlFile>src/main/resources/META-INF/catalog.xml</catalogXmlFile>
               <includes>xml/**/*.xpl</includes>
             </configuration>
           </execution>
@@ -182,6 +142,25 @@
                   <location>${project.build.directory}/dependencies-package-list/</location>
                 </offlineLink>
               </offlineLinks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-xprocdoc-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>xprocdoc</classifier>
+              <classesDirectory>${project.build.directory}/xprocdoc</classesDirectory>
+              <archive>
+                <addMavenDescriptor>false</addMavenDescriptor>
+              </archive>
             </configuration>
           </execution>
         </executions>

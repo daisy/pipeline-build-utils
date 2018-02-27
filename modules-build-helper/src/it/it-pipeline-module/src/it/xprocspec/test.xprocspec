@@ -84,13 +84,6 @@
 					<c:file name="src/main/resources/xml/foo.xsl/index.html"/>
 					<c:file name="src/main/resources/xml/library.xpl/index.html"/>
 					<c:file name="src/main/resources/xml/script.xpl/index.html"/>
-					<c:file name="xprocdoc/d190e56.html"/>
-					<c:file name="xprocdoc/index.html"/>
-					<c:file name="xprocdoc/libraries.html"/>
-					<c:file name="xprocdoc/org/daisy/pipeline/modules/foo-utils/library.xpl.html"/>
-					<c:file name="xprocdoc/org/daisy/pipeline/modules/foo-utils/script.xpl.html"/>
-					<c:file name="xprocdoc/overview.html"/>
-					<c:file name="xprocdoc/steps.html"/>
 				</c:zipfile>
 			</x:document>
 		</x:expect>
@@ -98,6 +91,23 @@
 			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-javadoc.jar"/>
 		</x:context>
 		<x:expect label="The 'javadoc' JAR contains the JavaStep javadoc" type="xpath" test="/c:zipfile/c:file[@name='impl/JavaStep.html']"/>
+		<x:context label="The 'xprocdoc' JAR content">
+			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-xprocdoc.jar"/>
+		</x:context>
+		<x:expect label="The 'xprocdoc' JAR content" type="compare">
+			<x:document type="inline">
+				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-xprocdoc.jar">
+					<c:file name="META-INF/MANIFEST.MF"/>
+					<c:file name="d190e56.html"/>
+					<c:file name="index.html"/>
+					<c:file name="libraries.html"/>
+					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xpl.html"/>
+					<c:file name="org/daisy/pipeline/modules/foo-utils/script.xpl.html"/>
+					<c:file name="overview.html"/>
+					<c:file name="steps.html"/>
+				</c:zipfile>
+			</x:document>
+		</x:expect>
 	</x:scenario>
 	
 </x:description>

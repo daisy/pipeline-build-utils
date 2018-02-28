@@ -61,7 +61,7 @@
 	</xsl:template>
 	
 	<xsl:template mode="attribute-value" match="cat:uri/@name">
-		<span property="alias">
+		<span rel="alias" resource="{.}">
 			<xsl:value-of select="."/>
 		</span>
 	</xsl:template>

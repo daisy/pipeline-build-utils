@@ -477,6 +477,7 @@
                 <configuration>
                   <classifier>xprocdoc</classifier>
                   <classesDirectory>${project.build.directory}/xprocdoc</classesDirectory>
+                  <skipIfEmpty>true</skipIfEmpty>
                   <archive>
                     <addMavenDescriptor>false</addMavenDescriptor>
                   </archive>

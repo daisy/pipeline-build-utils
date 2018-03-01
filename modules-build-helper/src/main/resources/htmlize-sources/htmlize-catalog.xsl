@@ -61,13 +61,15 @@
 	</xsl:template>
 	
 	<xsl:template mode="attribute-value" match="cat:uri/@name">
-		<span rel="alias" resource="{.}">
-			<xsl:value-of select="."/>
-		</span>
+		<a href="../{parent::*/@uri}" class="apidoc">
+			<span rel="alias" resource="{.}">
+				<xsl:value-of select="."/>
+			</span>
+		</a>
 	</xsl:template>
 
 	<xsl:template mode="attribute-value" match="cat:uri/@uri">
-		<a href="../{.}" class="apidoc">
+		<a href="../{.}" class="source">
 			<xsl:value-of select="."/>
 		</a>
 	</xsl:template>

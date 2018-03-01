@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -182,25 +183,15 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 				htmlizers.put(
 					new FilenameFilter() {
 						public boolean accept(File dir, String name) {
+							if (name.endsWith(".xpl") || name.endsWith(".xsl") || (name.equals("catalog.xml") && dir.getName().equals("META-INF")))
+								return false;
 							File f = new File(dir, name);
-							try {
-								String instruction = (String)evaluateXPath(
-									f, "/processing-instruction('xml-stylesheet')[1]", null, String.class);
-								if (instruction != null) {
-									Matcher m = STYLESHEET_RE.matcher(instruction);
-									if (m.matches()) {
-										m = PSEUDO_ATTR_RE.matcher(instruction);
-										while (m.find())
-											if ("href".equals(m.group(1))) {
-												String href = m.group(3);
-												if (href == null) href = m.group(4);
-												return (Boolean)evaluateXPath(asURI(f).resolve(href),
-												                              "/xsl:stylesheet",
-												                              ImmutableMap.of("xsl", "http://www.w3.org/1999/XSL/Transform"),
-												                              Boolean.class); }}}
-							} catch (RuntimeException e) {
-							}
-							return false;
+							boolean isXml; {
+								try {
+									isXml = (Boolean)evaluateXPath(f, "/*", null, Boolean.class); }
+								catch (RuntimeException e) {
+									isXml = false; }}
+							return isXml;
 						}},
 					new Htmlizer() {
 						public void run(Iterable<File> sources, File sourceDirectory, File outputDirectory) {
@@ -210,26 +201,44 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 									xslt = null;
 									String instruction = (String)evaluateXPath(
 										f, "/processing-instruction('xml-stylesheet')[1]", null, String.class);
-									Matcher m = STYLESHEET_RE.matcher(instruction);
-									m.matches();
-									m = PSEUDO_ATTR_RE.matcher(instruction);
-									while (m.find())
-										if ("href".equals(m.group(1))) {
-											String href = m.group(3);
-											if (href == null) href = m.group(4);
-											xslt = asURI(f).resolve(href);
-											break; }
-									if (xslt == null)
-										throw new RuntimeException();
+									if (instruction != null) {
+										Matcher m = STYLESHEET_RE.matcher(instruction);
+										if (m.matches()) {
+											m = PSEUDO_ATTR_RE.matcher(instruction);
+											while (m.find())
+												if ("href".equals(m.group(1))) {
+													String href = m.group(3);
+													if (href == null) href = m.group(4);
+													xslt = asURI(f).resolve(href);
+													try {
+														if (!(Boolean)evaluateXPath(asURI(f).resolve(href),
+														                            "/xsl:stylesheet",
+														                            ImmutableMap.of("xsl", "http://www.w3.org/1999/XSL/Transform"),
+														                            Boolean.class))
+															xslt = null; }
+													catch (RuntimeException e) {
+														xslt = null; }
+													break; }}
+									}
 								}
-								ModuleUriResolver uriResolver = new ModuleUriResolver(); {
-									uriResolver.setModuleRegistry(new CalabashWithPipelineModules.OSGilessModuleRegistry(compileClassPath));
+								if (xslt != null) {
+									ModuleUriResolver uriResolver = new ModuleUriResolver(); {
+										uriResolver.setModuleRegistry(new CalabashWithPipelineModules.OSGilessModuleRegistry(compileClassPath));
+									}
+									transform(f,
+									          outputFile,
+									          asURI(xslt),
+									          null,
+									          uriResolver);
+								} else {
+									List<String> sourceAsURI = new ArrayList<String>();
+									engine.run(asURI(HtmlizeSourcesMojo.class.getResource("/htmlize-sources/htmlize-xml.xpl")).toASCIIString(),
+									           ImmutableMap.of("sources", (List<String>)ImmutableList.of(asURI(f).toASCIIString())),
+									           null,
+									           ImmutableMap.of("input-base-uri", asURI(sourceDirectory).toASCIIString(),
+									                           "output-base-uri", asURI(outputDirectory).toASCIIString()),
+									           params);
 								}
-								transform(f,
-								          outputFile,
-								          asURI(xslt),
-								          null,
-								          uriResolver);
 							}
 						}
 					}

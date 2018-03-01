@@ -105,6 +105,7 @@
 					<c:file name="src/main/java/overview-summary.html"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
+					<c:file name="src/main/resources/data-types/type.xml/index.html"/>
 					<c:file name="src/main/resources/xml/a.xml/index.html"/>
 					<c:file name="src/main/resources/xml/foo.xpl/index.html"/>
 					<c:file name="src/main/resources/xml/foo.xsl/index.html"/>
@@ -124,7 +125,7 @@
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-xprocdoc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
-					<c:file name="d190e56.html"/>
+					<c:file name="d191e56.html"/>
 					<c:file name="index.html"/>
 					<c:file name="libraries.html"/>
 					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xpl.html"/>

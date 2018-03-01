@@ -77,6 +77,13 @@
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-doc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
+					<c:file name="src/main/java/allclasses-frame.html"/>
+					<c:file name="src/main/java/impl/JavaStep.html"/>
+					<c:file name="src/main/java/impl/package-frame.html"/>
+					<c:file name="src/main/java/impl/package-summary.html"/>
+					<c:file name="src/main/java/index.html"/>
+					<c:file name="src/main/java/overview-frame.html"/>
+					<c:file name="src/main/java/overview-summary.html"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
 					<c:file name="src/main/resources/xml/a.xml/index.html"/>

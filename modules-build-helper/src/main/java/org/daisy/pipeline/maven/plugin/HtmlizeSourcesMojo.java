@@ -246,6 +246,32 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 					}
 				);
 			}
+			final Htmlizer fallbackHtmlizer = new Htmlizer() {
+				public void run(Iterable<File> sources, File sourceDirectory, File outputDirectory) throws XProcExecutionException {
+					for (File f : sources) {
+						try {
+							File outputFile = new File(outputDirectory, relativize(asURI(sourceDirectory), asURI(f)) + "/index.md");
+							outputFile.getParentFile().mkdirs();
+							BufferedReader reader = new BufferedReader(new FileReader(f));
+							BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+							writer.write("<link rev=\"doc\" href=\"../" + f.getName() + "\"/>");
+							writer.newLine();
+							writer.newLine();
+							writer.write("~~~");
+							writer.newLine();
+							String line;
+							while ((line = reader.readLine()) != null) {
+								writer.write(line);
+								writer.newLine(); }
+							writer.write("~~~");
+							writer.newLine();
+							writer.close();
+						} catch (Exception e) {
+							throw new RuntimeException("Error processing file " + f, e);
+						}
+					}
+				}
+			};
 			Multimap<Htmlizer,File> index = Multimaps.index(
 				sources,
 				new Function<File,Htmlizer>() {
@@ -253,7 +279,7 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 						for (Map.Entry<FilenameFilter,Htmlizer> kv : htmlizers.entrySet())
 							if (kv.getKey().accept(f.getParentFile(), f.getName()))
 								return kv.getValue();
-						throw new RuntimeException("File type of " + f + " not recognized."); }});
+						return fallbackHtmlizer; }});
 			outputDirectory.mkdirs();
 			for (Map.Entry<Htmlizer,Collection<File>> kv : index.asMap().entrySet())
 				kv.getKey().run(kv.getValue(), sourceDirectory, outputDirectory);

@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -85,6 +86,7 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 			DirectoryScanner scanner = new DirectoryScanner();
 			scanner.setBasedir(sourceDirectory);
 			scanner.setIncludes(includes.replaceAll("\\s", "").split(",(?![^{]*})"));
+			scanner.setExcludes(new String[]{"**/.DS_Store"});
 			scanner.scan();
 			for (String f : scanner.getIncludedFiles())
 				sources.add(new File(sourceDirectory, f));
@@ -255,6 +257,50 @@ public class HtmlizeSourcesMojo extends AbstractMojo {
 			outputDirectory.mkdirs();
 			for (Map.Entry<Htmlizer,Collection<File>> kv : index.asMap().entrySet())
 				kv.getKey().run(kv.getValue(), sourceDirectory, outputDirectory);
+			
+			// Generate directory index files
+			List<String> files = new ArrayList<String>(); {
+				for (String f : scanner.getIncludedFiles())
+					files.add(f);
+			}
+			for (String dir : scanner.getIncludedDirectories()) {
+				File outputFile = new File(outputDirectory, dir + "/index.md");
+				outputFile.getParentFile().mkdirs();
+				BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+				writer.write("<link rev=\"doc\" href=\"../" + outputFile.getParentFile().getName() + "/\"/>");
+				writer.newLine();
+				writer.newLine();
+				int slash = dir.lastIndexOf('/');
+				if (slash > 0) {
+					String parent = dir.substring(0, slash);
+					for (String d : scanner.getIncludedDirectories()) {
+						if (parent.equals(d)) {
+							writer.write("- [../](../)");
+							writer.newLine();
+							break;
+						}
+					}
+				}
+				for (String d : scanner.getIncludedDirectories()) {
+					slash = d.lastIndexOf('/');
+					if (dir.equals(slash < 0 ? "" : d.substring(0, slash))) {
+						d = d.substring(slash + 1);
+						writer.write("- [" + d + "/](" + d + ")");
+						writer.newLine();
+					}
+				}
+				for (Iterator<String> i = files.iterator(); i.hasNext();) {
+					String f = i.next();
+					slash = f.lastIndexOf('/');
+					if (dir.equals(slash < 0 ? "" : f.substring(0, slash))) {
+						f = f.substring(slash + 1);
+						writer.write("- [" + f + "](" + f + ")");
+						writer.newLine();
+						i.remove();
+					}
+				}
+				writer.close();
+			}
 		} catch (Throwable e) {
 			throw new MojoFailureException(e.getMessage(), e);
 		}

@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/vojtechtoman/xprocdoc.git
+	branch = master
+	commit = 597e2d63df80f42aaf6ef73d2884e93aa13cd3eb
+	parent = d2f3e04c59f91b02b766dab29fcd27d4bd830675
+	cmdver = 0.3.1

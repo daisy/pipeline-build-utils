@@ -19,7 +19,7 @@
 	<x:scenario label="test">
 		<x:call step="pxi:dummy"/>
 		<x:context label="The JAR content">
-			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT.jar"/>
+			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT.jar" ordered="true"/>
 		</x:context>
 		<x:expect label="The JAR content" type="compare">
 			<x:document type="inline">
@@ -90,9 +90,9 @@
 			</x:document>
 		</x:expect>
 		<x:context label="The 'doc' JAR content">
-			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-doc.jar"/>
+			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-doc.jar" ordered="true"/>
 		</x:context>
-		<x:expect label="The 'doc' JAR content" type="compare" pending="order of zip entries is undeterministic">
+		<x:expect label="The 'doc' JAR content" type="compare">
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-doc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
@@ -116,13 +116,13 @@
 			</x:document>
 		</x:expect>
 		<x:context label="The 'javadoc' JAR content">
-			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-javadoc.jar"/>
+			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-javadoc.jar" ordered="true"/>
 		</x:context>
 		<x:expect label="The 'javadoc' JAR contains the JavaStep javadoc" type="xpath" test="/c:zipfile/c:file[@name='impl/JavaStep.html']"/>
 		<x:context label="The 'xprocdoc' JAR content">
-			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-xprocdoc.jar"/>
+			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-xprocdoc.jar" ordered="true"/>
 		</x:context>
-		<x:expect label="The 'xprocdoc' JAR content" type="compare" pending="order of zip entries is undeterministic">
+		<x:expect label="The 'xprocdoc' JAR content" type="compare">
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-xprocdoc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>

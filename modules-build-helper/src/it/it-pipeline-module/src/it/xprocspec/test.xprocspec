@@ -149,10 +149,10 @@
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-xsldoc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
-					<c:file name="xml/_foo/foo_xsl-doc.html"/>
-					<c:file name="xml/_library/library-toc.html"/>
-					<c:file name="xml/_library/library_xsl-doc.html"/>
-					<c:file name="xml/library.html"/>
+					<c:file name="org.daisy.pipeline.build.modules-build-helper_it-pipeline-module/xml/foo.xsl/doc.html"/>
+					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xsl.html"/>
+					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xsl/doc.html"/>
+					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xsl/toc.html"/>
 				</c:zipfile>
 			</x:document>
 		</x:expect>

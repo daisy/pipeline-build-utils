@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.daisy.pipeline.modules</groupId>
     <artifactId>modules-parent</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
     <relativePath/>
   </parent>
   <groupId>org.daisy.pipeline.build.modules-build-helper</groupId>
@@ -51,14 +51,7 @@
         <executions>
           <execution>
             <id>htmlize-sources</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>htmlize-sources</goal>
-            </goals>
             <configuration>
-              <sourceDirectory>${project.basedir}</sourceDirectory>
-              <outputDirectory>${project.build.directory}/doc</outputDirectory>
-              <catalogXmlFile>${project.basedir}/src/main/resources/META-INF/catalog.xml</catalogXmlFile>
               <includes>
                 src/main/resources/META-INF/catalog.xml,
                 src/main/resources/**/*.xpl,
@@ -85,18 +78,6 @@
             </configuration>
           </execution>
           <execution>
-            <id>xprocdoc</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>xprocdoc</goal>
-            </goals>
-            <configuration>
-              <sourceDirectory>src/main/resources</sourceDirectory>
-              <outputDirectory>${project.build.directory}/xprocdoc</outputDirectory>
-              <catalogXmlFile>src/main/resources/META-INF/catalog.xml</catalogXmlFile>
-            </configuration>
-          </execution>
-          <execution>
             <id>xsl-doc</id>
             <phase>prepare-package</phase>
             <goals>
@@ -106,23 +87,6 @@
               <sourceDirectory>src/main/resources</sourceDirectory>
               <outputDirectory>${project.build.directory}/xsldoc</outputDirectory>
               <catalogXmlFile>src/main/resources/META-INF/catalog.xml</catalogXmlFile>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.5</version>
-        <executions>
-          <execution>
-            <id>htmlize-java</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>jxr</goal>
-            </goals>
-            <configuration>
-              <destDir>${project.build.directory}/doc/src/main/java/</destDir>
-              <linkJavadoc>false</linkJavadoc>
             </configuration>
           </execution>
         </executions>
@@ -180,25 +144,6 @@
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
-            <id>package-xprocdoc-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <classifier>xprocdoc</classifier>
-              <classesDirectory>${project.build.directory}/xprocdoc</classesDirectory>
-              <archive>
-                <addMavenDescriptor>false</addMavenDescriptor>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
             <id>package-xsldoc-jar</id>
             <phase>package</phase>
             <goals>
@@ -207,6 +152,7 @@
             <configuration>
               <classifier>xsldoc</classifier>
               <classesDirectory>${project.build.directory}/xsldoc</classesDirectory>
+              <skipIfEmpty>true</skipIfEmpty>
               <excludes>
                 <exclude>entries.xml</exclude>
               </excludes>

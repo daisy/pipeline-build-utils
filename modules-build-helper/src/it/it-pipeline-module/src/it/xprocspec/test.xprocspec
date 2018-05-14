@@ -105,6 +105,7 @@
 					<c:file name="src/main/java/index.html"/>
 					<c:file name="src/main/java/overview-frame.html"/>
 					<c:file name="src/main/java/overview-summary.html"/>
+					<c:file name="src/main/java/stylesheet.css"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
 					<c:file name="src/main/resources/data-types/type.xml/index.html"/>

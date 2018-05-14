@@ -93,7 +93,6 @@
               <sourceDirectory>src/main/resources</sourceDirectory>
               <outputDirectory>${project.build.directory}/xprocdoc</outputDirectory>
               <catalogXmlFile>src/main/resources/META-INF/catalog.xml</catalogXmlFile>
-              <includes>xml/**/*.xpl</includes>
             </configuration>
           </execution>
         </executions>

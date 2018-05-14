@@ -65,7 +65,8 @@
                 src/main/resources/**/*.css,
                 src/main/resources/**/*.xml/,
                 src/main/resources/xml,
-                src/main/resources/xml/foo.xsl
+                src/main/resources/xml/foo.xsl,
+                src/main/resources/xml/library.xsl
               </includes>
             </configuration>
           </execution>
@@ -92,6 +93,18 @@
             <configuration>
               <sourceDirectory>src/main/resources</sourceDirectory>
               <outputDirectory>${project.build.directory}/xprocdoc</outputDirectory>
+              <catalogXmlFile>src/main/resources/META-INF/catalog.xml</catalogXmlFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>xsl-doc</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>xsl-doc</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>src/main/resources</sourceDirectory>
+              <outputDirectory>${project.build.directory}/xsldoc</outputDirectory>
               <catalogXmlFile>src/main/resources/META-INF/catalog.xml</catalogXmlFile>
             </configuration>
           </execution>
@@ -175,6 +188,28 @@
             <configuration>
               <classifier>xprocdoc</classifier>
               <classesDirectory>${project.build.directory}/xprocdoc</classesDirectory>
+              <archive>
+                <addMavenDescriptor>false</addMavenDescriptor>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-xsldoc-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>xsldoc</classifier>
+              <classesDirectory>${project.build.directory}/xsldoc</classesDirectory>
+              <excludes>
+                <exclude>entries.xml</exclude>
+              </excludes>
               <archive>
                 <addMavenDescriptor>false</addMavenDescriptor>
               </archive>

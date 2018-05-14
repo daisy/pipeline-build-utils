@@ -38,6 +38,7 @@
 					<c:file name="xml/foo.xpl"/>
 					<c:file name="xml/foo.xsl"/>
 					<c:file name="xml/library.xpl"/>
+					<c:file name="xml/library.xsl"/>
 					<c:file name="xml/script.xpl"/>
 				</c:zipfile>
 			</x:document>
@@ -50,6 +51,7 @@
 				<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl" uri="../xml/script.xpl"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/library.xpl" uri="../xml/library.xpl"/>
+					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/library.xsl" uri="../xml/library.xsl"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/foo.css" uri="../css/foo.css"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/type.xml" uri="../data-types/type.xml"/>
 				</catalog>
@@ -111,6 +113,7 @@
 					<c:file name="src/main/resources/xml/foo.xsl/index.html"/>
 					<c:file name="src/main/resources/xml/index.md"/>
 					<c:file name="src/main/resources/xml/library.xpl/index.html"/>
+					<c:file name="src/main/resources/xml/library.xsl/index.html"/>
 					<c:file name="src/main/resources/xml/script.xpl/index.html"/>
 				</c:zipfile>
 			</x:document>
@@ -122,17 +125,34 @@
 		<x:context label="The 'xprocdoc' JAR content">
 			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-xprocdoc.jar" ordered="true"/>
 		</x:context>
+		<!--
+		    FIXME: generated file names make test brittle
+		-->
 		<x:expect label="The 'xprocdoc' JAR content" type="compare">
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-xprocdoc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
-					<c:file name="d191e56.html"/>
+					<c:file name="d192e56.html"/>
 					<c:file name="index.html"/>
 					<c:file name="libraries.html"/>
 					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xpl.html"/>
 					<c:file name="org/daisy/pipeline/modules/foo-utils/script.xpl.html"/>
 					<c:file name="overview.html"/>
 					<c:file name="steps.html"/>
+				</c:zipfile>
+			</x:document>
+		</x:expect>
+		<x:context label="The 'xsldoc' JAR content">
+			<x:document type="zip" href="../../../target/it-pipeline-module-0-SNAPSHOT-xsldoc.jar" ordered="true"/>
+		</x:context>
+		<x:expect label="The 'xsldoc' JAR content" type="compare">
+			<x:document type="inline">
+				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-xsldoc.jar">
+					<c:file name="META-INF/MANIFEST.MF"/>
+					<c:file name="xml/_foo/foo_xsl-doc.html"/>
+					<c:file name="xml/_library/library-toc.html"/>
+					<c:file name="xml/_library/library_xsl-doc.html"/>
+					<c:file name="xml/library.html"/>
 				</c:zipfile>
 			</x:document>
 		</x:expect>

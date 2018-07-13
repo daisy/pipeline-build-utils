@@ -34,6 +34,7 @@
 					<c:file name="impl/JavaStep$1.class"/>
 					<c:file name="impl/JavaStep$Provider.class"/>
 					<c:file name="impl/JavaStep.class"/>
+					<c:file name="org/daisy/Foo.class"/>
 					<c:file name="xml/a.xml"/>
 					<c:file name="xml/a.xml.xsl"/>
 					<c:file name="xml/foo.xpl"/>
@@ -115,6 +116,9 @@
 					<c:file name="src/main/java/impl/package-frame.html"/>
 					<c:file name="src/main/java/impl/package-summary.html"/>
 					<c:file name="src/main/java/index.html"/>
+					<c:file name="src/main/java/org/daisy/Foo.html"/>
+					<c:file name="src/main/java/org/daisy/package-frame.html"/>
+					<c:file name="src/main/java/org/daisy/package-summary.html"/>
 					<c:file name="src/main/java/overview-frame.html"/>
 					<c:file name="src/main/java/overview-summary.html"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
@@ -130,9 +134,32 @@
 			</x:document>
 		</x:expect>
 		<x:context label="The 'javadoc' JAR content">
-			<x:document type="zip" href="${project.build.directory}/it-pipeline-module-${project.version}-javadoc.jar"/>
+			<x:document type="zip" href="${project.build.directory}/it-pipeline-module-${project.version}-javadoc.jar" ordered="true"/>
 		</x:context>
-		<x:expect label="The 'javadoc' JAR contains the JavaStep javadoc" type="xpath" test="/c:zipfile/c:file[@name='impl/JavaStep.html']"/>
+		<x:expect label="The 'javadoc' JAR content" type="compare">
+			<x:document type="inline">
+				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-javadoc.jar">
+					<c:file name="META-INF/MANIFEST.MF"/>
+					<c:file name="allclasses-frame.html"/>
+					<c:file name="allclasses-noframe.html"/>
+					<c:file name="constant-values.html"/>
+					<c:file name="deprecated-list.html"/>
+					<c:file name="help-doc.html"/>
+					<c:file name="index-all.html"/>
+					<c:file name="index.html"/>
+					<c:file name="org/daisy/Foo.html"/>
+					<c:file name="org/daisy/class-use/Foo.html"/>
+					<c:file name="org/daisy/package-frame.html"/>
+					<c:file name="org/daisy/package-summary.html"/>
+					<c:file name="org/daisy/package-tree.html"/>
+					<c:file name="org/daisy/package-use.html"/>
+					<c:file name="overview-tree.html"/>
+					<c:file name="package-list"/>
+					<c:file name="script.js"/>
+					<c:file name="stylesheet.css"/>
+				</c:zipfile>
+			</x:document>
+		</x:expect>
 		<x:context label="The 'xprocdoc' JAR content">
 			<x:document type="zip" href="${project.build.directory}/it-pipeline-module-${project.version}-xprocdoc.jar" ordered="true"/>
 		</x:context>

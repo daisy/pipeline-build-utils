@@ -160,6 +160,7 @@
                   <location>${project.build.directory}/dependencies-package-list/</location>
                 </offlineLink>
               </offlineLinks>
+              <excludePackageNames>*.impl:*.impl.*</excludePackageNames>
             </configuration>
           </execution>
         </executions>

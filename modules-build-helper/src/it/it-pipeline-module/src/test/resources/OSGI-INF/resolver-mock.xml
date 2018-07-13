@@ -1,0 +1,8 @@
+<scr:components xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
+    <scr:component name="URIResolverMock">
+        <scr:implementation class="URIResolverMock"/>
+        <scr:service>
+            <scr:provide interface="javax.xml.transform.URIResolver"/>
+        </scr:service>
+    </scr:component>
+</scr:components>

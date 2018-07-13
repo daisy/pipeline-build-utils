@@ -70,6 +70,18 @@
       <version>4.3.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline.build</groupId>
+      <artifactId>modules-test-helper</artifactId>
+      <version>${modules-test-helper.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <properties>
     <expose-services>
@@ -127,6 +139,15 @@
             </Private-Package>
           </instructions>
         </configuration>
+        <executions>
+          <execution>
+            <id>bundle-before-test</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.daisy.pipeline.build</groupId>
@@ -233,6 +254,19 @@
               </resources>
               <outputDirectory>${project.build.directory}/generated-test-resources/xprocspec</outputDirectory>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>maven-paxexam-plugin</artifactId>
+        <version>1.2.4</version>
+        <executions>
+          <execution>
+            <id>generate-depends-file</id>
+            <goals>
+              <goal>generate-depends-file</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>

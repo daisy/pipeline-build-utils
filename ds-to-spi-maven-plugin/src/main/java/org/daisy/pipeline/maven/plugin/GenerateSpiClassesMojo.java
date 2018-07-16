@@ -166,8 +166,8 @@ public class GenerateSpiClassesMojo extends AbstractMojo {
 				compilerConfiguration.setVerbose(false);
 				compilerConfiguration.setShowWarnings(false);
 				compilerConfiguration.setShowDeprecation(false);
-				compilerConfiguration.setSourceVersion("1.7");
-				compilerConfiguration.setTargetVersion("1.7");
+				compilerConfiguration.setSourceVersion("1.8");
+				compilerConfiguration.setTargetVersion("1.8");
 				compilerConfiguration.setProc("only");
 				compilerConfiguration.setGeneratedSourcesDirectory(null);
 				compilerConfiguration.setSourceLocations(new ArrayList<String>(compileSourceRoots));

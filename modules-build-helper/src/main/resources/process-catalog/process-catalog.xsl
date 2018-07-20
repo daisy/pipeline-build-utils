@@ -51,17 +51,12 @@
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 
+import org.daisy.pipeline.modules.AbstractModuleBuilder;
 import org.daisy.pipeline.modules.JarModuleBuilder;
 import org.daisy.pipeline.modules.Module;
 import org.daisy.pipeline.modules.ModuleRef;
-import org.daisy.pipeline.modules.OSGIModuleBuilder;
-import org.daisy.pipeline.xmlcatalog.XmlCatalog;
 import org.daisy.pipeline.xmlcatalog.XmlCatalogParser;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -80,34 +75,16 @@ public class <xsl:value-of select="$className"/> implements ModuleRef {
     
     public Module get() {
         if (instance == null) {
-            URI jarFileURI; {
-                try {
-                    jarFileURI = <xsl:value-of select="$className"/>.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
+            AbstractModuleBuilder builder
+            = AbstractModuleBuilder.fromContainedClass(<xsl:value-of select="$className"/>.class)
+                                   .withCatalogParser(catalogParser);
+            if (builder instanceof JarModuleBuilder) {
+                // name, version and title not set yet
+                builder.withName("<xsl:value-of select="$moduleName"/>")
+                       .withVersion("<xsl:value-of select="$moduleVersion"/>")
+                       .withTitle("<xsl:value-of select="replace(replace($moduleTitle,'&quot;','\\&quot;'),'\\','\\\\')"/>");
             }
-            File jarFile; {
-                try {
-                    jarFile = new File(jarFileURI);
-                } catch (IllegalArgumentException e) {
-                    // Could be because we are running in OSGi context
-                    instance = OSGiHelper.getOSGiModule(catalogParser);
-                    return instance;
-                }
-            }
-            XmlCatalog catalog = catalogParser.parse(
-                jarFile.isDirectory() ?
-                new File(jarFile, "/META-INF/catalog.xml").toURI() :
-                URI.create("jar:" + jarFileURI.toASCIIString() + "!/META-INF/catalog.xml")
-            );
-            instance = new JarModuleBuilder()
-                .withName("<xsl:value-of select="$moduleName"/>")
-                .withVersion("<xsl:value-of select="$moduleVersion"/>")
-                .withTitle("<xsl:value-of select="replace(replace($moduleTitle,'&quot;','\\&quot;'),'\\','\\\\')"/>")
-                .withJarFile(jarFile)
-                .withCatalog(catalog)
-                .build();
+            instance = builder.build();
         }
         return instance;
     }
@@ -121,23 +98,6 @@ public class <xsl:value-of select="$className"/> implements ModuleRef {
     )
     public void setParser(XmlCatalogParser parser) {
         catalogParser = parser;
-    }
-    
-    private static abstract class OSGiHelper {
-        static Module getOSGiModule(XmlCatalogParser catalogParser) {
-            Bundle bundle = FrameworkUtil.getBundle(<xsl:value-of select="$className"/>.class);
-            URI catalogURI; {
-                try {
-                    catalogURI = bundle.getResource("META-INF/catalog.xml").toURI();
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return new OSGIModuleBuilder()
-                .withBundle(bundle)
-                .withCatalog(catalogParser.parse(catalogURI))
-                .build();
-        }
     }
 }
 </c:data></xsl:result-document>

@@ -34,6 +34,8 @@ public abstract class AbstractXSpecAndXProcSpecTest extends AbstractTest {
 		File testsDir = new File(baseDir, "src/test/xspec");
 		if (testsDir.exists()) {
 			File reportsDir = new File(baseDir, "target/surefire-reports");
+			for (int i = 2; reportsDir.exists(); i++)
+				reportsDir = new File(baseDir, "target/surefire-reports-" + i);
 			reportsDir.mkdirs();
 			TestResults result = xspecRunner.run(testsDir, reportsDir);
 			assertEquals("Number of failures and errors should be zero", 0L, result.getFailures() + result.getErrors());
@@ -48,10 +50,19 @@ public abstract class AbstractXSpecAndXProcSpecTest extends AbstractTest {
 		File baseDir = new File(PathUtils.getBaseDir());
 		File testsDir = new File(baseDir, "src/test/xprocspec");
 		if (testsDir.exists()) {
+			File reportsDir = new File(baseDir, "target/xprocspec-reports");
+			for (int i = 2; reportsDir.exists(); i++)
+				reportsDir = new File(baseDir, "target/xprocspec-reports-" + i);
+			File surefireDir = new File(baseDir, "target/surefire-reports");
+			for (int i = 2; surefireDir.exists(); i++)
+				surefireDir = new File(baseDir, "target/surefire-reports-" + i);
+			File tmpDir = new File(baseDir, "target/xprocspec");
+			for (int i = 2; tmpDir.exists(); i++)
+				tmpDir = new File(baseDir, "target/xprocspec-" + i);
 			boolean success = xprocspecRunner.run(testsDir,
-			                                      new File(baseDir, "target/xprocspec-reports"),
-			                                      new File(baseDir, "target/surefire-reports"),
-			                                      new File(baseDir, "target/xprocspec"),
+			                                      reportsDir,
+			                                      surefireDir,
+			                                      tmpDir,
 			                                      new XProcSpecRunner.Reporter.DefaultReporter());
 			assertTrue("XProcSpec tests should run with success", success);
 		}

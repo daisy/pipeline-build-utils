@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertTrue;
 
 import org.ops4j.pax.exam.Configuration;
+import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.Option;
@@ -37,6 +38,8 @@ public class XProcSpecTest {
 			systemProperty("com.xmlcalabash.config.user").value(""),
 			logbackConfigFile(),
 			felixDeclarativeServices(),
+			systemPackage("com.sun.org.apache.xml.internal.resolver"),
+			systemPackage("com.sun.org.apache.xml.internal.resolver.tools"),
 			mavenBundlesWithDependencies(
 				logbackClassic(),
 				// xprocspec

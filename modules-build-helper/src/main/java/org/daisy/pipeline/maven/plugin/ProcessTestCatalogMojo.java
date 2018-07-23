@@ -23,24 +23,24 @@ import org.daisy.maven.xproc.api.XProcEngine;
 import static org.daisy.pipeline.maven.plugin.utils.URIs.asURI;
 
 @Mojo(
-	name = "process-catalog",
-	defaultPhase = LifecyclePhase.GENERATE_RESOURCES,
-	requiresDependencyResolution = ResolutionScope.COMPILE
+	name = "process-test-catalog",
+	defaultPhase = LifecyclePhase.GENERATE_TEST_RESOURCES,
+	requiresDependencyResolution = ResolutionScope.TEST
 )
-public class ProcessCatalogMojo extends AbstractMojo {
+public class ProcessTestCatalogMojo extends AbstractMojo {
 	
 	@Parameter(
-		defaultValue = "${project.basedir}/src/main/resources/META-INF/catalog.xml"
+		defaultValue = "${project.basedir}/src/test/resources/META-INF/catalog.xml"
 	)
 	private File catalogFile;
 	
 	@Parameter(
-		defaultValue = "${project.build.directory}/generated-resources/process-catalog/"
+		defaultValue = "${project.build.directory}/generated-test-resources/process-catalog/"
 	)
 	private File generatedResourcesDirectory;
 	
 	@Parameter(
-		defaultValue = "${project.build.directory}/generated-sources/process-catalog/"
+		defaultValue = "${project.build.directory}/generated-test-sources/process-catalog/"
 	)
 	private File generatedSourcesDirectory;
 	
@@ -55,17 +55,17 @@ public class ProcessCatalogMojo extends AbstractMojo {
 	private boolean addSources;
 	
 	@Parameter(
-		defaultValue = "${project.artifactId}"
+		defaultValue = "test-module"
 	)
 	private String moduleName;
 	
 	@Parameter(
-		defaultValue = "${project.version}"
+		defaultValue = "0"
 	)
 	private String moduleVersion;
 	
 	@Parameter(
-		defaultValue = "${project.name}"
+		defaultValue = ""
 	)
 	private String moduleTitle;
 	
@@ -97,10 +97,10 @@ public class ProcessCatalogMojo extends AbstractMojo {
 					}
 					generatedResources.setExcludes(excludes);
 				}
-				mavenProject.addResource(generatedResources);
+				mavenProject.addTestResource(generatedResources);
 			}
 			if (addSources) {
-				mavenProject.addCompileSourceRoot(generatedSourcesDirectory.getAbsolutePath());
+				mavenProject.addTestCompileSourceRoot(generatedSourcesDirectory.getAbsolutePath());
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

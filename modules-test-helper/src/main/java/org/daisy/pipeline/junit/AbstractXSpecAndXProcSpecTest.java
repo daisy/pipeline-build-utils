@@ -86,7 +86,7 @@ public abstract class AbstractXSpecAndXProcSpecTest extends AbstractTest {
 		return _.config(
 			Options.systemProperties(allSystemProperties()),
 			mavenBundles(
-				mavenBundles(testDependencies()),
+				mavenBundles(toStrings(testDependencies())),
 				// xprocspec
 				xprocspec(),
 				mavenBundle("org.daisy.pipeline:calabash-adapter:?"),

@@ -12,6 +12,7 @@ import static org.daisy.pipeline.pax.exam.Options.mavenBundle;
 import static org.daisy.pipeline.pax.exam.Options.mavenBundles;
 import static org.daisy.pipeline.pax.exam.Options.mavenBundlesWithDependencies;
 import static org.daisy.pipeline.pax.exam.Options.thisBundle;
+import static org.daisy.pipeline.pax.exam.Options.thisPlatform;
 
 import org.junit.runner.RunWith;
 
@@ -55,7 +56,7 @@ public abstract class AbstractTest {
 			logbackConfiguration());
 	}
 	
-	Properties mergeProperties(Properties... properties) {
+	protected Properties mergeProperties(Properties... properties) {
 		Properties merged = new Properties();
 		for (Properties props : properties)
 			if (props != null)
@@ -75,7 +76,7 @@ public abstract class AbstractTest {
 	/* For OSGi only */
 	/* ------------- */
 	
-	protected String[] testDependencies() {
+	protected CharSequence[] testDependencies() {
 		return new String[]{};
 	}
 	
@@ -91,7 +92,7 @@ public abstract class AbstractTest {
 	public Option[] config() {
 		return _.config(
 			Options.systemProperties(allSystemProperties()),
-			mavenBundles(testDependencies()));
+			mavenBundles(toStrings(testDependencies())));
 	}
 	
 	// wrapped in class to avoid ClassNotFoundException
@@ -119,6 +120,69 @@ public abstract class AbstractTest {
 				e.printStackTrace();
 				throw e;
 			}
+		}
+	}
+	
+	protected static String[] toStrings(Object[] array) {
+		String[] strings = new String[array.length];
+		for (int i = 0; i < array.length; i++)
+			strings[i] = array[i].toString();
+		return strings;
+	}
+	
+	protected static class MavenBundle extends ForwardingCharSequence {
+		
+		private final String groupId;
+		private final String artifactId;
+		private String classifier = "";
+		
+		private MavenBundle(String groupId, String artifactId) {
+			this.groupId = groupId;
+			this.artifactId = artifactId;
+		}
+		
+		private MavenBundle classifier(String classifier) {
+			this.classifier = classifier;
+			return this;
+		}
+		
+		public MavenBundle forThisPlatform() {
+			return classifier(thisPlatform());
+		}
+		
+		public String toString() {
+			StringBuilder b = new StringBuilder()
+				.append(groupId).append(":")
+				.append(artifactId).append(":");
+			if (!classifier.equals("")) {
+				b.append("jar").append(":").append(classifier).append(":"); }
+			b.append("?");
+			return b.toString();
+		}
+	}
+	
+	protected static abstract class ForwardingCharSequence implements CharSequence {
+		
+		public abstract String toString();
+		
+		private CharSequence delegate;
+		
+		private final CharSequence delegate() {
+			if (delegate == null)
+				delegate = toString();
+			return delegate;
+		}
+		
+		public final char charAt(int index) {
+			return delegate().charAt(index);
+		}
+		
+		public final int length() {
+			return delegate().length();
+		}
+		
+		public final CharSequence subSequence(int start, int end) {
+			return delegate().subSequence(start, end);
 		}
 	}
 }

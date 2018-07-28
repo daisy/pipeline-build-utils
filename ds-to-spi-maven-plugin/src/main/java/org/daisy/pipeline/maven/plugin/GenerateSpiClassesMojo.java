@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -119,10 +120,13 @@ public class GenerateSpiClassesMojo extends AbstractMojo {
 			List<String> processorPathEntries = new ArrayList<String>(); {
 				Set<Artifact> artifacts = new HashSet<Artifact>();
 				ArtifactHandler handler = artifactHandlerManager.getArtifactHandler("jar");
+				Properties p = new Properties();
+				p.load(GenerateSpiClassesMojo.class.getResourceAsStream(
+					       "/org/daisy/pipeline/maven/plugin/dependencies.properties"));
 				Artifact artifact = new DefaultArtifact(
 						"org.daisy.pipeline.build",
 						"ds-to-spi-annotations-processor",
-						VersionRange.createFromVersion("1.0.0-SNAPSHOT"),
+						VersionRange.createFromVersion(p.getProperty("ds-to-spi-annotations-processor.version")),
 						Artifact.SCOPE_RUNTIME,
 						"jar",
 						"",

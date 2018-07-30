@@ -96,7 +96,7 @@ public abstract class Options {
 	}
 	
 	public static MavenBundle felixDeclarativeServices() {
-		return mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.scr").version("2.1.12");
+		return mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.scr").versionAsInProject();
 	}
 	
 	public static Option spiflyBundles() {

@@ -17,7 +17,15 @@ public class ServiceLoader<S> implements Iterable<S> {
 	
 	private static final Map<Class<?>,ServiceLoader<?>> cache = new HashMap<Class<?>,ServiceLoader<?>>();
 	
+	private static ClassLoader lastContextClassLoader = null;
+	
 	public static <S> ServiceLoader<S> load(Class<S> serviceType) {
+		ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+		if (ccl != lastContextClassLoader) {
+			cache.clear();
+			Memoize.singletons.clear();
+		}
+		lastContextClassLoader = ccl;
 		ServiceLoader<S> loader;
 		if (cache.containsKey(serviceType)) {
 			loader = (ServiceLoader<S>)cache.get(serviceType);

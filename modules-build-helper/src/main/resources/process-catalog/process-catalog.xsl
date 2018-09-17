@@ -23,7 +23,7 @@
         <xsl:for-each select="cat:uri">
             <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
                 <xsl:variable name="data-types" as="element()*">
-                    <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type/*" mode="data-type-xml"/>
+                    <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:type/*" mode="data-type-xml"/>
                 </xsl:variable>
                 <xsl:for-each select="$data-types">
                     <xsl:variable name="path" select="concat('/data-types/',replace(@id,'^.*:',''),'.xml')"/>
@@ -46,7 +46,7 @@
         <xsl:variable name="data-types" as="xs:string*">
             <xsl:for-each select="cat:uri">
                 <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
-                    <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type" mode="data-type-id"/>
+                    <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:type" mode="data-type-id"/>
                 </xsl:if>
             </xsl:for-each>
         </xsl:variable>
@@ -117,7 +117,7 @@
                 </xsl:call-template>
             </xsl:variable>
             <xsl:choose>
-                <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:data-type">
+                <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:type">
                     <xsl:apply-templates select="$doc" mode="finalize-script"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -138,7 +138,7 @@
             <xsl:when test="doc-available($uri)">
                 <xsl:variable name="doc" select="document($uri)"/>
                 <xsl:choose>
-                    <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:data-type">
+                    <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:type">
                         <xsl:variable name="generated-href" select="f:generated-href(@uri)"/>
                         <xsl:result-document href="{resolve-uri($generated-href,concat($outputDir,'/META-INF/catalog.xml'))}" method="xml">
                             <xsl:apply-templates select="$doc" mode="finalize-script"/>
@@ -191,29 +191,29 @@
                          cat:uri/@px:data-type"
                   mode="ds"/>
     
-    <xsl:template match="/*/p:option[p:pipeinfo/pxd:data-type]" mode="finalize-script">
+    <xsl:template match="/*/p:option[p:pipeinfo/pxd:type]" mode="finalize-script">
         <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
-            <xsl:apply-templates select="p:pipeinfo/pxd:data-type" mode="data-type-attribute"/>
+            <xsl:apply-templates select="p:pipeinfo/pxd:type" mode="data-type-attribute"/>
             <xsl:apply-templates select="node()" mode="#current"/>
         </xsl:copy>
     </xsl:template>
     
     <xsl:template match="/*/p:option/p:pipeinfo" mode="finalize-script">
-        <xsl:if test="* except pxd:data-type">
+        <xsl:if test="* except pxd:type">
             <xsl:next-match/>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="/*/p:option/p:pipeinfo/pxd:data-type" mode="finalize-script"/>
+    <xsl:template match="/*/p:option/p:pipeinfo/pxd:type" mode="finalize-script"/>
     
-    <xsl:template match="/*/p:option/p:pipeinfo/pxd:data-type" mode="data-type-attribute">
-        <xsl:attribute name="pxd:data-type">
+    <xsl:template match="/*/p:option/p:pipeinfo/pxd:type" mode="data-type-attribute">
+        <xsl:attribute name="pxd:type">
             <xsl:apply-templates select="." mode="data-type-id"/>
         </xsl:attribute>
     </xsl:template>
     
-    <xsl:template match="/*/p:option/p:pipeinfo/pxd:data-type/*" mode="data-type-xml">
+    <xsl:template match="/*/p:option/p:pipeinfo/pxd:type/*" mode="data-type-xml">
         <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
             <xsl:if test="not(@id)">
@@ -225,7 +225,7 @@
         </xsl:copy>
     </xsl:template>
     
-    <xsl:template match="/*/p:option/p:pipeinfo/pxd:data-type" mode="data-type-id" as="xs:string">
+    <xsl:template match="/*/p:option/p:pipeinfo/pxd:type" mode="data-type-id" as="xs:string">
         <xsl:sequence select="(@id,child::*/@id,concat(/*/@type,'-',parent::*/parent::*/@name))[1]"/>
     </xsl:template>
     

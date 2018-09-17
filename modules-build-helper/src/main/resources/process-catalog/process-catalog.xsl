@@ -9,23 +9,25 @@
                 xmlns:p="http://www.w3.org/ns/xproc"
                 xmlns:html="http://www.w3.org/1999/xhtml"
                 xmlns:f="http://www.daisy.org/ns/pipeline/internal-functions"
+                xmlns:pf="http://www.daisy.org/ns/pipeline/functions"
                 exclude-result-prefixes="#all" version="2.0">
     
     <xsl:param name="outputDir" required="no" select="''" as="xs:string"/>
     <xsl:param name="version" required="yes"  as="xs:string"/>
     
+    <xsl:include href="../lib/uri-functions.xsl"/>
     <xsl:include href="../lib/extend-script.xsl"/>
     
     <xsl:template match="/*">
         <!-- extract data types -->
         <xsl:for-each select="cat:uri">
-            <xsl:variable name="name" select="@name"/>
             <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
                 <xsl:variable name="data-types" as="element()*">
                     <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type/*" mode="data-type-xml"/>
                 </xsl:variable>
                 <xsl:for-each select="$data-types">
-                    <xsl:result-document href="{concat($outputDir,'/data-types/',replace(@id,'^.*:',''),'.xml')}" method="xml">
+                    <xsl:variable name="path" select="concat('/data-types/',replace(@id,'^.*:',''),'.xml')"/>
+                    <xsl:result-document href="{concat($outputDir,$path)}" method="xml">
                         <xsl:sequence select="."/>
                     </xsl:result-document>
                     <xsl:result-document href="{concat($outputDir,'/OSGI-INF/data-types/',replace(@id,'^.*:',''),'.xml')}" method="xml">
@@ -34,11 +36,8 @@
                             <scr:service>
                                 <scr:provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
                             </scr:service>
-                            <scr:reference bind="setUriResolver" cardinality="1..1"
-                                           interface="javax.xml.transform.URIResolver" name="resolver" policy="static"/>
                             <scr:property name="data-type.id" type="String" value="{@id}"/>
-                            <scr:property name="data-type.url" type="String"
-                                          value="{concat($name,'/data-types/',replace(@id,'^.*:',''),'.xml')}"/>
+                            <scr:property name="data-type.url" type="String" value="{$path}"/>
                         </scr:component>
                     </xsl:result-document>
                 </xsl:for-each>
@@ -46,7 +45,6 @@
         </xsl:for-each>
         <xsl:variable name="data-types" as="xs:string*">
             <xsl:for-each select="cat:uri">
-                <xsl:variable name="name" select="@name"/>
                 <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
                     <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type" mode="data-type-id"/>
                 </xsl:if>
@@ -68,23 +66,17 @@
 <xsl:if test="//cat:uri[@px:script] and (//cat:uri[@px:data-type] or exists($data-types))">
         Import-Package: org.daisy.pipeline.script,org.daisy.pipeline.datatypes,*</xsl:if>
         </c:data></xsl:result-document>
-        <xsl:result-document href="{$outputDir}/META-INF/catalog.xml" method="xml">
-            <xsl:copy>
-                <xsl:apply-templates select="@*|node()" mode="ds"/>
-                <xsl:for-each select="cat:uri">
-                    <xsl:variable name="name" select="@name"/>
-                    <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
-                        <xsl:variable name="data-types" as="xs:string*">
-                            <xsl:apply-templates select="document(@uri)/p:*/p:option/p:pipeinfo/pxd:data-type" mode="data-type-id"/>
-                        </xsl:variable>
-                        <xsl:for-each select="$data-types">
-                            <cat:uri name="{concat($name,'/data-types/',replace(.,'^.*:',''),'.xml')}"
-                                     uri="{concat('../data-types/',replace(.,'^.*:',''),'.xml')}"/>
-                        </xsl:for-each>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:copy>
-        </xsl:result-document>
+        <xsl:variable name="catalog" as="node()*">
+            <xsl:apply-templates mode="ds"/>
+        </xsl:variable>
+        <xsl:if test="$catalog/self::*">
+            <xsl:result-document href="{$outputDir}/META-INF/catalog.xml" method="xml">
+                <xsl:copy>
+                    <xsl:apply-templates select="@*" mode="ds"/>
+                    <xsl:sequence select="$catalog"/>
+                </xsl:copy>
+            </xsl:result-document>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="cat:uri[@px:script]" mode="ds" priority="1">
@@ -92,6 +84,10 @@
         <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
         <xsl:variable name="name" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='name'])[1]"/>
         <xsl:variable name="descr" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
+        <!--
+            assuming catalog.xml is placed in META-INF
+        -->
+        <xsl:variable name="path" select="pf:normalize-path(concat('/META-INF/',@uri))"/>
         <xsl:result-document href="{$outputDir}/OSGI-INF/{replace($id,'^.*:','')}.xml" method="xml">
             <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="{$id}">
                 <scr:implementation class="org.daisy.pipeline.script.XProcScriptService"/>
@@ -101,11 +97,13 @@
                 <scr:property name="script.id" type="String" value="{$id}"/>
                 <scr:property name="script.name" type="String" value="{$name}"/>
                 <scr:property name="script.description" type="String" value="{$descr}"/>
-                <scr:property name="script.url" type="String" value="{@name}"/>
+                <scr:property name="script.url" type="String" value="{$path}"/>
                 <scr:property name="script.version" type="String" value="{$version}"/>
             </scr:component>
         </xsl:result-document>
-        <xsl:next-match/>
+        <xsl:if test="@name">
+            <xsl:next-match/>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="cat:uri[@px:extends]" mode="ds">
@@ -169,18 +167,23 @@
     
     <xsl:template match="cat:uri[@px:data-type]" mode="ds" priority="1">
         <xsl:variable name="id" select="string(document(@uri,.)/*/@id)"/>
+        <!--
+            assuming catalog.xml is placed in META-INF
+        -->
+        <xsl:variable name="path" select="pf:normalize-path(concat('/META-INF/',@uri))"/>
         <xsl:result-document href="{$outputDir}/OSGI-INF/{replace($id,'^.*:','')}.xml" method="xml">
             <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="{$id}">
                 <scr:implementation class="org.daisy.pipeline.datatypes.UrlBasedDatatypeService"/>
                 <scr:service>
                     <scr:provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
                 </scr:service>
-                <scr:reference bind="setUriResolver" cardinality="1..1" interface="javax.xml.transform.URIResolver" name="resolver" policy="static"/>
                 <scr:property name="data-type.id" type="String" value="{$id}"/>
-                <scr:property name="data-type.url" type="String" value="{@name}"/>
+                <scr:property name="data-type.url" type="String" value="{$path}"/>
             </scr:component>
         </xsl:result-document>
-        <xsl:next-match/>
+        <xsl:if test="@name">
+            <xsl:next-match/>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="cat:uri/@px:script|

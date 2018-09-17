@@ -48,10 +48,8 @@
 		<x:expect label="The META-INF/catalog.xml file" type="compare">
 			<x:document type="inline">
 				<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl" uri="../xml/script.xpl"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/library.xpl" uri="../xml/library.xpl"/>
 					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/foo.css" uri="../css/foo.css"/>
-					<uri name="http://www.daisy.org/pipeline/modules/foo-utils/type.xml" uri="../data-types/type.xml"/>
 				</catalog>
 			</x:document>
 		</x:expect>
@@ -68,7 +66,7 @@
 					<scr:property name="script.id" type="String" value="script"/>
 					<scr:property name="script.name" type="String" value="Example script"/>
 					<scr:property name="script.description" type="String" value="Does stuff."/>
-					<scr:property name="script.url" type="String" value="http://www.daisy.org/pipeline/modules/foo-utils/script.xpl"/>
+					<scr:property name="script.url" type="String" value="/xml/script.xpl"/>
 					<scr:property name="script.version" type="String" value="${project.version}"/>
 				</scr:component>
 			</x:document>
@@ -83,9 +81,8 @@
 					<scr:service>
 						<scr:provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
 					</scr:service>
-					<scr:reference bind="setUriResolver" cardinality="1..1" interface="javax.xml.transform.URIResolver" name="resolver" policy="static"/>
 					<scr:property name="data-type.id" type="String" value="foo:choice"/>
-					<scr:property name="data-type.url" type="String" value="http://www.daisy.org/pipeline/modules/foo-utils/type.xml"/>
+					<scr:property name="data-type.url" type="String" value="/data-types/type.xml"/>
 				</scr:component>
 			</x:document>
 		</x:expect>

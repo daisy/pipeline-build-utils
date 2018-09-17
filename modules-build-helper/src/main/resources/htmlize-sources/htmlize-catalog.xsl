@@ -41,15 +41,14 @@
 		<xsl:if test="@name">
 			<span about="../{@uri}">
 				<xsl:choose>
-					<xsl:when test="@px:script='true'">
+					<xsl:when test="@px:content-type='script'">
 						<xsl:attribute name="typeof" select="'script'"/>
 					</xsl:when>
-					<xsl:when test="@px:data-type='true'">
+					<xsl:when test="@px:content-type='data-type'">
 						<xsl:attribute name="typeof" select="'data-type'"/>
-						<xsl:variable name="data-type-doc" select="document(@uri,.)"/>
-						<meta property="id" content="{string($data-type-doc/*/@id)}"/>
+						<meta property="id" content="{@px:id}"/>
 						<xsl:variable name="data-type-xml" as="node()*">
-							<xsl:apply-templates mode="serialize" select="$data-type-doc/*"/>
+							<xsl:apply-templates mode="serialize" select="document(@uri,.)/*"/>
 						</xsl:variable>
 						<!--
 						    Note: backslashes must be escaped (not sure if this is a bug in the ruby RDF library)

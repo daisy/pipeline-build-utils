@@ -12,7 +12,7 @@
 	
 	<xsl:template mode="serialize" match="/*">
 		<xsl:param name="parent-in-original-script" tunnel="yes" as="element()?" select="()"/>
-		<xsl:if test="not($entry-in-catalog/@px:script='true')">
+		<xsl:if test="not($entry-in-catalog/@px:content-type='script')">
 			<xsl:message terminate="yes">Error</xsl:message>
 		</xsl:if>
 		<xsl:choose>

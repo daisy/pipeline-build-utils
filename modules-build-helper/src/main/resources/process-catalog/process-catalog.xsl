@@ -53,18 +53,17 @@
         <xsl:result-document href="{$outputDir}/bnd.bnd" method="text" xml:space="preserve"><c:data>
 <xsl:if test="//cat:nextCatalog">Require-Bundle: <xsl:value-of select="string-join(//cat:nextCatalog/translate(@catalog,':','.'),',')"/></xsl:if>
 <xsl:variable name="service-components" as="xs:string*"
-              select="(//cat:uri[@px:script]/concat('OSGI-INF/',replace(document(@uri,..)/*/@type,'^.*:',''),'.xml'),
-                       //cat:uri[@px:data-type]/concat('OSGI-INF/',replace(document(@uri,..)/*/@id,'^.*:',''),'.xml'),
+              select="(//cat:uri[@px:content-type='script']/concat('OSGI-INF/',replace(document(@uri,..)/*/@type,'^.*:',''),'.xml'),
+                       //cat:uri[@px:content-type='data-type']/concat('OSGI-INF/',replace(@px:id,'^.*:',''),'.xml'),
                        for $id in $data-types return concat('OSGI-INF/data-types/',replace($id,'^.*:',''),'.xml'))"/>
 <xsl:if test="exists($service-components)">
         Service-Component: <xsl:value-of select="string-join($service-components,',')"/></xsl:if>
-<!-- my xslt skills are long forgotten, this sucks-->
-<xsl:if test="(//cat:uri[@px:data-type] or exists($data-types)) and not(//cat:uri[@px:script])">
-        Import-Package: org.daisy.pipeline.datatypes,*</xsl:if>
-<xsl:if test="//cat:uri[@px:script] and not(//cat:uri[@px:data-type] or exists($data-types))">
-        Import-Package: org.daisy.pipeline.script,*</xsl:if>
-<xsl:if test="//cat:uri[@px:script] and (//cat:uri[@px:data-type] or exists($data-types))">
-        Import-Package: org.daisy.pipeline.script,org.daisy.pipeline.datatypes,*</xsl:if>
+<xsl:variable name="import-packages" as="xs:string*"
+              select="(if (//cat:uri[@px:content-type='data-type'] or exists($data-types)) then 'org.daisy.pipeline.datatypes' else (),
+                       if (//cat:uri[@px:content-type='script'])                           then 'org.daisy.pipeline.script'    else ()
+                       )"/>
+<xsl:if test="exists($import-packages)">
+        Import-Package: <xsl:value-of select="string-join($import-packages,',')"/>,*</xsl:if>
         </c:data></xsl:result-document>
         <xsl:variable name="catalog" as="node()*">
             <xsl:apply-templates mode="ds"/>
@@ -79,7 +78,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:script]" mode="ds" priority="1">
+    <xsl:template match="cat:uri[@px:content-type='script']" mode="ds" priority="1">
         <xsl:variable name="type" select="string(document(@uri,.)/*/@type)"/>
         <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
         <xsl:variable name="name" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='name'])[1]"/>
@@ -165,8 +164,8 @@
         <xsl:value-of select="replace($uri,'^(.*/)?([^/]+)$','$1__processed__$2')"/>
     </xsl:function>
     
-    <xsl:template match="cat:uri[@px:data-type]" mode="ds" priority="1">
-        <xsl:variable name="id" select="string(document(@uri,.)/*/@id)"/>
+    <xsl:template match="cat:uri[@px:content-type='data-type']" mode="ds" priority="1">
+        <xsl:variable name="id" select="@px:id"/>
         <!--
             assuming catalog.xml is placed in META-INF
         -->
@@ -186,9 +185,9 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="cat:uri/@px:script|
+    <xsl:template match="cat:uri/@px:content-type[.=('script','data-type')]|
                          cat:uri/@px:extends|
-                         cat:uri/@px:data-type"
+                         cat:uri[@px:content-type='data-type']/@px:id"
                   mode="ds"/>
     
     <xsl:template match="/*/p:option[p:pipeinfo/pxd:type]" mode="finalize-script">
@@ -216,17 +215,15 @@
     <xsl:template match="/*/p:option/p:pipeinfo/pxd:type/*" mode="data-type-xml">
         <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
-            <xsl:if test="not(@id)">
-                <xsl:attribute name="id">
-                    <xsl:apply-templates select="parent::*" mode="data-type-id"/>
-                </xsl:attribute>
-            </xsl:if>
+            <xsl:attribute name="id">
+                <xsl:apply-templates select="parent::*" mode="data-type-id"/>
+            </xsl:attribute>
             <xsl:apply-templates mode="#current"/>
         </xsl:copy>
     </xsl:template>
     
     <xsl:template match="/*/p:option/p:pipeinfo/pxd:type" mode="data-type-id" as="xs:string">
-        <xsl:sequence select="(@id,child::*/@id,concat(/*/@type,'-',parent::*/parent::*/@name))[1]"/>
+        <xsl:sequence select="concat(/*/@type,'-',parent::*/parent::*/@name)"/>
     </xsl:template>
     
     <xsl:template match="@*|node()" mode="ds data-type-xml">

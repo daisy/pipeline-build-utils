@@ -27,6 +27,7 @@
 					<c:file name="META-INF/MANIFEST.MF"/>
 					<c:file name="META-INF/catalog.xml"/>
 					<c:file name="OSGI-INF/choice.xml"/>
+					<c:file name="OSGI-INF/liblouis-tables.xml"/>
 					<c:file name="OSGI-INF/script.xml"/>
 					<c:file name="css/foo.css"/>
 					<c:file name="data-types/type.xml"/>
@@ -83,6 +84,22 @@
 					</scr:service>
 					<scr:property name="data-type.id" type="String" value="foo:choice"/>
 					<scr:property name="data-type.url" type="String" value="/data-types/type.xml"/>
+				</scr:component>
+			</x:document>
+		</x:expect>
+		<x:context label="The OSGI-INF/liblouis-tables.xml file">
+			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/liblouis-tables.xml"/>
+		</x:context>
+		<x:expect label="The OSGI-INF/liblouis-tables.xml file" type="compare">
+			<x:document type="inline">
+				<scr:component activate="activate" name="Liblouis table path http://www.daisy.org/pipeline/modules/foo-utils/liblouis/">
+					<scr:implementation class="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
+					<scr:service>
+						<scr:provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
+					</scr:service>
+					<scr:property name="identifier" type="String" value="http://www.daisy.org/pipeline/modules/foo-utils/liblouis/"/>
+					<scr:property name="path" type="String" value="/liblouis/"/>
+					<scr:property name="includes" type="String" value="*"/>
 				</scr:component>
 			</x:document>
 		</x:expect>

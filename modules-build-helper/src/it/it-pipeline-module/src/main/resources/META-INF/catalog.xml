@@ -5,4 +5,6 @@
   <uri name="http://www.daisy.org/pipeline/modules/foo-utils/library.xpl" uri="../xml/library.xpl"/>
   <uri name="http://www.daisy.org/pipeline/modules/foo-utils/foo.css" uri="../css/foo.css"/>
   <uri uri="../data-types/type.xml" px:content-type="data-type" px:id="foo:choice"/>
+  <uri name="http://www.daisy.org/pipeline/modules/foo-utils/liblouis/" uri="../liblouis/"
+	   px:content-type="liblouis-tables" px:include="*"/>
 </catalog>

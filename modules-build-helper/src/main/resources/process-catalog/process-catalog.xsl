@@ -55,12 +55,20 @@
 <xsl:variable name="service-components" as="xs:string*"
               select="(//cat:uri[@px:content-type='script']/concat('OSGI-INF/',replace(document(@uri,..)/*/@type,'^.*:',''),'.xml'),
                        //cat:uri[@px:content-type='data-type']/concat('OSGI-INF/',replace(@px:id,'^.*:',''),'.xml'),
+                       for $n in count(//cat:uri[@px:content-type='liblouis-tables']) return
+                         if ($n eq 1) then 'OSGI-INF/liblouis-tables.xml'
+                         else for $i in 1 to $n return concat('OSGI-INF/liblouis-tables-',$i,'.xml'),
+                       for $n in count(//cat:uri[@px:content-type='libhyphen-tables']) return
+                         if ($n eq 1) then 'OSGI-INF/libhyphen-tables.xml'
+                         else for $i in 1 to $n return concat('OSGI-INF/libhyphen-tables-',$i,'.xml'),
                        for $id in $data-types return concat('OSGI-INF/data-types/',replace($id,'^.*:',''),'.xml'))"/>
 <xsl:if test="exists($service-components)">
         Service-Component: <xsl:value-of select="string-join($service-components,',')"/></xsl:if>
 <xsl:variable name="import-packages" as="xs:string*"
-              select="(if (//cat:uri[@px:content-type='data-type'] or exists($data-types)) then 'org.daisy.pipeline.datatypes' else (),
-                       if (//cat:uri[@px:content-type='script'])                           then 'org.daisy.pipeline.script'    else ()
+              select="(if (//cat:uri[@px:content-type='data-type'] or exists($data-types)) then 'org.daisy.pipeline.datatypes'         else (),
+                       if (//cat:uri[@px:content-type='script'])                           then 'org.daisy.pipeline.script'            else (),
+                       if (//cat:uri[@px:content-type='liblouis-tables'])                  then 'org.daisy.pipeline.braille.liblouis'  else (),
+                       if (//cat:uri[@px:content-type='libhyphen-tables'])                 then 'org.daisy.pipeline.braille.libhyphen' else ()
                        )"/>
 <xsl:if test="exists($import-packages)">
         Import-Package: <xsl:value-of select="string-join($import-packages,',')"/>,*</xsl:if>
@@ -185,9 +193,55 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="cat:uri/@px:content-type[.=('script','data-type')]|
+    <xsl:template match="cat:uri[@px:content-type='liblouis-tables']" mode="ds" priority="1">
+        <!--
+            assuming catalog.xml is placed in META-INF
+        -->
+        <xsl:variable name="path" select="pf:normalize-path(concat('/META-INF/',@uri))"/>
+        <xsl:result-document href="{$outputDir}/OSGI-INF/liblouis-tables{
+                                   if ((preceding-sibling::cat:uri|following-sibling::cat:uri)[@px:content-type='liblouis-tables'])
+                                   then 1+count(preceding-sibling::cat:uri[@px:content-type='liblouis-tables'])
+                                   else ''}.xml" method="xml">
+            <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="Liblouis table path {@name}">
+                <scr:implementation class="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
+                <scr:service>
+                    <scr:provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
+                </scr:service>
+                <scr:property name="identifier" type="String" value="{@name}"/>
+                <scr:property name="path" type="String" value="{$path}"/>
+                <scr:property name="includes" type="String" value="{(@px:include,'*')[1]}"/>
+            </scr:component>
+        </xsl:result-document>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:content-type='libhyphen-tables']" mode="ds" priority="1">
+        <!--
+            assuming catalog.xml is placed in META-INF
+        -->
+        <xsl:variable name="path" select="pf:normalize-path(concat('META-INF/',@uri))"/>
+        <xsl:result-document href="{$outputDir}/OSGI-INF/libhyphen-tables{
+                                   if ((preceding-sibling::cat:uri|following-sibling::cat:uri)[@px:content-type='libhyphen-tables'])
+                                   then 1+count(preceding-sibling::cat:uri[@px:content-type='libhyphen-tables'])
+                                   else ''}.xml" method="xml">
+            <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" name="Libhyphen table path {@name}">
+                <scr:implementation class="org.daisy.pipeline.braille.libhyphen.LibhyphenTablePath"/>
+                <scr:service>
+                    <scr:provide interface="org.daisy.pipeline.braille.libhyphen.LibhyphenTablePath"/>
+                </scr:service>
+                <scr:property name="identifier" type="String" value="{@name}"/>
+                <scr:property name="path" type="String" value="{$path}"/>
+                <scr:property name="includes" type="String" value="{(@px:include,'*')[1]}"/>
+            </scr:component>
+        </xsl:result-document>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri/@px:content-type[.=('script',
+                                                     'data-type',
+                                                     'liblouis-tables',
+                                                     'libhyphen-tables')]|
                          cat:uri/@px:extends|
-                         cat:uri[@px:content-type='data-type']/@px:id"
+                         cat:uri[@px:content-type='data-type']/@px:id|
+                         cat:uri[@px:content-type=('liblouis-tables','libhyphen-tables')]/@px:include"
                   mode="ds"/>
     
     <xsl:template match="/*/p:option[p:pipeinfo/pxd:type]" mode="finalize-script">

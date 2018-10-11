@@ -380,6 +380,13 @@
                 </goals>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.daisy.maven</groupId>
+                <artifactId>xspec-runner</artifactId>
+                <version>1.0.2</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>

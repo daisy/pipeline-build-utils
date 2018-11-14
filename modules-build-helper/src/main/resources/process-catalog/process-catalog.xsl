@@ -19,7 +19,9 @@
     <xsl:include href="../lib/extend-script.xsl"/>
     
     <xsl:template match="/*">
-        <!-- extract data types -->
+        <!--
+            extract data types
+        -->
         <xsl:for-each select="cat:uri">
             <xsl:if test="doc-available(resolve-uri(@uri,base-uri(.)))">
                 <xsl:variable name="data-types" as="element()*">
@@ -73,20 +75,83 @@
 <xsl:if test="exists($import-packages)">
         Import-Package: <xsl:value-of select="string-join($import-packages,',')"/>,*</xsl:if>
         </c:data></xsl:result-document>
+        <!--
+            generate DS XML files
+        -->
+        <xsl:apply-templates mode="ds"/>
+        <!--
+            process XProc files
+        -->
+        <xsl:apply-templates mode="process-xproc"/>
+        <!--
+            process catalog
+        -->
         <xsl:variable name="catalog" as="node()*">
-            <xsl:apply-templates mode="ds"/>
+            <xsl:apply-templates/>
         </xsl:variable>
         <xsl:if test="$catalog/self::*">
             <xsl:result-document href="{$outputDir}/META-INF/catalog.xml" method="xml">
                 <xsl:copy>
-                    <xsl:apply-templates select="@*" mode="ds"/>
+                    <xsl:apply-templates select="@*"/>
                     <xsl:sequence select="$catalog"/>
                 </xsl:copy>
             </xsl:result-document>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:content-type='script']" mode="ds" priority="1">
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()" mode="#current"/>
+        </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:content-type=('script','data-type')]" priority="1">
+        <xsl:if test="@name">
+            <xsl:next-match/>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:extends]">
+        <xsl:copy>
+            <xsl:apply-templates select="@* except @uri" mode="#current"/>
+            <xsl:attribute name="uri" select="f:generated-href(@uri)"/>
+            <xsl:apply-templates mode="#current"/>
+        </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[not(@px:extends)]">
+        <xsl:variable name="uri" select="resolve-uri(@uri, base-uri(.))"/>
+        <xsl:choose>
+            <xsl:when test="doc-available($uri)">
+                <xsl:choose>
+                    <xsl:when test="document($uri)/p:*/p:option/p:pipeinfo/pxd:type">
+                        <xsl:copy>
+                            <xsl:apply-templates select="@* except @uri" mode="#current"/>
+                            <xsl:attribute name="uri" select="f:generated-href(@uri)"/>
+                            <xsl:apply-templates mode="#current"/>
+                        </xsl:copy>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:next-match/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:next-match/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:content-type=('liblouis-tables',
+                                                   'libhyphen-tables')]|
+                         cat:uri/@px:content-type[.=('script',
+                                                     'data-type',
+                                                     'liblouis-tables',
+                                                     'libhyphen-tables')]|
+                         cat:uri/@px:extends|
+                         cat:uri[@px:content-type='data-type']/@px:id"/>
+    
+    <xsl:template match="cat:uri[@px:content-type='script']" mode="ds">
         <xsl:variable name="type" select="string(document(@uri,.)/*/@type)"/>
         <xsl:variable name="id" select="if (namespace-uri-for-prefix(substring-before($type,':'),document(@uri,.)/*)='http://www.daisy.org/ns/pipeline/xproc') then substring-after($type,':') else $type"/>
         <xsl:variable name="name" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='name'])[1]"/>
@@ -108,71 +173,9 @@
                 <scr:property name="script.version" type="String" value="{$version}"/>
             </scr:component>
         </xsl:result-document>
-        <xsl:if test="@name">
-            <xsl:next-match/>
-        </xsl:if>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:extends]" mode="ds">
-        <xsl:variable name="generated-href" select="f:generated-href(@uri)"/>
-        <xsl:result-document href="{resolve-uri($generated-href,concat($outputDir,'/META-INF/catalog.xml'))}" method="xml">
-            <xsl:variable name="doc">
-                <xsl:call-template name="extend-script">
-                    <xsl:with-param name="script-uri" select="resolve-uri(@uri,base-uri(.))"/>
-                    <xsl:with-param name="extends-uri" select="resolve-uri(@px:extends,base-uri(.))"/>
-                    <xsl:with-param name="catalog-xml" select="/*"/>
-                </xsl:call-template>
-            </xsl:variable>
-            <xsl:choose>
-                <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:type">
-                    <xsl:apply-templates select="$doc" mode="finalize-script"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:sequence select="$doc"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:result-document>
-        <xsl:copy>
-            <xsl:apply-templates select="@* except @uri" mode="#current"/>
-            <xsl:attribute name="uri" select="$generated-href"/>
-            <xsl:apply-templates mode="#current"/>
-        </xsl:copy>
-    </xsl:template>
-    
-    <xsl:template match="cat:uri[not(@px:extends)]" mode="ds">
-        <xsl:variable name="uri" select="resolve-uri(@uri, base-uri(.))"/>
-        <xsl:choose>
-            <xsl:when test="doc-available($uri)">
-                <xsl:variable name="doc" select="document($uri)"/>
-                <xsl:choose>
-                    <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:type">
-                        <xsl:variable name="generated-href" select="f:generated-href(@uri)"/>
-                        <xsl:result-document href="{resolve-uri($generated-href,concat($outputDir,'/META-INF/catalog.xml'))}" method="xml">
-                            <xsl:apply-templates select="$doc" mode="finalize-script"/>
-                        </xsl:result-document>
-                        <xsl:copy>
-                            <xsl:apply-templates select="@* except @uri" mode="#current"/>
-                            <xsl:attribute name="uri" select="$generated-href"/>
-                            <xsl:apply-templates mode="#current"/>
-                        </xsl:copy>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:next-match/>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:next-match/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-    
-    <xsl:function name="f:generated-href">
-        <xsl:param name="uri" as="xs:string"/>
-        <xsl:value-of select="replace($uri,'^(.*/)?([^/]+)$','$1__processed__$2')"/>
-    </xsl:function>
-    
-    <xsl:template match="cat:uri[@px:content-type='data-type']" mode="ds" priority="1">
+    <xsl:template match="cat:uri[@px:content-type='data-type']" mode="ds">
         <xsl:variable name="id" select="@px:id"/>
         <!--
             assuming catalog.xml is placed in META-INF
@@ -188,12 +191,9 @@
                 <scr:property name="data-type.url" type="String" value="{$path}"/>
             </scr:component>
         </xsl:result-document>
-        <xsl:if test="@name">
-            <xsl:next-match/>
-        </xsl:if>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:content-type='liblouis-tables']" mode="ds" priority="1">
+    <xsl:template match="cat:uri[@px:content-type='liblouis-tables']" mode="ds">
         <!--
             assuming catalog.xml is placed in META-INF
         -->
@@ -214,7 +214,7 @@
         </xsl:result-document>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:content-type='libhyphen-tables']" mode="ds" priority="1">
+    <xsl:template match="cat:uri[@px:content-type='libhyphen-tables']" mode="ds">
         <!--
             assuming catalog.xml is placed in META-INF
         -->
@@ -235,14 +235,42 @@
         </xsl:result-document>
     </xsl:template>
     
-    <xsl:template match="cat:uri/@px:content-type[.=('script',
-                                                     'data-type',
-                                                     'liblouis-tables',
-                                                     'libhyphen-tables')]|
-                         cat:uri/@px:extends|
-                         cat:uri[@px:content-type='data-type']/@px:id|
-                         cat:uri[@px:content-type=('liblouis-tables','libhyphen-tables')]/@px:include"
-                  mode="ds"/>
+    <xsl:template match="cat:uri[@px:extends]" mode="process-xproc">
+        <xsl:result-document href="{resolve-uri(f:generated-href(@uri),concat($outputDir,'/META-INF/catalog.xml'))}" method="xml">
+            <xsl:variable name="doc">
+                <xsl:call-template name="extend-script">
+                    <xsl:with-param name="script-uri" select="resolve-uri(@uri,base-uri(.))"/>
+                    <xsl:with-param name="extends-uri" select="resolve-uri(@px:extends,base-uri(.))"/>
+                    <xsl:with-param name="catalog-xml" select="/*"/>
+                </xsl:call-template>
+            </xsl:variable>
+            <xsl:choose>
+                <xsl:when test="$doc/p:*/p:option/p:pipeinfo/pxd:type">
+                    <xsl:apply-templates select="$doc" mode="finalize-script"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:sequence select="$doc"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:result-document>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[not(@px:extends)]" mode="process-xproc">
+        <xsl:variable name="uri" select="resolve-uri(@uri, base-uri(.))"/>
+        <xsl:if test="doc-available($uri)">
+            <xsl:variable name="doc" select="document($uri)"/>
+            <xsl:if test="$doc/p:*/p:option/p:pipeinfo/pxd:type">
+                <xsl:result-document href="{resolve-uri(f:generated-href(@uri),concat($outputDir,'/META-INF/catalog.xml'))}" method="xml">
+                    <xsl:apply-templates select="$doc" mode="finalize-script"/>
+                </xsl:result-document>
+            </xsl:if>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:function name="f:generated-href">
+        <xsl:param name="uri" as="xs:string"/>
+        <xsl:value-of select="replace($uri,'^(.*/)?([^/]+)$','$1__processed__$2')"/>
+    </xsl:function>
     
     <xsl:template match="/*/p:option[p:pipeinfo/pxd:type]" mode="finalize-script">
         <xsl:copy>
@@ -280,7 +308,7 @@
         <xsl:sequence select="concat(/*/@type,'-',parent::*/parent::*/@name)"/>
     </xsl:template>
     
-    <xsl:template match="@*|node()" mode="ds data-type-xml">
+    <xsl:template match="@*|node()" mode="data-type-xml">
         <xsl:copy>
             <xsl:apply-templates select="@*|node()" mode="#current"/>
         </xsl:copy>

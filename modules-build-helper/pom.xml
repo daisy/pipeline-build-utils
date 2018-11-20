@@ -44,7 +44,7 @@
     <dependency>
       <groupId>org.daisy.maven</groupId>
       <artifactId>xproc-engine-calabash</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <version>1.1.2-SNAPSHOT</version>
     </dependency>
     <!-- avoid circular dependency on framework -->
     <?fixed-dependency?>

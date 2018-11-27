@@ -215,12 +215,22 @@ public abstract class Options {
 					bundle.startLevel(startLevel);
 				}
 				// special handling of xprocspec
-				if (groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec"))
+				if (groupId.equals("org.daisy.xprocspec") && artifactId.equals("xprocspec")) {
+					String osgiVersion = "";
+					int i = 0;
+					for (String segment : version.split("[\\.-]")) {
+						if (i > 3)
+							osgiVersion += "-";
+						else if (i > 0)
+							osgiVersion += ".";
+						i++;
+						osgiVersion += segment;
+					}
 					url = wrappedBundle(bundle)
 						.bundleSymbolicName("org.daisy.xprocspec")
-						.bundleVersion(version.replaceAll("-","."))
+						.bundleVersion(osgiVersion)
 						.getURL();
-				else
+				} else
 					url = bundle.getURL(); }
 			return url;
 		}

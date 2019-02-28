@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.daisy.maven</groupId>
       <artifactId>xproc-engine-daisy-pipeline</artifactId>
-      <version>1.11.3-SNAPSHOT</version>
+      <version>1.11.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

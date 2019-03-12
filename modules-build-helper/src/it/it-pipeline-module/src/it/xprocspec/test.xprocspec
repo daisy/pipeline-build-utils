@@ -28,11 +28,13 @@
 					<c:file name="META-INF/catalog.xml"/>
 					<c:file name="META-INF/services/org.daisy.Foo"/>
 					<c:file name="META-INF/services/org.daisy.common.spi.CreateOnStart"/>
+					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.ConfigurationFileProvider"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.XProcStepProvider"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.datatypes.DatatypeService"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.modules.ModuleRef"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.script.XProcScriptService"/>
+					<c:file name="OSGI-INF/calabash-config-it-pipeline-module.xml"/>
 					<c:file name="OSGI-INF/foo-choice.xml"/>
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
@@ -48,6 +50,8 @@
 					<c:file name="impl/JavaStep.class"/>
 					<c:file name="impl/JavaStep_Provider_SPI.class"/>
 					<c:file name="org/daisy/Foo.class"/>
+					<c:file name="org/daisy/common/xproc/calabash/impl/ConfigurationFileProvider_it_pipeline_module.class"/>
+					<c:file name="org/daisy/common/xproc/calabash/impl/ConfigurationFileProvider_it_pipeline_module_SPI.class"/>
 					<c:file name="org/daisy/impl/FooImpl.class"/>
 					<c:file name="org/daisy/impl/FooImpl_SPI.class"/>
 					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath.class"/>
@@ -173,6 +177,20 @@
 				</scr:component>
 			</x:document>
 		</x:expect>
+		<x:context label="The OSGI-INF/calabash-config-it-pipeline-module.xml file">
+			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/calabash-config-it-pipeline-module.xml"/>
+		</x:context>
+		<x:expect label="The OSGI-INF/calabash-config-it-pipeline-module.xml file" type="compare">
+			<x:document type="inline">
+				<scr:component activate="activate" name="calabash-config-it-pipeline-module">
+					<implementation class="org.daisy.common.xproc.calabash.impl.ConfigurationFileProvider_it_pipeline_module"/>
+					<service>
+						<provide interface="org.daisy.common.xproc.calabash.ConfigurationFileProvider"/>
+					</service>
+					<property name="path" type="String" value="/calabash-config.xml"/>
+				</scr:component>
+			</x:document>
+		</x:expect>
 		<x:context label="The OSGI-INF/liblouis-tables.xml file">
 			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/liblouis-tables.xml"/>
 		</x:context>
@@ -203,6 +221,10 @@
 					<c:file name="src/main/java/impl/package-summary.html"/>
 					<c:file name="src/main/java/index.html"/>
 					<c:file name="src/main/java/org/daisy/Foo.html"/>
+					<c:file name="src/main/java/org/daisy/common/xproc/calabash/impl/ConfigurationFileProvider_it_pipeline_module.html"/>
+					<c:file name="src/main/java/org/daisy/common/xproc/calabash/impl/ConfigurationFileProvider_it_pipeline_module_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/common/xproc/calabash/impl/package-frame.html"/>
+					<c:file name="src/main/java/org/daisy/common/xproc/calabash/impl/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/impl/FooImpl.html"/>
 					<c:file name="src/main/java/org/daisy/impl/FooImpl_SPI.html"/>
 					<c:file name="src/main/java/org/daisy/impl/package-frame.html"/>
@@ -275,8 +297,8 @@
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-${project.version}-xprocdoc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>
-					<c:file name="d192e5.html"/>
-					<c:file name="d192e56.html"/>
+					<c:file name="d193e5.html"/>
+					<c:file name="d193e56.html"/>
 					<c:file name="index.html"/>
 					<c:file name="libraries.html"/>
 					<c:file name="org/daisy/pipeline/modules/foo-utils/library.xpl.html"/>

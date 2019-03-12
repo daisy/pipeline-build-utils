@@ -178,10 +178,12 @@ public class <xsl:value-of select="$className"/> implements ModuleRef {
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:content-type=('liblouis-tables',
+    <xsl:template match="cat:uri[@px:content-type=('calabash-config',
+                                                   'liblouis-tables',
                                                    'libhyphen-tables')]|
                          cat:uri/@px:content-type[.=('script',
                                                      'data-type',
+                                                     'calabash-config',
                                                      'liblouis-tables',
                                                      'libhyphen-tables')]|
                          cat:uri/@px:extends|
@@ -295,6 +297,45 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 	}
 )
 public class <xsl:value-of select="$className"/> extends UrlBasedDatatypeService {
+	@Activate
+	public void activate(Map&lt;?,?&gt; properties) {
+		super.activate(properties, <xsl:value-of select="$className"/>.class);
+	}
+}</c:data></xsl:result-document>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:content-type='calabash-config']" mode="java">
+        <!--
+            assuming catalog.xml is placed in META-INF
+        -->
+        <xsl:variable name="path" select="pf:normalize-path(concat('/META-INF/',@uri))"/>
+        <xsl:call-template name="calabash-config-class">
+            <xsl:with-param name="path" select="$path"/>
+        </xsl:call-template>
+    </xsl:template>
+    
+    <xsl:template name="calabash-config-class">
+        <xsl:param name="path" as="xs:string" required="yes"/>
+        <xsl:variable name="className" select="concat('ConfigurationFileProvider_',replace($moduleName,'-','_'))"/>
+        <xsl:result-document href="{$generatedSourcesDirectory}/org/daisy/common/xproc/calabash/impl/{$className}.java"
+                             method="text" xml:space="preserve"><c:data>package org.daisy.common.xproc.calabash.impl;
+
+import java.util.Map;
+
+import org.daisy.common.xproc.calabash.BundledConfigurationFileProvider;
+import org.daisy.common.xproc.calabash.ConfigurationFileProvider;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+
+@Component(
+	name = "calabash-config-<xsl:value-of select="$moduleName"/>",
+	service = { ConfigurationFileProvider.class },
+	property = {
+		"path:String=<xsl:value-of select="$path"/>",
+	}
+)
+public class <xsl:value-of select="$className"/> extends BundledConfigurationFileProvider {
 	@Activate
 	public void activate(Map&lt;?,?&gt; properties) {
 		super.activate(properties, <xsl:value-of select="$className"/>.class);

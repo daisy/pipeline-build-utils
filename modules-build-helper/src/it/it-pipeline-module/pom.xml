@@ -91,7 +91,8 @@
       org.daisy.pipeline.datatypes.impl.Datatype_foo_choice,
       org.daisy.pipeline.datatypes.impl.Datatype_px_script_option_1,
       org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath,
-      org.daisy.pipeline.modules.impl.Module_it_pipeline_module
+      org.daisy.pipeline.modules.impl.Module_it_pipeline_module,
+      org.daisy.common.xproc.calabash.impl.ConfigurationFileProvider_it_pipeline_module
     </expose-services>
   </properties>
   <build>
@@ -135,7 +136,8 @@
               org.daisy.pipeline.modules.impl;-split-package:=first,
               org.daisy.pipeline.script.impl;-split-package:=first,
               org.daisy.pipeline.datatypes.impl;-split-package:=first,
-              org.daisy.pipeline.braille.liblouis.impl;-split-package:=first
+              org.daisy.pipeline.braille.liblouis.impl;-split-package:=first,
+              org.daisy.common.xproc.calabash.impl;-split-package:=first
             </Private-Package>
           </instructions>
         </configuration>

@@ -110,6 +110,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 					PackageElement packageElement = getPackageElement(classElement);
 					Component componentAnnotation = classElement.getAnnotation(Component.class);
 					ComponentModel component = new ComponentModel(); {
+						component.name = componentAnnotation.name();
 						component.qualifiedClassName = classElement.getQualifiedName().toString();
 						component.packageName = packageName(packageElement);
 						component.className = component.packageName != null ?

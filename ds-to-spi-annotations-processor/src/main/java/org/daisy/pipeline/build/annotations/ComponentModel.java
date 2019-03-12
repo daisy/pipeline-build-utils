@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 public class ComponentModel {
 	
+	String name;
 	String packageName;
 	String className;
 	String qualifiedClassName;
@@ -18,6 +19,10 @@ public class ComponentModel {
 	final List<PropertyModel> properties = new ArrayList<PropertyModel>();
 	final List<String> services = new ArrayList<String>();
 	final List<ReferenceModel> references = new ArrayList<ReferenceModel>();
+	
+	public String getName() {
+		return name;
+	}
 	
 	public String getPackageName() {
 		return packageName;

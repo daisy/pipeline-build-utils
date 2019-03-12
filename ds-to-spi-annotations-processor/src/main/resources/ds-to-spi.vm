@@ -22,6 +22,7 @@ public class ${component.spiClassName}
 		super();
 		spi_log.trace("Creating ${component.className}");
 		spi_props = new java.util.HashMap();
+		spi_props.put("component.name", "${component.name}");
 #foreach($property in ${component.properties})
 		spi_props.put(${property.keyLiteral}, ${property.valueLiteral});
 #end
@@ -89,6 +90,7 @@ public class ${component.spiClassName}
 		spi_log.trace("Activating ${component.className}");
 #if( ${component.activate.propertiesArgumentType} )
 		${component.activate.propertiesArgumentType.getName()} props = new ${component.activate.propertiesArgumentType.getName()}();
+		props.put("component.name", "${component.name}");
 #foreach($property in ${component.properties})
 		props.put(${property.keyLiteral}, ${property.valueLiteral});
 #end

@@ -226,7 +226,7 @@ public class <xsl:value-of select="$className"/> implements ModuleRef {
         <xsl:param name="desc" as="xs:string" required="yes"/>
         <xsl:param name="url" as="xs:string" required="yes"/>
         <xsl:param name="version" as="xs:string" required="yes"/>
-        <xsl:variable name="className" select="concat('XProcScript_',replace($id,'[:-]','_'))"/>
+        <xsl:variable name="className" select="concat('XProcScript_',replace($id,'[:.-]','_'))"/>
         <xsl:result-document href="{$generatedSourcesDirectory}/org/daisy/pipeline/script/impl/{$className}.java"
                              method="text" xml:space="preserve"><c:data>package org.daisy.pipeline.script.impl;
 
@@ -271,7 +271,7 @@ public class <xsl:value-of select="$className"/> extends XProcScriptService {
     <xsl:template name="data-type-class">
         <xsl:param name="id" as="xs:string" required="yes"/>
         <xsl:param name="url" as="xs:string" required="yes"/>
-        <xsl:variable name="className" select="concat('Datatype_',replace($id,'[:-]','_'))"/>
+        <xsl:variable name="className" select="concat('Datatype_',replace($id,'[:.-]','_'))"/>
         <xsl:result-document href="{$generatedSourcesDirectory}/org/daisy/pipeline/datatypes/impl/{$className}.java"
                              method="text" xml:space="preserve"><c:data>package org.daisy.pipeline.datatypes.impl;
 

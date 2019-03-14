@@ -24,6 +24,7 @@
     <xprocspec.version>1.3.0</xprocspec.version>
     <framework.version>1.12.1-SNAPSHOT</framework.version>
     <braille-modules.version>1.12.1-SNAPSHOT</braille-modules.version>
+    <modules-test-helper.version>1.0.5-SNAPSHOT</modules-test-helper.version>
   </properties>
 
   <dependencyManagement>
@@ -153,6 +154,12 @@
       <version>${xprocspec.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.daisy.pipeline.build</groupId>
+      <artifactId>modules-test-helper</artifactId>
+      <version>${modules-test-helper.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -183,12 +190,14 @@
           <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
           <postBuildHookScript>verify</postBuildHookScript>
           <properties>
+            <org.ops4j.pax.url.mvn.localRepository>${org.ops4j.pax.url.mvn.localRepository}</org.ops4j.pax.url.mvn.localRepository>
             <modules-build-helper.version>${project.version}</modules-build-helper.version>
             <ds-to-spi-maven-plugin.version>${ds-to-spi-maven-plugin.version}</ds-to-spi-maven-plugin.version>
             <ds-to-spi-runtime.version>${ds-to-spi-runtime.version}</ds-to-spi-runtime.version>
             <xprocspec.version>${xprocspec.version}</xprocspec.version>
             <framework.version>${framework.version}</framework.version>
             <braille-modules.version>${braille-modules.version}</braille-modules.version>
+            <modules-test-helper.version>${modules-test-helper.version}</modules-test-helper.version>
           </properties>
           <extraArtifacts>
             <!-- test dependencies are not automatically installed -->
@@ -197,6 +206,7 @@
             <extraArtifact>org.daisy.pipeline:ds-to-spi-runtime:${ds-to-spi-runtime.version}</extraArtifact>
             <extraArtifact>org.daisy.pipeline.build:ds-to-spi-maven-plugin:${ds-to-spi-maven-plugin.version}:maven-plugin</extraArtifact>
             <extraArtifact>org.daisy.xprocspec:xprocspec:${xprocspec.version}</extraArtifact>
+            <extraArtifact>org.daisy.pipeline.build:modules-test-helper:${modules-test-helper.version}</extraArtifact>
           </extraArtifacts>
           <goals>
             <goal>install</goal>

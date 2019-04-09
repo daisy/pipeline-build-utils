@@ -108,6 +108,7 @@
     <!--
         test dependencies
     -->
+    <!--
     <dependency>
       <groupId>org.daisy.pipeline</groupId>
       <artifactId>framework-bom</artifactId>
@@ -160,6 +161,7 @@
       <version>${modules-test-helper.version}</version>
       <scope>test</scope>
     </dependency>
+    -->
   </dependencies>
 
   <build>
@@ -185,6 +187,8 @@
         <artifactId>maven-invoker-plugin</artifactId>
         <version>1.8</version>
         <configuration>
+          <skipInstallation>true</skipInstallation>
+          <skipInvocation>true</skipInvocation>
           <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
           <settingsFile>src/it/settings.xml</settingsFile>
           <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>

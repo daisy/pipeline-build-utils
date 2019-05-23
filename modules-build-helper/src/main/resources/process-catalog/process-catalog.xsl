@@ -187,7 +187,7 @@ public class <xsl:value-of select="$className"/> implements ModuleRef {
                                                      'liblouis-tables',
                                                      'libhyphen-tables')]|
                          cat:uri/@px:extends|
-                         cat:uri[@px:content-type='data-type']/@px:id"/>
+                         cat:uri[@px:content-type=('data-type','script')]/@px:id"/>
     
     <xsl:template match="cat:uri[@px:content-type='script']" mode="java">
         <xsl:variable name="id" as="xs:string">

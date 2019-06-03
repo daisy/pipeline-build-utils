@@ -207,7 +207,11 @@ public class <xsl:value-of select="$className"/> implements ModuleRef {
         <!--
             assuming catalog.xml is placed in META-INF
         -->
-        <xsl:variable name="uri" select="if (@px:extends) then f:generated-href(@uri) else @uri"/>
+        <xsl:variable name="uri" select="resolve-uri(@uri, base-uri(.))"/>
+        <xsl:variable name="uri" select="if (@px:extends or
+                                             doc-available($uri) and document($uri)/p:*/p:option/p:pipeinfo/pxd:type)
+                                         then f:generated-href(@uri)
+                                         else @uri"/>
         <xsl:variable name="path" select="pf:normalize-path(concat('/META-INF/',$uri))"/>
         <xsl:variable name="desc" as="element()?" select="(document(@uri,.)//*[tokenize(@pxd:role,'\s+')='desc'])[1]"/>
         <xsl:variable name="desc" select="if ($desc/@xml:space='preserve')

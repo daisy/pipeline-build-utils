@@ -55,7 +55,6 @@
         <!--
             generate Java files
         -->
-        <xsl:call-template name="module-class"/>
         <xsl:apply-templates mode="java"/>
         <!--
             process XProc files
@@ -74,6 +73,10 @@
                     <xsl:sequence select="$catalog"/>
                 </xsl:copy>
             </xsl:result-document>
+            <!--
+                generate Java file
+            -->
+            <xsl:call-template name="module-class"/>
         </xsl:if>
     </xsl:template>
     

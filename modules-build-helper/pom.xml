@@ -36,6 +36,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!--
       <dependency>
         <groupId>org.daisy.pipeline.modules</groupId>
         <artifactId>modules-bom</artifactId>
@@ -43,6 +44,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      -->
     </dependencies>
   </dependencyManagement>
 

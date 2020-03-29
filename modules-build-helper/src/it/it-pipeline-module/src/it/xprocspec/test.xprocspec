@@ -38,8 +38,8 @@
 					<c:file name="OSGI-INF/foo-choice.xml"/>
 					<c:file name="OSGI-INF/foo-service.xml"/>
 					<c:file name="OSGI-INF/java-step.xml"/>
-					<c:file name="OSGI-INF/liblouis-tables.xml"/>
 					<c:file name="OSGI-INF/my-script.xml"/>
+					<c:file name="OSGI-INF/org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.xml"/>
 					<c:file name="OSGI-INF/org.daisy.pipeline.modules.impl.Module_it_pipeline_module.xml"/>
 					<c:file name="OSGI-INF/px-script-option-1.xml"/>
 					<c:file name="css/foo.css"/>
@@ -54,8 +54,8 @@
 					<c:file name="org/daisy/common/xproc/calabash/impl/ConfigurationFileProvider_it_pipeline_module_SPI.class"/>
 					<c:file name="org/daisy/impl/FooImpl.class"/>
 					<c:file name="org/daisy/impl/FooImpl_SPI.class"/>
-					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath.class"/>
-					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_SPI.class"/>
+					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.class"/>
+					<c:file name="org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis__SPI.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_foo_choice_SPI.class"/>
 					<c:file name="org/daisy/pipeline/datatypes/impl/Datatype_px_script_option_1.class"/>
@@ -191,13 +191,13 @@
 				</scr:component>
 			</x:document>
 		</x:expect>
-		<x:context label="The OSGI-INF/liblouis-tables.xml file">
-			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/liblouis-tables.xml"/>
+		<x:context label="The OSGI-INF/org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.xml file">
+			<x:document type="file" href="${project.build.directory}/it-pipeline-module-${project.version}.jar!/OSGI-INF/org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.xml"/>
 		</x:context>
-		<x:expect label="The OSGI-INF/liblouis-tables.xml file" type="compare">
+		<x:expect label="The OSGI-INF/org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.xml file" type="compare">
 			<x:document type="inline">
-				<scr:component activate="activate" name="liblouis-tables">
-					<implementation class="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath"/>
+				<scr:component activate="activate" name="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_">
+					<implementation class="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_"/>
 					<service>
 						<provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
 					</service>
@@ -231,8 +231,8 @@
 					<c:file name="src/main/java/org/daisy/impl/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/package-frame.html"/>
 					<c:file name="src/main/java/org/daisy/package-summary.html"/>
-					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath.html"/>
-					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_SPI.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.html"/>
+					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis__SPI.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/package-frame.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/braille/liblouis/impl/package-summary.html"/>
 					<c:file name="src/main/java/org/daisy/pipeline/datatypes/impl/Datatype_foo_choice.html"/>

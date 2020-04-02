@@ -14,6 +14,10 @@
     <p:option name="foo:option-1"/>
     <p:option name="bar:option-1"/>
 
-    <p:output port="result"/>
+    <p:output port="result">
+      <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h1 px:role="name">Result document</h1>
+      </p:documentation>
+    </p:output>
 
 </p:declare-step>

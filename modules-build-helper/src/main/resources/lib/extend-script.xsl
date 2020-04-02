@@ -86,7 +86,7 @@
                                select="namespace-uri-for-prefix(substring-before(@type,':'),$inner)"/>
                 <xsl:sequence select="@type"/>
             </xsl:if>
-            <xsl:for-each select="$inner/(p:documentation|p:input|p:option)">
+            <xsl:for-each select="$inner/(p:documentation|p:input|p:output|p:option)">
                 <xsl:choose>
                     <xsl:when test="self::p:input[@kind='parameter' and @pxd:options]">
                         <xsl:variable name="option-namespaces" as="xs:string*" select="tokenize(@pxd:options,'\s+')[not(.='')]"/>
@@ -110,7 +110,7 @@
                     <xsl:when test="self::p:output">
                         <xsl:copy>
                             <xsl:sequence select="@*|p:documentation|p:pipeinfo"/>
-                            <p:pipe step="{$inner-name}" port="@port"/>
+                            <p:pipe step="{$inner-name}" port="{@port}"/>
                         </xsl:copy>
                     </xsl:when>
                     <xsl:otherwise>
@@ -176,11 +176,14 @@
 
     <xsl:template mode="extend-script"
                   match="/*/p:input[@port]|
+                         /*/p:output[@port]|
                          /*/p:option[@name]">
         <xsl:param name="original-script" as="document-node()*" tunnel="yes"/>
-        <xsl:variable name="original-input-or-option" as="element()?"
+        <xsl:variable name="original-input-output-option" as="element()?"
                       select="if (self::p:input)
                               then $original-script/*/p:input[@port=current()/@port]
+                              else if (self::p:output)
+                              then $original-script/*/p:output[@port=current()/@port]
                               else if (not(contains(@name,':')))
                               then $original-script/*/p:option[@name=current()/@name]
                               else for $option-local-name in @name/substring-after(.,':') return
@@ -193,35 +196,37 @@
         <xsl:variable name="new-attributes" as="xs:string*" select="@*/concat('{',namespace-uri(.),'}',name(.))"/>
         <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
-            <xsl:sequence select="$original-input-or-option/@*[not(concat('{',namespace-uri(.),'}',name(.))=$new-attributes
-                                                                   or concat('{',namespace-uri(.),'}',name(.))='{}select'
-                                                                      and current()/@required = 'true'
-                                                                   or concat('{',namespace-uri(.),'}',name(.))='{http://www.daisy.org/ns/pipeline/xproc}type'
-                                                                      and current()/p:pipeinfo/pxd:type)]"/>
+            <xsl:sequence select="$original-input-output-option
+                                  /@*[not(concat('{',namespace-uri(.),'}',name(.))=$new-attributes
+                                          or concat('{',namespace-uri(.),'}',name(.))='{}select'
+                                             and current()/@required = 'true'
+                                          or concat('{',namespace-uri(.),'}',name(.))='{http://www.daisy.org/ns/pipeline/xproc}type'
+                                             and current()/p:pipeinfo/pxd:type)]"/>
             <xsl:if test="not(p:pipeinfo)
                           and not(@pxd:type)
-                          and $original-input-or-option/p:pipeinfo/pxd:type">
+                          and $original-input-output-option/p:pipeinfo/pxd:type">
                 <p:pipeinfo>
-                    <xsl:sequence select="$original-input-or-option/p:pipeinfo/pxd:type"/>
+                    <xsl:sequence select="$original-input-output-option/p:pipeinfo/pxd:type"/>
                 </p:pipeinfo>
             </xsl:if>
             <xsl:if test="not(p:documentation)">
-                <xsl:sequence select="$original-input-or-option/p:documentation"/>
+                <xsl:sequence select="$original-input-output-option/p:documentation"/>
             </xsl:if>
             <xsl:apply-templates select="node()" mode="#current">
-                <xsl:with-param name="original-input-or-option" select="$original-input-or-option" tunnel="yes"/>
+                <xsl:with-param name="original-input-output-option" select="$original-input-output-option" tunnel="yes"/>
             </xsl:apply-templates>
         </xsl:copy>
     </xsl:template>
     
     <xsl:template mode="extend-script"
                   match="/*/p:input/p:pipeinfo|
+                         /*/p:output/p:pipeinfo|
                          /*/p:option/p:pipeinfo">
-        <xsl:param name="original-input-or-option" as="element()?" tunnel="yes"/>
+        <xsl:param name="original-input-output-option" as="element()?" tunnel="yes"/>
         <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
             <xsl:if test="not(pxd:type) and not(parent::*/@pxd:type)">
-                <xsl:sequence select="$original-input-or-option/p:pipeinfo/pxd:type"/>
+                <xsl:sequence select="$original-input-output-option/p:pipeinfo/pxd:type"/>
             </xsl:if>
             <xsl:apply-templates mode="#current"/>
         </xsl:copy>
@@ -229,27 +234,29 @@
     
     <xsl:template mode="extend-script"
                   match="/*/p:input/p:documentation|
+                         /*/p:output/p:documentation|
                          /*/p:option/p:documentation">
-        <xsl:param name="original-input-or-option" as="element()?" tunnel="yes"/>
+        <xsl:param name="original-input-output-option" as="element()?" tunnel="yes"/>
         <xsl:copy>
             <xsl:apply-templates select="@*" mode="#current"/>
             <xsl:if test="not(descendant::*[tokenize(@pxd:role,'\s+')='name'])">
-                <xsl:sequence select="$original-input-or-option/p:documentation/*[tokenize(@pxd:role,'\s+')='name']"/>
+                <xsl:sequence select="$original-input-output-option/p:documentation/*[tokenize(@pxd:role,'\s+')='name']"/>
             </xsl:if>
             <xsl:apply-templates mode="#current"/>
             <xsl:if test="not(descendant::*[tokenize(@pxd:role,'\s+')='desc'])">
-                <xsl:sequence select="$original-input-or-option/p:documentation/*[tokenize(@pxd:role,'\s+')='desc']"/>
+                <xsl:sequence select="$original-input-output-option/p:documentation/*[tokenize(@pxd:role,'\s+')='desc']"/>
             </xsl:if>
         </xsl:copy>
     </xsl:template>
     
     <xsl:template mode="extend-script"
                   match="*[tokenize(@pxd:role,'\s+')=('name','desc')]">
-        <xsl:param name="original-input-or-option" as="element()?" tunnel="yes"/>
+        <xsl:param name="original-input-output-option" as="element()?" tunnel="yes"/>
         <xsl:copy>
             <xsl:apply-templates select="@* except @pxd:inherit" mode="#current"/>
             <xsl:if test="@pxd:inherit = 'prepend'">
-                <xsl:copy-of select="$original-input-or-option//*[tokenize(@pxd:role,'\s+')=current()/tokenize(@pxd:role,'\s+')]/node()"/>
+                <xsl:copy-of select="$original-input-output-option
+                                     //*[tokenize(@pxd:role,'\s+')=current()/tokenize(@pxd:role,'\s+')]/node()"/>
                 <xsl:text><![CDATA[
 
 ]]></xsl:text>
@@ -259,7 +266,8 @@
                 <xsl:text><![CDATA[
 
 ]]></xsl:text>
-                <xsl:copy-of select="$original-input-or-option//*[tokenize(@pxd:role,'\s+')=current()/tokenize(@pxd:role,'\s+')]/node()"/>
+                <xsl:copy-of select="$original-input-output-option
+                                     //*[tokenize(@pxd:role,'\s+')=current()/tokenize(@pxd:role,'\s+')]/node()"/>
             </xsl:if>
         </xsl:copy>
     </xsl:template>

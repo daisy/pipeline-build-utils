@@ -95,7 +95,10 @@
 	                     /*/p:option/p:documentation|
 	                     /*/p:input|
 	                     /*/p:input/@*|
-	                     /*/p:input/p:documentation">
+	                     /*/p:input/p:documentation|
+	                     /*/p:output|
+	                     /*/p:output/@*|
+	                     /*/p:output/p:documentation">
 		<xsl:param name="parent-in-original-script" tunnel="yes" as="element()?" select="()"/>
 		<xsl:variable name="name" select="concat('{',namespace-uri(.),'}',name(.))"/>
 		<xsl:choose>
@@ -105,6 +108,8 @@
 				                      then $parent-in-original-script/p:option[@name=current()/@name]
 				                      else if (self::p:input)
 				                      then $parent-in-original-script/p:input[@port=current()/@port]
+				                      else if (self::p:output)
+				                      then $parent-in-original-script/p:output[@port=current()/@port]
 				                      else if (self::*)
 				                      then $parent-in-original-script/*[concat('{',namespace-uri(.),'}',name(.))=$name]
 				                      else $parent-in-original-script/@*[concat('{',namespace-uri(.),'}',name(.))=$name]"/>

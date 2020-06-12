@@ -21,7 +21,8 @@
 				<xsl:variable name="inherited-script">
 					<xsl:call-template name="extend-script">
 						<xsl:with-param name="script-uri" select="$entry-in-catalog/resolve-uri(@uri,base-uri(.))"/>
-						<xsl:with-param name="extends-uri" select="$entry-in-catalog/resolve-uri(@px:extends,base-uri(.))"/>
+						<xsl:with-param name="extends-uri" select="for $u in tokenize($entry-in-catalog/@px:extends,'\s+')[not(.='')]
+						                                           return resolve-uri($u,base-uri($entry-in-catalog))"/>
 						<xsl:with-param name="catalog-xml" select="$catalog-xml/*"/>
 					</xsl:call-template>
 				</xsl:variable>

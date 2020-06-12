@@ -10,44 +10,51 @@
     <!-- recursive template allowing scripts to inherit from scripts that inherit from scripts -->
     <xsl:template name="extend-script">
         <xsl:param name="script-uri"/>
-        <xsl:param name="extends-uri"/>
+        <xsl:param name="extends-uri" as="xs:string*"/>
         <xsl:param name="catalog-xml" as="element()"/>
         <xsl:if test="not(doc-available($script-uri))">
             <xsl:message terminate="yes" select="concat('Unable to resolve: ', $script-uri)"/>
         </xsl:if>
         <xsl:variable name="script-doc" select="document($script-uri)"/>
-        <xsl:variable name="extends-uri-element" as="element()?"
-                      select="$catalog-xml//cat:uri[@name=$extends-uri or
-                                                    resolve-uri(@uri,base-uri(.))=$extends-uri]"/>
-        <xsl:variable name="extends-doc">
-            <xsl:choose>
-                <xsl:when test="$extends-uri-element/@px:extends">
-                    <xsl:variable name="extends-uri" select="$extends-uri-element/resolve-uri(@uri,base-uri(.))"/>
-                    <xsl:variable name="doc">
-                        <xsl:call-template name="extend-script">
-                            <xsl:with-param name="script-uri" select="$extends-uri"/>
-                            <xsl:with-param name="extends-uri" select="$extends-uri-element/resolve-uri(@px:extends,base-uri(.))"/>
-                            <xsl:with-param name="catalog-xml" select="$catalog-xml"/>
-                        </xsl:call-template>
-                    </xsl:variable>
-                    <xsl:apply-templates select="$doc" mode="finalize-script">
-                        <xsl:with-param name="script-uri" tunnel="yes" select="$extends-uri"/>
-                    </xsl:apply-templates>
-                </xsl:when>
-                <xsl:when test="$extends-uri-element">
-                    <xsl:variable name="extends-uri" select="$extends-uri-element/resolve-uri(@uri,base-uri(.))"/>
-                    <xsl:if test="not(doc-available($extends-uri))">
-                        <xsl:message terminate="yes" select="concat('Unable to resolve: ', $extends-uri)"/>
-                    </xsl:if>
-                    <xsl:sequence select="document($extends-uri)"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:if test="not(doc-available($extends-uri))">
-                        <xsl:message terminate="yes" select="concat('Unable to resolve: ', $extends-uri)"/>
-                    </xsl:if>
-                    <xsl:sequence select="document($extends-uri)"/>
-                </xsl:otherwise>
-            </xsl:choose>
+        <xsl:variable name="extends-doc" as="document-node()*">
+            <xsl:for-each select="$extends-uri">
+                <xsl:variable name="extends-uri" select="."/>
+                <xsl:variable name="extends-uri-element" as="element()?"
+                              select="$catalog-xml//cat:uri[@name=$extends-uri or
+                                                            resolve-uri(@uri,base-uri(.))=$extends-uri]"/>
+                <xsl:choose>
+                    <xsl:when test="$extends-uri-element/@px:extends">
+                        <xsl:variable name="extends-uri" select="$extends-uri-element/resolve-uri(@uri,base-uri(.))"/>
+                        <xsl:variable name="doc">
+                            <xsl:call-template name="extend-script">
+                                <xsl:with-param name="script-uri" select="$extends-uri"/>
+                                <xsl:with-param name="extends-uri"
+                                                select="for $u in tokenize($extends-uri-element/@px:extends,'\s+')[not(.='')]
+                                                        return resolve-uri($u,base-uri($extends-uri-element))"/>
+                                <xsl:with-param name="catalog-xml" select="$catalog-xml"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:document>
+                            <xsl:apply-templates select="$doc" mode="finalize-script">
+                                <xsl:with-param name="script-uri" tunnel="yes" select="$extends-uri"/>
+                            </xsl:apply-templates>
+                        </xsl:document>
+                    </xsl:when>
+                    <xsl:when test="$extends-uri-element">
+                        <xsl:variable name="extends-uri" select="$extends-uri-element/resolve-uri(@uri,base-uri(.))"/>
+                        <xsl:if test="not(doc-available($extends-uri))">
+                            <xsl:message terminate="yes" select="concat('Unable to resolve: ', $extends-uri)"/>
+                        </xsl:if>
+                        <xsl:sequence select="document($extends-uri)"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:if test="not(doc-available($extends-uri))">
+                            <xsl:message terminate="yes" select="concat('Unable to resolve: ', $extends-uri)"/>
+                        </xsl:if>
+                        <xsl:sequence select="document($extends-uri)"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
         </xsl:variable>
         <xsl:apply-templates select="$script-doc" mode="extend-script">
             <xsl:with-param name="original-script" select="$extends-doc" tunnel="yes"/>
@@ -56,7 +63,7 @@
     
     <xsl:template mode="extend-script"
                   match="/p:declare-step[p:input[@kind='parameter' and @pxd:options]]">
-        <xsl:param name="original-script" as="document-node()" tunnel="yes"/>
+        <xsl:param name="original-script" as="document-node()*" tunnel="yes"/>
         <xsl:variable name="inner" as="element(p:declare-step)">
             <xsl:next-match/>
         </xsl:variable>
@@ -69,11 +76,16 @@
         </xsl:variable>
         <xsl:variable name="outer-name" select="$generated-names[1]"/>
         <xsl:variable name="inner-name" select="$generated-names[2]"/>
+        <xsl:variable name="inner-type" select="if (@type)
+                                                then substring-after(@type,':')
+                                                else 'step'"/>
         <xsl:variable name="private-namespace" select="'org.daisy.pipeline.build/modules-build-helper/extend-script.xsl'"/>
         <p:declare-step version="1.0" name="{$outer-name}">
-            <xsl:namespace name="{substring-before(@type,':')}"
-                           select="namespace-uri-for-prefix(substring-before(@type,':'),$inner)"/>
-            <xsl:sequence select="@type"/>
+            <xsl:if test="@type">
+                <xsl:namespace name="{substring-before(@type,':')}"
+                               select="namespace-uri-for-prefix(substring-before(@type,':'),$inner)"/>
+                <xsl:sequence select="@type"/>
+            </xsl:if>
             <xsl:for-each select="$inner/(p:documentation|p:input|p:option)">
                 <xsl:choose>
                     <xsl:when test="self::p:input[@kind='parameter' and @pxd:options]">
@@ -110,7 +122,7 @@
                 <xsl:copy>
                     <xsl:namespace name="ex" select="$private-namespace"/>
                     <xsl:sequence select="@* except (@type,@version)"/>
-                    <xsl:attribute name="type" select="concat('ex:',substring-after(@type,':'))"/>
+                    <xsl:attribute name="type" select="concat('ex:', $inner-type)"/>
                     <xsl:for-each select="node() except p:documentation">
                         <xsl:choose>
                             <xsl:when test="self::p:input|self::p:output|self::p:option">
@@ -126,7 +138,7 @@
                     </xsl:for-each>
                 </xsl:copy>
             </xsl:for-each>
-            <xsl:element name="{substring-after(@type,':')}" namespace="{$private-namespace}">
+            <xsl:element name="{$inner-type}" namespace="{$private-namespace}">
                 <xsl:attribute name="name" select="$inner-name"/>
                 <xsl:attribute name="pxd:progress" select="1"/>
                 <xsl:for-each select="$inner/p:input">
@@ -165,7 +177,7 @@
     <xsl:template mode="extend-script"
                   match="/*/p:input[@port]|
                          /*/p:option[@name]">
-        <xsl:param name="original-script" as="document-node()" tunnel="yes"/>
+        <xsl:param name="original-script" as="document-node()*" tunnel="yes"/>
         <xsl:variable name="original-input-or-option" as="element()?"
                       select="if (self::p:input)
                               then $original-script/*/p:input[@port=current()/@port]

@@ -46,6 +46,8 @@
 					<c:file name="css/__processed__foo.xpl"/>
 					<c:file name="css/foo-1.css"/>
 					<c:file name="css/foo-1.xpl"/>
+					<c:file name="css/foo-2.css"/>
+					<c:file name="css/foo-2.xpl"/>
 					<c:file name="css/foo.css"/>
 					<c:file name="css/foo.xpl"/>
 					<c:file name="data-types/script-option-1.xml"/>
@@ -303,6 +305,8 @@
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
 					<c:file name="src/main/resources/css/foo-1.css/index.md"/>
 					<c:file name="src/main/resources/css/foo-1.xpl/index.html"/>
+					<c:file name="src/main/resources/css/foo-2.css/index.md"/>
+					<c:file name="src/main/resources/css/foo-2.xpl/index.html"/>
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
 					<c:file name="src/main/resources/css/foo.xpl/index.html"/>
 					<c:file name="src/main/resources/data-types/type.xml/index.html"/>

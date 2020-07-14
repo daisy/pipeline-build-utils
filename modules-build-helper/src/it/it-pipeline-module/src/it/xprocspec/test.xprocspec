@@ -4,7 +4,7 @@
                xmlns:px="http://www.daisy.org/ns/pipeline/xproc"
                xmlns:pxi="http://www.daisy.org/ns/pipeline/xproc/internal"
                xmlns:c="http://www.w3.org/ns/xproc-step"
-               xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
+               xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0">
 	
 	<x:script>
 		<p:declare-step type="pxi:dummy" version="1.0">
@@ -110,12 +110,12 @@
 		<x:expect label="The datatype DS file" type="compare">
 			<x:document type="inline">
 				<scr:component immediate="true" activate="activate" name="px:script-option-1">
-					<implementation class="org.daisy.pipeline.datatypes.impl.Datatype_px_script_option_1"/>
+					<property name="data-type.id" type="String" value="px:script-option-1"/>
+					<property name="data-type.url" type="String" value="/data-types/script-option-1.xml"/>
 					<service>
 						<provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
 					</service>
-					<property name="data-type.id" type="String" value="px:script-option-1"/>
-					<property name="data-type.url" type="String" value="/data-types/script-option-1.xml"/>
+					<implementation class="org.daisy.pipeline.datatypes.impl.Datatype_px_script_option_1"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -159,14 +159,14 @@
 		<x:expect label="The OSGI-INF/my-script.xml file" type="compare">
 			<x:document type="inline">
 				<scr:component immediate="true" activate="activate" name="my-script">
-					<implementation class="org.daisy.pipeline.script.impl.XProcScript_my_script"/>
-					<service>
-						<provide interface="org.daisy.pipeline.script.XProcScriptService"/>
-					</service>
 					<property name="script.version" type="String" value="${project.version}"/>
 					<property name="script.id" type="String" value="my-script"/>
 					<property name="script.description" type="String" value="Does stuff."/>
 					<property name="script.url" type="String" value="/xml/__processed__script.xpl"/>
+					<service>
+						<provide interface="org.daisy.pipeline.script.XProcScriptService"/>
+					</service>
+					<implementation class="org.daisy.pipeline.script.impl.XProcScript_my_script"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -176,12 +176,12 @@
 		<x:expect label="The OSGI-INF/foo-choice.xml file" type="compare">
 			<x:document type="inline">
 				<scr:component name="foo:choice" immediate="true" activate="activate">
-					<implementation class="org.daisy.pipeline.datatypes.impl.Datatype_foo_choice"/>
+					<property name="data-type.id" type="String" value="foo:choice"/>
+					<property name="data-type.url" type="String" value="/data-types/type.xml"/>
 					<service>
 						<provide interface="org.daisy.pipeline.datatypes.DatatypeService"/>
 					</service>
-					<property name="data-type.id" type="String" value="foo:choice"/>
-					<property name="data-type.url" type="String" value="/data-types/type.xml"/>
+					<implementation class="org.daisy.pipeline.datatypes.impl.Datatype_foo_choice"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -191,11 +191,11 @@
 		<x:expect label="The OSGI-INF/calabash-config-it-pipeline-module.xml file" type="compare">
 			<x:document type="inline">
 				<scr:component activate="activate" name="calabash-config-it-pipeline-module">
-					<implementation class="org.daisy.common.xproc.calabash.impl.ConfigurationFileProvider_it_pipeline_module"/>
+					<property name="path" type="String" value="/calabash-config.xml"/>
 					<service>
 						<provide interface="org.daisy.common.xproc.calabash.ConfigurationFileProvider"/>
 					</service>
-					<property name="path" type="String" value="/calabash-config.xml"/>
+					<implementation class="org.daisy.common.xproc.calabash.impl.ConfigurationFileProvider_it_pipeline_module"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -205,13 +205,13 @@
 		<x:expect label="The OSGI-INF/org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_.xml file" type="compare">
 			<x:document type="inline">
 				<scr:component activate="activate" name="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_">
-					<implementation class="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_"/>
-					<service>
-						<provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
-					</service>
 					<property name="identifier" type="String" value="http://www.daisy.org/pipeline/modules/foo-utils/liblouis/"/>
 					<property name="path" type="String" value="/liblouis/"/>
 					<property name="includes" type="String" value="*"/>
+					<service>
+						<provide interface="org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
+					</service>
+					<implementation class="org.daisy.pipeline.braille.liblouis.impl.LiblouisTablePath_http___www_daisy_org_pipeline_modules_foo_utils_liblouis_"/>
 				</scr:component>
 			</x:document>
 		</x:expect>
@@ -261,6 +261,7 @@
 					<c:file name="src/main/java/org/daisy/pipeline/script/impl/package-summary.html"/>
 					<c:file name="src/main/java/overview-frame.html"/>
 					<c:file name="src/main/java/overview-summary.html"/>
+					<c:file name="src/main/java/stylesheet.css"/>
 					<c:file name="src/main/resources/META-INF/catalog.xml/index.html"/>
 					<c:file name="src/main/resources/css/foo.css/index.md"/>
 					<c:file name="src/main/resources/data-types/type.xml/index.html"/>

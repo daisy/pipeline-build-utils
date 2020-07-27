@@ -28,7 +28,6 @@
 					<c:file name="META-INF/catalog.xml"/>
 					<c:file name="META-INF/services/net.sf.saxon.lib.ExtensionFunctionDefinition"/>
 					<c:file name="META-INF/services/org.daisy.Foo"/>
-					<c:file name="META-INF/services/org.daisy.common.spi.CreateOnStart"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.ConfigurationFileProvider"/>
 					<c:file name="META-INF/services/org.daisy.common.xproc.calabash.XProcStepProvider"/>
 					<c:file name="META-INF/services/org.daisy.pipeline.braille.liblouis.LiblouisTablePath"/>
@@ -109,7 +108,7 @@
 		</x:context>
 		<x:expect label="The datatype DS file" type="compare">
 			<x:document type="inline">
-				<scr:component immediate="true" activate="activate" name="px:script-option-1">
+				<scr:component activate="activate" name="px:script-option-1">
 					<property name="data-type.id" type="String" value="px:script-option-1"/>
 					<property name="data-type.url" type="String" value="/data-types/script-option-1.xml"/>
 					<service>
@@ -158,7 +157,7 @@
 		</x:context>
 		<x:expect label="The OSGI-INF/my-script.xml file" type="compare">
 			<x:document type="inline">
-				<scr:component immediate="true" activate="activate" name="my-script">
+				<scr:component activate="activate" name="my-script">
 					<property name="script.version" type="String" value="${project.version}"/>
 					<property name="script.id" type="String" value="my-script"/>
 					<property name="script.description" type="String" value="Does stuff."/>
@@ -175,7 +174,7 @@
 		</x:context>
 		<x:expect label="The OSGI-INF/foo-choice.xml file" type="compare">
 			<x:document type="inline">
-				<scr:component name="foo:choice" immediate="true" activate="activate">
+				<scr:component name="foo:choice" activate="activate">
 					<property name="data-type.id" type="String" value="foo:choice"/>
 					<property name="data-type.url" type="String" value="/data-types/type.xml"/>
 					<service>

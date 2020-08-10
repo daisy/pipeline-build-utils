@@ -291,7 +291,7 @@
 		<x:context label="The 'javadoc' JAR content">
 			<x:document type="zip" href="${project.build.directory}/it-pipeline-module-${project.version}-javadoc.jar" ordered="true"/>
 		</x:context>
-		<x:expect label="The 'javadoc' JAR content" type="compare">
+		<x:expect label="The 'javadoc' JAR content" type="compare" pending="brittle: depends on Java version">
 			<x:document type="inline">
 				<c:zipfile name="it-pipeline-module-0-SNAPSHOT-javadoc.jar">
 					<c:file name="META-INF/MANIFEST.MF"/>

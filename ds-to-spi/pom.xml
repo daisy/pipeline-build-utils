@@ -12,7 +12,7 @@
 
   <groupId>org.daisy.pipeline</groupId>
   <artifactId>ds-to-spi-aggregator</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.1</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -45,4 +45,8 @@
       </plugin>
     </plugins>
   </build>
+
+  <scm>
+    <tag>ds-to-spi-aggregator-1.1.1</tag>
+  </scm>
 </project>

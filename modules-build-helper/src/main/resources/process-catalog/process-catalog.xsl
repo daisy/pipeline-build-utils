@@ -69,10 +69,6 @@
             </xsl:if>
         </c:data></xsl:result-document>
         <!--
-            generate Java files
-        -->
-        <xsl:apply-templates mode="java"/>
-        <!--
             process XProc files
         -->
         <xsl:apply-templates mode="process-xproc"/>
@@ -89,11 +85,14 @@
                     <xsl:sequence select="$catalog"/>
                 </xsl:copy>
             </xsl:result-document>
-            <!--
-                generate Java file
-            -->
+        </xsl:if>
+        <!--
+            generate Java files
+        -->
+        <xsl:if test="$catalog/self::*">
             <xsl:call-template name="module-class"/>
         </xsl:if>
+        <xsl:apply-templates mode="java"/>
     </xsl:template>
     
     <xsl:template name="module-class">
@@ -148,7 +147,7 @@ public class <xsl:value-of select="$className"/> extends Module {
         </xsl:copy>
     </xsl:template>
     
-    <xsl:template match="cat:uri[@px:content-type=('script','data-type')]" priority="1">
+    <xsl:template match="cat:uri[@px:content-type=('script','data-type') or @px:export-functions]" priority="1">
         <xsl:if test="@name">
             <xsl:next-match/>
         </xsl:if>
@@ -450,6 +449,60 @@ public class <xsl:value-of select="$className"/> extends org.daisy.pipeline.brai
 	@Activate
 	public void activate(Map&lt;?,?&gt; properties) throws IllegalArgumentException {
 		super.activate(properties, <xsl:value-of select="$className"/>.class);
+	}
+}</c:data></xsl:result-document>
+    </xsl:template>
+    
+    <xsl:template match="cat:uri[@px:export-functions]" mode="java">
+        <xsl:variable name="uri-element" as="element()" select="."/>
+        <xsl:call-template name="xslt-functions-class">
+            <xsl:with-param name="path" select="pf:normalize-path(concat('/META-INF/',@uri))"/>
+            <xsl:with-param name="functions"
+                            select="for $f in @px:export-functions/tokenize(.,'\s+')[not(.='')]
+                                    return resolve-QName($f,$uri-element)"/>
+        </xsl:call-template>
+    </xsl:template>
+    
+    <xsl:template name="xslt-functions-class">
+        <xsl:param name="path" required="yes"/>
+        <xsl:param name="functions" as="xs:QName*" required="yes"/>
+        <xsl:variable name="className" select="concat('XsltFunctions_',replace($moduleName,'-','_'))"/>
+        <xsl:result-document href="{$generatedSourcesDirectory}/org/daisy/common/xpath/saxon/impl/{$className}.java"
+                             method="text" xml:space="preserve"><c:data>package org.daisy.common.xpath.saxon.impl;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import net.sf.saxon.lib.ExtensionFunctionDefinition;
+import net.sf.saxon.om.StructuredQName;
+
+import org.daisy.common.file.URLs;
+import org.daisy.common.xpath.saxon.ExtensionFunctionProvider;
+import org.daisy.common.xpath.saxon.XsltFunction;
+
+import org.osgi.service.component.annotations.Component;
+
+@Component(
+	name = "<xsl:value-of select="concat('org.daisy.common.xpath.saxon.impl.',$className)"/>",
+	service = { ExtensionFunctionProvider.class }
+)
+public class <xsl:value-of select="$className"/> implements ExtensionFunctionProvider {
+
+	private final Collection&lt;ExtensionFunctionDefinition&gt; functions;
+
+	public <xsl:value-of select="$className"/>() {
+		functions = new ArrayList&lt;&gt;();<xsl:for-each select="$functions">
+		functions.add(
+			new XsltFunction(
+				URLs.getResourceFromJAR("<xsl:value-of select="$path"/>", <xsl:value-of select="$className"/>.class),
+				new StructuredQName("",
+				                    "<xsl:value-of select="namespace-uri-from-QName(.)"/>",
+				                    "<xsl:value-of select="local-name-from-QName(.)"/>")));</xsl:for-each>
+	}
+
+	@Override
+	public Collection&lt;ExtensionFunctionDefinition&gt; getDefinitions() {
+		return functions;
 	}
 }</c:data></xsl:result-document>
     </xsl:template>

@@ -32,8 +32,8 @@
     <xspec-runner.version>1.0.4</xspec-runner.version>
     <xprocspec.version>1.4.2</xprocspec.version>
     <xprocspec-runner.version>1.2.6-SNAPSHOT</xprocspec-runner.version>
-    <xproc-engine-daisy-pipeline.version>1.14.4-SNAPSHOT</xproc-engine-daisy-pipeline.version>
-    <framework.version>1.14.10-SNAPSHOT</framework.version>
+    <xproc-engine-daisy-pipeline.version>1.14.4</xproc-engine-daisy-pipeline.version>
+    <framework.version>1.14.10</framework.version>
   </properties>
   
   <dependencyManagement>

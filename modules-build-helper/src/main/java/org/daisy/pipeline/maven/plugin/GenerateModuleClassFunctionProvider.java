@@ -47,7 +47,7 @@ public class GenerateModuleClassFunctionProvider extends ReflexiveExtensionFunct
 			result.append("\n");
 			result.append("    @Activate\n");
 			result.append("    public void activate() {\n");
-			result.append("        super.init(catalogParser);\n");
+			result.append("        super.parseCatalog(catalogParser);\n");
 			result.append("    }\n");
 			result.append("\n");
 			result.append("    @Reference(\n");
@@ -59,6 +59,10 @@ public class GenerateModuleClassFunctionProvider extends ReflexiveExtensionFunct
 			result.append("    )\n");
 			result.append("    public void setParser(XmlCatalogParser parser) {\n");
 			result.append("        catalogParser = parser;\n");
+			result.append("    }\n");
+			result.append("\n");
+			result.append("    @Override\n");
+			result.append("    public void resolveDependencies() {\n");
 			result.append("    }\n");
 			result.append("}\n");
 			logger.debug("Successfully generated class " + className);

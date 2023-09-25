@@ -67,6 +67,7 @@
 					<c:file name="impl/JavaStep$Provider.class"/>
 					<c:file name="impl/JavaStep.class"/>
 					<c:file name="impl/JavaStep_Provider_SPI.class"/>
+					<c:file name="liblouis/foo.utb"/>
 					<c:file name="org/daisy/Foo.class"/>
 					<c:file name="org/daisy/common/saxon/impl/PackageDetails_http___www_daisy_org_pipeline_modules_foo_utils_library_xsl.class"/>
 					<c:file name="org/daisy/common/saxon/impl/PackageDetails_http___www_daisy_org_pipeline_modules_foo_utils_library_xsl_SPI.class"/>

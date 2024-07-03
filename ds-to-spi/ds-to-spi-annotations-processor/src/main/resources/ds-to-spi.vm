@@ -7,10 +7,17 @@ package ${component.packageName};
 
 #end
 public class ${component.spiClassName}
+#if( !${component.proxy} )
        extends ${component.qualifiedClassName}
+#end
        implements org.daisy.common.spi.ServiceWithProperties
 #if( ${component.immediate} )
                 , org.daisy.common.spi.CreateOnStart ## maybe this is not exactly what we want but it's close enough
+#end
+#if( ${component.proxy} )
+#foreach($service in ${component.services})
+                , ${service.name}
+#end
 #end
 {
 	
@@ -19,8 +26,16 @@ public class ${component.spiClassName}
 	private final java.util.Map spi_props;
 	private boolean spi_deactivated = false;
 	
+#if( ${component.proxy} )
+	private final ${component.qualifiedClassName} delegate;
+#end
+
 	public ${component.spiClassName}() {
+#if( ${component.proxy} )
+		delegate = new ${component.qualifiedClassName}();
+#else
 		super();
+#end
 		spi_log.trace("Creating ${component.className}");
 		spi_props = new java.util.HashMap();
 		spi_props.put("component.name", "${component.name}");
@@ -65,10 +80,12 @@ public class ${component.spiClassName}
 								((org.daisy.common.spi.ServiceWithProperties)service).spi_getProperties().entrySet()) {
 							props.put(kv.getKey(), kv.getValue());
 						}
-						${reference.methodName}(service, props);
-#else
-						${reference.methodName}(service);
 #end
+#if( ${component.proxy} )
+						delegate.${reference.methodName}(service#else
+						${reference.methodName}(service#end
+#if( ${reference.propertiesArgumentType} ), props#end
+);
 						spi_log.trace("Bound ${reference.service} service: "
 						              + service.getClass().getName() + "@"
 						              + Integer.toHexString(System.identityHashCode(service)));
@@ -98,10 +115,12 @@ public class ${component.spiClassName}
 #foreach($property in ${component.properties})
 		props.put(${property.keyLiteral}, ${property.valueLiteral});
 #end
-		${component.activate.methodName}(props);
-#else
-		${component.activate.methodName}();
 #end
+#if( ${component.proxy} )
+		delegate.${component.activate.methodName}(#else
+		${component.activate.methodName}(#end
+#if( ${component.activate.propertiesArgumentType} )props#end
+);
 #end
 	}
 #if( ${component.deactivate} )
@@ -118,7 +137,7 @@ public class ${component.spiClassName}
 		if (!spi_deactivated) {
 			spi_log.trace("Deactivating ${component.className}");
 			try {
-				${component.deactivate.methodName}();
+				#if( ${component.proxy} )delegate.#end${component.deactivate.methodName}();
 			} catch (Throwable e) {
 				spi_log.error("Caught exception while deactivating ${component.className}", e);
 			} finally {
@@ -131,4 +150,47 @@ public class ${component.spiClassName}
 	public java.util.Map spi_getProperties() {
 		return spi_props;
 	}
+#if( ${component.proxy} )
+#foreach($method in ${component.serviceMethods})
+
+	@Override
+	public ${method.returnType} ${method.name}(#if (${method.argumentTypes.size()} > 0)
+
+#foreach($arg in ${method.argumentTypes})
+		$arg arg${foreach.count}#if( $foreach.hasNext ),
+#end
+#end
+
+	#end)#if (${method.thrownTypes.size()} > 0) throws #foreach($thrown in ${method.thrownTypes})$thrown#if( $foreach.hasNext )
+
+	       , #end
+#end
+#end {
+		#if( ${method.returnType} != 'void' )return #end
+delegate.${method.name}(#if (${method.argumentTypes.size()} > 0)
+
+#foreach($arg in ${method.argumentTypes})
+			arg${foreach.count}#if( $foreach.hasNext ),
+#end
+#end
+
+		#end);
+	}
+#end
+
+	@Override
+	public String toString() {
+		return delegate.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return delegate.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return delegate.equals(o);
+	}
+#end
 }

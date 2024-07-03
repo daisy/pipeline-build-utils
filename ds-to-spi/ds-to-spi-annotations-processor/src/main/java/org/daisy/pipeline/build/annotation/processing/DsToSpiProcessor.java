@@ -53,10 +53,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
-import org.daisy.pipeline.build.annotations.ComponentModel.ActivateModel;
-import org.daisy.pipeline.build.annotations.ComponentModel.DeactivateModel;
-import org.daisy.pipeline.build.annotations.ComponentModel.PropertyModel;
-import org.daisy.pipeline.build.annotations.ComponentModel.ReferenceModel;
+import org.daisy.common.spi.annotations.LoadWith;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -70,6 +67,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 // TODO: warnings for felix and bnd annotations?
 
 @SupportedAnnotationTypes({
+	"org.daisy.common.spi.annotations.LoadWith",
 	"org.osgi.service.component.annotations.Component",
 	"org.osgi.service.component.annotations.Activate",
 	"org.osgi.service.component.annotations.Deactivate",
@@ -120,6 +118,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 					TypeElement classElement = (TypeElement)e;
 					PackageElement packageElement = getPackageElement(classElement);
 					Component componentAnnotation = classElement.getAnnotation(Component.class);
+					LoadWith loadWithAnnotation = classElement.getAnnotation(LoadWith.class);
 					ComponentModel component = new ComponentModel(); {
 						component.name = componentAnnotation.name();
 						component.qualifiedClassName = classElement.getQualifiedName().toString();
@@ -145,7 +144,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 							for (String p : componentAnnotation.property()) {
 								Matcher m = PROPERTY_PATTERN.matcher(p);
 								if (m.matches()) {
-									PropertyModel property = new PropertyModel(); {
+									ComponentModel.PropertyModel property = new ComponentModel.PropertyModel(); {
 										property.key = m.group(1);
 										String type = m.group(2);
 										String value = m.group(3);
@@ -179,8 +178,15 @@ public class DsToSpiProcessor extends AbstractProcessor {
 									if (classType.isInterface()) {
 										TypeElement typeElement = (TypeElement)processingEnv.getTypeUtils().asElement(classType);
 										interfaces.put(typeElement.getQualifiedName().toString(), typeElement);
-									} else
+									} else {
 										onlyInterfaces = false;
+										if (loadWithAnnotation != null) {
+											printError(
+												"@LoadWith only supported when all services are interfaces, but got " + classType.toString(),
+												e);
+											throw new RuntimeException();
+										}
+									}
 								}
 								if (onlyInterfaces) {
 									List<TypeElement> superInterfaces = new ArrayList<>();
@@ -241,6 +247,9 @@ public class DsToSpiProcessor extends AbstractProcessor {
 								printError("@Component with configurationPolicy = " + componentAnnotation.configurationPolicy() + " not supported", e);
 								throw new RuntimeException();
 							}
+							component.classLoader = loadWithAnnotation != null
+								? getAnnotationValue(classElement, LoadWith.class.getName(), "value").getValue().toString()
+								: null;
 							components.put(classElement.getQualifiedName().toString(), component);
 						}
 					}
@@ -257,7 +266,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 					if (!includeClass(classElement, includes, includeClasses, excludeClasses)) {
 					} else if (component != null) {
 						Reference referenceAnnotation = exeElement.getAnnotation(Reference.class);
-						ReferenceModel reference = new ReferenceModel(); {
+						ComponentModel.ReferenceModel reference = new ComponentModel.ReferenceModel(); {
 							String bindMethod = exeElement.getSimpleName().toString();
 							reference.methodName = bindMethod;
 							reference.service = getAnnotationValue(exeElement, Reference.class.getName(), "service").getValue().toString();
@@ -337,7 +346,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 					ComponentModel component = components.get(classElement.getQualifiedName().toString());
 					if (!includeClass(classElement, includes, includeClasses, excludeClasses)) {
 					} else if (component != null) {
-						ActivateModel activate = new ActivateModel(); {
+						ComponentModel.ActivateModel activate = new ComponentModel.ActivateModel(); {
 							activate.methodName = exeElement.getSimpleName().toString();
 							if (exeElement.getParameters().size() == 0) {
 								activate.propertiesArgumentType = null;
@@ -383,7 +392,7 @@ public class DsToSpiProcessor extends AbstractProcessor {
 					ComponentModel component = components.get(classElement.getQualifiedName().toString());
 					if (!includeClass(classElement, includes, includeClasses, excludeClasses)) {
 					} else if (component != null) {
-						DeactivateModel deactivate = new DeactivateModel(); {
+						ComponentModel.DeactivateModel deactivate = new ComponentModel.DeactivateModel(); {
 							deactivate.methodName = exeElement.getSimpleName().toString();
 							if (exeElement.getParameters().size() != 0) {
 								printError("@Deactivate method with arguments not supported", e);

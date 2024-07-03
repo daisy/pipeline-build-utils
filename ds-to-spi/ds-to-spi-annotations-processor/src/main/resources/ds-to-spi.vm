@@ -27,12 +27,28 @@ public class ${component.spiClassName}
 	private boolean spi_deactivated = false;
 	
 #if( ${component.proxy} )
+#if( ${component.classLoader} )
+	private final Object delegate;
+#else
 	private final ${component.qualifiedClassName} delegate;
+#end
 #end
 
 	public ${component.spiClassName}() {
 #if( ${component.proxy} )
+#if( ${component.classLoader} )
+		try {
+			// FIXME: use same classloader if multiple components have the same @LoadWith
+			ClassLoader classLoader = (ClassLoader)Class.forName("${component.classLoader}").newInstance();
+			delegate = classLoader.loadClass("${component.qualifiedClassName}").newInstance();
+		} catch (ClassNotFoundException |
+		         InstantiationException |
+		         IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+#else
 		delegate = new ${component.qualifiedClassName}();
+#end
 #else
 		super();
 #end
@@ -82,10 +98,27 @@ public class ${component.spiClassName}
 						}
 #end
 #if( ${component.proxy} )
-						delegate.${reference.methodName}(service#else
+#if( ${component.classLoader} )
+						try {
+							java.lang.reflect.Method m = delegate.getClass().getDeclaredMethod(
+								"${reference.methodName}",
+								${reference.service}.class#if (${reference.propertiesArgumentType}),
+								${reference.propertiesArgumentType}.class#end
+
+							);
+							m.setAccessible(true);
+							m.invoke(delegate, service#else
+						delegate.${reference.methodName}(service#end#else
 						${reference.methodName}(service#end
 #if( ${reference.propertiesArgumentType} ), props#end
 );
+#if( ${component.classLoader} )
+						} catch (NoSuchMethodException |
+						         IllegalAccessException |
+						         java.lang.reflect.InvocationTargetException e) {
+							throw new RuntimeException(e);
+						}
+#end
 						spi_log.trace("Bound ${reference.service} service: "
 						              + service.getClass().getName() + "@"
 						              + Integer.toHexString(System.identityHashCode(service)));
@@ -116,11 +149,37 @@ public class ${component.spiClassName}
 		props.put(${property.keyLiteral}, ${property.valueLiteral});
 #end
 #end
+#if( ${component.classLoader} )
+		try {
+			java.lang.reflect.Method m = delegate.getClass().getDeclaredMethod(#if ( ${component.activate.propertiesArgumentType} )
+				"${component.activate.methodName}",
+				${component.activate.propertiesArgumentType}.class
+			);
+			m.setAccessible(true);
+			m.invoke(
+				delegate,
+				props
+			);
+#else
+"${component.activate.methodName}");
+			m.setAccessible(true);
+			m.invoke(delegate);
+#end#else
 #if( ${component.proxy} )
 		delegate.${component.activate.methodName}(#else
 		${component.activate.methodName}(#end
 #if( ${component.activate.propertiesArgumentType} )props#end
 );
+#end
+#if( ${component.classLoader} )
+		} catch (NoSuchMethodException |
+		         IllegalAccessException  e) {
+			throw new RuntimeException(e);
+		} catch (java.lang.reflect.InvocationTargetException e) {
+			if (e.getCause() instanceof org.daisy.common.spi.ActivationException)
+				throw (org.daisy.common.spi.ActivationException)e.getCause();
+		}
+#end
 #end
 	}
 #if( ${component.deactivate} )
@@ -137,7 +196,20 @@ public class ${component.spiClassName}
 		if (!spi_deactivated) {
 			spi_log.trace("Deactivating ${component.className}");
 			try {
-				#if( ${component.proxy} )delegate.#end${component.deactivate.methodName}();
+#if( ${component.classLoader} )
+				try {
+					java.lang.reflect.Method m = delegate.getClass().getDeclaredMethod("${component.deactivate.methodName}");
+					m.setAccessible(true);
+					m.invoke(delegate);
+				} catch (NoSuchMethodException |
+				         IllegalAccessException |
+				         java.lang.reflect.InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+#else
+				#if( ${component.proxy} )delegate.#end
+${component.deactivate.methodName}();
+#end
 			} catch (Throwable e) {
 				spi_log.error("Caught exception while deactivating ${component.className}", e);
 			} finally {
@@ -166,15 +238,49 @@ public class ${component.spiClassName}
 	       , #end
 #end
 #end {
-		#if( ${method.returnType} != 'void' )return #end
-delegate.${method.name}(#if (${method.argumentTypes.size()} > 0)
+		#if( ${component.classLoader} )try {
+			#end
+#if( ${method.returnType} != 'void' )
+#if( ${component.classLoader} )
+return (${method.returnType})#else
+return #end#end
+#if( ${component.classLoader} )
+delegate.getClass().getMethod(#if (${method.argumentTypes.size()} > 0)
+
+				"${method.name}"#foreach($arg in ${method.argumentTypes}),
+				${arg.replaceAll("<.+>$", "")}.class#end
+
+			#else
+"${method.name}"#end
+).invoke(
+				delegate#if (${method.argumentTypes.size()} > 0),#end#else
+delegate.${method.name}(#end
+#if (${method.argumentTypes.size()} > 0)
 
 #foreach($arg in ${method.argumentTypes})
-			arg${foreach.count}#if( $foreach.hasNext ),
+			#if( ${component.classLoader} )	#end
+arg${foreach.count}#if( $foreach.hasNext ),
 #end
 #end
 
-		#end);
+		#if( ${component.classLoader} )	#end#else#if (${component.classLoader})
+
+			#end#end);
+#if( ${component.classLoader} )
+		} catch (NoSuchMethodException |
+		         IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (java.lang.reflect.InvocationTargetException e) {
+#if (${method.thrownTypes.size()} > 0)
+			Throwable cause = e.getCause();
+#foreach($thrown in ${method.thrownTypes})
+			if (cause instanceof $thrown)
+				throw ($thrown)cause;
+#end
+#end
+			throw new RuntimeException(e);
+		} 
+#end
 	}
 #end
 

@@ -25,6 +25,7 @@ public class ComponentModel {
 	boolean proxy; // whether to generate proxy class or extend the class
 	final List<ServiceMethodModel> serviceMethods = new ArrayList<ServiceMethodModel>();
 	final List<ReferenceModel> references = new ArrayList<ReferenceModel>();
+	String classLoader;
 	
 	public String getName() {
 		return name;
@@ -88,6 +89,10 @@ public class ComponentModel {
 		return references;
 	}
 
+	public String getClassLoader() {
+		return classLoader;
+	}
+	
 	public static class ServiceModel {
 		
 		String name; // fully qualified name, possibly parameterized

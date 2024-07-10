@@ -12,7 +12,7 @@
 
   <groupId>org.daisy.pipeline.build</groupId>
   <artifactId>ds-to-spi-annotations-processor</artifactId>
-  <version>1.1.3</version>
+  <version>1.1.4-SNAPSHOT</version>
 
   <build>
     <plugins>
@@ -91,8 +91,4 @@
       </dependencies>
     </profile>
   </profiles>
-
-  <scm>
-    <tag>v1.1.3</tag>
-  </scm>
 </project>

@@ -60,16 +60,6 @@
             </xsl:if>
         </xsl:for-each>
         <!--
-            generate bnd file
-        -->
-        <xsl:result-document href="{$generatedResourcesDirectory}/bnd.bnd" method="text"><c:data>
-            <xsl:if test="cat:nextCatalog">
-                <xsl:text>Require-Bundle: </xsl:text>
-                <xsl:value-of select="string-join(//cat:nextCatalog/translate(@catalog,':','.'),',')"/>
-                <xsl:text>&#xa;</xsl:text>
-            </xsl:if>
-        </c:data></xsl:result-document>
-        <!--
             process XProc files
         -->
         <xsl:apply-templates mode="process-xproc"/>

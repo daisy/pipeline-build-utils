@@ -459,11 +459,15 @@ public class GenerateModuleClassFunctionProvider extends ReflexiveExtensionFunct
 				result.append("            getResource(\"../\" + className.replace('.', '/') + \".class\");\n");
 				result.append("            return;\n");
 				result.append("        } catch (NoSuchFileException e) {\n");
-				result.append("            logger.debug(\n");
-				result.append("                \"Class \" + className + \" expected to be in the same module (\" + getName() + \").\");\n");
+				result.append("        }\n");
+				result.append("        // if the function is not implemented in the same module, the class must be on the class path\n");
+				result.append("        try {\n");
+				result.append("            Class.forName(className);\n");
+				result.append("            return;\n");
+				result.append("        } catch (Throwable e) {\n");
 				result.append("        }\n");
 				result.append("        throw new ResolutionException(\n");
-				result.append("            \"Unresolved Java dependency: no class \" + className + \" found in module \" + getName());\n");
+				result.append("            \"Unresolved Java dependency: no class \" + className + \" found on the class path\");\n");
 				result.append("    }\n");
 			}
 			if (xsltPackageChecks) {
@@ -635,6 +639,10 @@ public class GenerateModuleClassFunctionProvider extends ReflexiveExtensionFunct
 			this.name = name;
 			this.uri = uri;
 			this.contentType = contentType;
+		}
+		@Override
+		public String toString() {
+			return "" + uri;
 		}
 	}
 

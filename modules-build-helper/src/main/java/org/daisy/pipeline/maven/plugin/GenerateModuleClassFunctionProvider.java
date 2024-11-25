@@ -207,10 +207,6 @@ public class GenerateModuleClassFunctionProvider extends ReflexiveExtensionFunct
 				imports.add("javax.xml.stream.XMLInputFactory");
 				result.append("    private XMLInputFactory xmlParser;\n");
 			}
-			if (extensionFunctionChecks) {
-				imports.add("org.daisy.common.xpath.saxon.XPathFunctionRegistry");
-				result.append("    private XPathFunctionRegistry xpathFunctions;\n");
-			}
 			if (xsltPackageChecks) {
 				imports.add("java.util.List");
 				imports.add("net.sf.saxon.trans.packages.PackageDetails");
@@ -456,32 +452,15 @@ public class GenerateModuleClassFunctionProvider extends ReflexiveExtensionFunct
 			}
 			if (extensionFunctionChecks) {
 				imports.add("java.nio.file.NoSuchFileException");
-				imports.add("net.sf.saxon.lib.ExtensionFunctionDefinition");
-				imports.add("org.daisy.common.xpath.saxon.XPathFunctionRegistry");
 				imports.add("org.daisy.pipeline.modules.ResolutionException");
 				result.append("\n");
-				result.append("    @Reference(\n");
-				result.append("        name = \"XPathFunctionRegistry\",\n");
-				result.append("        unbind = \"-\",\n");
-				result.append("        service = XPathFunctionRegistry.class,\n");
-				result.append("        cardinality = ReferenceCardinality.MANDATORY,\n");
-				result.append("        policy = ReferencePolicy.STATIC\n");
-				result.append("    )\n");
-				result.append("    public void setXPathFunctionRegistry(XPathFunctionRegistry registry) {\n");
-				result.append("        xpathFunctions = registry;\n");
-				result.append("    }\n");
-				result.append("\n");
 				result.append("    private void tryResolveXPathExtensionFunction(String className) throws ResolutionException {\n");
-				result.append("        for (ExtensionFunctionDefinition d : xpathFunctions.getFunctions()) {\n");
-				result.append("            if (className.equals(d.getFunctionQName().getURI())) {\n");
-				result.append("                try {\n");
-				result.append("                    getResource(\"../\" + className.replace('.', '/') + \".class\");\n");
-				result.append("                    return;\n");
-				result.append("                } catch (NoSuchFileException e) {\n");
-				result.append("                    logger.debug(\n");
-				result.append("                        \"Class \" + className + \" expected to be in the same module (\" + getName() + \").\");\n");
-				result.append("                }\n");
-				result.append("            }\n");
+				result.append("        try {\n");
+				result.append("            getResource(\"../\" + className.replace('.', '/') + \".class\");\n");
+				result.append("            return;\n");
+				result.append("        } catch (NoSuchFileException e) {\n");
+				result.append("            logger.debug(\n");
+				result.append("                \"Class \" + className + \" expected to be in the same module (\" + getName() + \").\");\n");
 				result.append("        }\n");
 				result.append("        throw new ResolutionException(\n");
 				result.append("            \"Unresolved Java dependency: no class \" + className + \" found in module \" + getName());\n");

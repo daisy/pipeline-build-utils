@@ -24,6 +24,7 @@
     <module>modules-test-helper</module>
     <module>ds-to-spi</module>
     <module>archetypes</module>
+    <module>yourkit-probes</module>
   </modules>
 
 </project>
